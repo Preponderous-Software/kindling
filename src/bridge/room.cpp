@@ -722,7 +722,8 @@ MeshData buildItem(const Item& item, int32_t index) {
 
 void itemTransform(const Item& item, float out[16]) {
     // Big things ride folded or rolled while carried, so they do not fill the view.
-    const bool big = item.kind == ItemKind::Rug || item.kind == ItemKind::Curtains || item.kind == ItemKind::Sampler;
+    const bool big = item.kind == ItemKind::Rug || item.kind == ItemKind::Curtains || item.kind == ItemKind::Sampler ||
+                     item.kind == ItemKind::Quilt;
     const float k = item.place == ItemPlace::Carried && big ? 0.3f : 1.0f;
     const float c = std::cos(item.yaw) * k, s = std::sin(item.yaw) * k;
     const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, item.pos.x, item.pos.y, item.pos.z, 1};

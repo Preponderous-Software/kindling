@@ -308,7 +308,7 @@ void Scene::lights(const World& w, double seconds, float daylight, std::vector<S
         // a shaft under each open section of the roof, and the window once it
         // is unboarded. None casts shadows; they stand in for bounced light.
         const Vec3 sky{0.75f, 0.82f, 1.0f};
-        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 0.35f * daylight, 0});
+        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 0.5f * daylight, 0});
         const float xs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
         const float zs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
         for (int k = 0; k < 4; ++k)
