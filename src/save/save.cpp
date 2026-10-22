@@ -151,6 +151,8 @@ struct Fields {
     }
     void keyframe(Keyframe& k) {
         v(k.tick);
+        v(k.step);
+        v(k.lantern);
         v(k.playerX);
         v(k.playerZ);
         v(k.playerYaw);
@@ -346,8 +348,12 @@ LoadResult loadSave(const std::string& slot, World& out) {
 
 std::string defaultSlot() {
 #ifdef _WIN32
-    const char* appData = std::getenv("APPDATA");
-    return (fs::path(appData ? appData : ".") / "Kindling" / "default").string();
+    char* appData = nullptr;
+    size_t len = 0;
+    std::string base = ".";
+    if (_dupenv_s(&appData, &len, "APPDATA") == 0 && appData) base = appData;
+    std::free(appData);
+    return (fs::path(base) / "Kindling" / "default").string();
 #else
     const char* xdg = std::getenv("XDG_DATA_HOME");
     if (xdg && *xdg) return (fs::path(xdg) / "kindling" / "default").string();
