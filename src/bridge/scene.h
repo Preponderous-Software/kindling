@@ -48,6 +48,7 @@ private:
     strata::Engine& engine_;
     std::array<Held, static_cast<size_t>(Part::Count)> parts_{};
     std::vector<Held> debris_;  // one per World::debris entry
+    std::vector<Held> items_;   // one per World::items entry
     std::unordered_map<uint32_t, const Held*> byId_;
     std::array<uint32_t, kSurfaceCount> grimeTextures_{};
     std::vector<uint8_t> scratch_;

@@ -150,6 +150,14 @@ void MeshData::rod(Vec3 a, Vec3 b, float r, Rgb c, int n) {
     }
 }
 
+void MeshData::disc(Vec3 centre, float rx, float rz, Rgb c, int n) {
+    const uint32_t mid = vertex(centre, c);
+    std::vector<uint32_t> rim(n);
+    for (int k = 0; k < n; ++k)
+        rim[k] = vertex({centre.x + rx * std::cos(kTau * k / n), centre.y, centre.z + rz * std::sin(kTau * k / n)}, c);
+    for (int k = 0; k < n; ++k) triangle(mid, rim[k], rim[(k + 1) % n], {0, 1, 0});
+}
+
 void MeshData::ellipsoid(Vec3 centre, Vec3 radii, Rgb c, int slices, int stacks) {
     const uint32_t base = vertexCount();
     for (int i = 0; i <= stacks; ++i) {

@@ -3,9 +3,9 @@
 //   kindling [--seed N] [--width W --height H]
 //   kindling --headless --tour --frames DIR [--width W --height H]
 //
-// Controls: mouse to look, W A S D to walk, Shift to hurry, 1-4 to take a tool
+// Controls: mouse to look, W A S D to walk, Shift to hurry, 1-6 to take a tool
 // (` for bare hands), hold the left button to work, E to pick up or put down,
-// F1 for help, Esc to free the mouse (Esc again quits). --tour plays a short
+// R to turn what you carry, F1 for help, Esc to free the mouse (Esc again quits). --tour plays a short
 // scripted visit and, headless, writes a screenshot at each stop to DIR.
 #include <chrono>
 #include <cmath>
@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "bridge/scene.h"
+#include "sim/brief.h"
 #include "sim/layout.h"
 #include "sim/progress.h"
 #include "sim/rules.h"
@@ -27,8 +28,8 @@ namespace L = kindling::layout;
 namespace {
 
 // SDL3 scancodes (USB HID usage ids), which Strata reports as-is.
-constexpr int kA = 4, kD = 7, kE = 8, kS = 22, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58, kF12 = 69,
-              kLShift = 225, kRShift = 229;
+constexpr int kA = 4, kD = 7, kE = 8, kR = 21, kS = 22, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58,
+              kF12 = 69, kLShift = 225, kRShift = 229;
 constexpr int kMaxScancode = 512;
 constexpr float kMouseSensitivity = 0.0025f;  // radians per pixel
 constexpr float kFovY = 70.0f;
@@ -162,8 +163,26 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         row(p.floorClean >= kFloorCleanGoal, "Sweep the floor (" + percent(p.floorClean) + ")");
         row(p.wallsClean >= kWallCleanGoal, "Scrub the walls (" + percent(p.wallsClean) + ")");
         row(p.hearthClean >= kWallCleanGoal, "Scrub the chimney (" + percent(p.hearthClean) + ")");
+    } else if (p.step == Step::Repair) {
+        row(p.planksLeft == 0, "Replace the rotten floorboards (" + std::to_string(p.planksLeft) + " left)");
+        row(p.roofLeft == 0, "Patch the roof (" + std::to_string(p.roofLeft) + " sections open)");
+        row(p.boardsLeft == 0, "Take the boards off the window");
+        row(p.chairMended, "Mend the rocking chair");
+        row(p.tableUpright, "Set the table right");
+        row(p.debrisLeft == 0, "Haul out the old wood (" + std::to_string(p.debrisLeft) + " pieces)");
     } else {
-        text(texts, 20, y, 16, kDim, "Cleared. Repairs come in the next milestone.", storage);
+        if (p.step == Step::Furnish) {
+            row(p.furnished >= kFurnishGoal, "Bring in furnishings (" + std::to_string(p.furnished) + " of " +
+                                                 std::to_string(kFurnishGoal) + ")");
+        } else {
+            text(texts, 20, y, 16, kDim, "The hearth is next. That comes in the next milestone.", storage);
+            y += 24;
+        }
+        y += 8;
+        const Brief b = evaluateBrief(w);
+        text(texts, 20, y, 16, kEmber, b.met() ? "ADA'S BRIEF: ALL MET" : "ADA'S BRIEF", storage);
+        y += 26;
+        for (const BriefPoint& bp : b.points) row(bp.met, bp.wish);
     }
 
     // The tool belt, and what is in hand.
@@ -176,6 +195,13 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     if (w.carry == Carry::Debris)
         text(texts, cx - 120, static_cast<float>(height) - 68, 16, kEmber, "Carrying: E to put down (outside to haul out)",
              storage);
+    if (w.carry == Carry::Item) {
+        const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
+        const std::string line = std::string("Carrying ") + itemName(it.kind) +
+                                 (isMaterial(it.kind) ? ": aim where it goes and hold the left button"
+                                                      : ": E to put it down, R to turn it, E at the wagon to put it back");
+        text(texts, cx - 4.0f * static_cast<float>(line.size()), static_cast<float>(height) - 68, 16, kEmber, line, storage);
+    }
 
     float my = cy + 90;
     for (const Message& m : messages) {
@@ -185,9 +211,10 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
 
     if (help) {
         const char* lines[] = {"Mouse      look",       "W A S D    walk",          "Shift      hurry",
-                               "1-4        take a tool", "Left mouse work with it", "E          pick up / put down",
-                               "Esc        free the mouse / quit", "F1  hide help   F12  screenshot"};
-        float hy = static_cast<float>(height) - 24 * 8 - 80;
+                               "1-6        take a tool", "Left mouse work with it", "E          pick up / put down",
+                               "R          turn what you carry", "Esc        free the mouse / quit",
+                               "F1  hide help   F12  screenshot"};
+        float hy = static_cast<float>(height) - 24 * 9 - 80;
         for (const char* l : lines) {
             text(texts, 20, hy, 16, kDim, l, storage);
             hy += 24;
@@ -195,6 +222,33 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     }
     for (size_t i = 0; i < texts.size(); ++i) texts[i].utf8 = storage[i].c_str();
     engine.submitText(texts.data(), texts.size());
+}
+
+// While carrying a furnishing: an outline where it would go, if it can go there.
+void drawPlacement(strata::Engine& engine, const World& w, const Aim& aim) {
+    if (w.carry != Carry::Item) return;
+    const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
+    if (isMaterial(it.kind)) return;
+    Pose pose;
+    if (!placementFor(w, it.kind, aim, it.yaw, pose)) return;
+    float hx, hz;
+    bridge::itemFootprint(it.kind, hx, hz);
+    const float c = std::cos(pose.yaw), s = std::sin(pose.yaw);
+    const bool upright = anchorOf(it.kind) == Anchor::Wall || anchorOf(it.kind) == Anchor::Chair;
+    Vec3 corners[4];
+    const float sx[4] = {-1, 1, 1, -1}, sz[4] = {-1, -1, 1, 1};
+    for (int k = 0; k < 4; ++k) {
+        const float lx = sx[k] * hx, lz = sz[k] * hz;
+        corners[k] = upright ? Vec3{pose.pos.x + c * lx, pose.pos.y + lz, pose.pos.z - s * lx}
+                             : Vec3{pose.pos.x + c * lx + s * lz, pose.pos.y + 0.02f, pose.pos.z - s * lx + c * lz};
+    }
+    StrataLineVertex lines[8];
+    for (int k = 0; k < 4; ++k) {
+        const Vec3 a = corners[k], b = corners[(k + 1) % 4];
+        lines[2 * k] = {{a.x, a.y, a.z}, {0.95f, 0.75f, 0.35f, 0.9f}};
+        lines[2 * k + 1] = {{b.x, b.y, b.z}, {0.95f, 0.75f, 0.35f, 0.9f}};
+    }
+    engine.submitLines(lines, 8);
 }
 
 void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const Aim& aim, bool help,
@@ -208,6 +262,7 @@ void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const 
     fd.clear_flags = STRATA_CLEAR_COLOR | STRATA_CLEAR_DEPTH | STRATA_CLEAR_SKY;
     engine.beginFrame(fd);
     drawHud(engine, w, aim, width, height, help, messages);
+    drawPlacement(engine, w, aim);
     engine.endFrame();
 }
 
@@ -291,7 +346,7 @@ int runGame(strata::Engine& engine, const Args& args) {
     bool keys[kMaxScancode] = {};
     bool captured = false, help = true, running = true, mouseDown = false;
     bool interactPressed = false;
-    int32_t toolPressed = -1;
+    int32_t toolPressed = -1, rotatePressed = 0;
     float yaw = w.player.yaw, pitch = 0;
     Aim aim;
     std::vector<Message> messages;
@@ -324,6 +379,7 @@ int runGame(strata::Engine& engine, const Args& args) {
                     } else if (e.scancode == kF1) help = !help;
                     else if (e.scancode == kF12) engine.saveScreenshotPng("kindling-screenshot.png");
                     else if (e.scancode == kE) interactPressed = true;
+                    else if (e.scancode == kR) rotatePressed += 1;
                     else if (e.scancode == kGrave) toolPressed = 0;
                     else if (e.scancode >= k1 && e.scancode < k1 + kToolCount - 1) toolPressed = e.scancode - k1 + 1;
                     break;
@@ -364,8 +420,10 @@ int runGame(strata::Engine& engine, const Args& args) {
             in.use = mouseDown && captured;
             in.interact = interactPressed;
             in.selectTool = toolPressed;
+            in.rotate = rotatePressed;
             interactPressed = false;
             toolPressed = -1;
+            rotatePressed = 0;
             aim = aimFor(scene, w);
             in.aim = aim;
             TickEvents ev;

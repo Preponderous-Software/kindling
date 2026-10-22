@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "sim/grime.h"
+#include "sim/items.h"
 #include "sim/math.h"
 #include "sim/target.h"
 
@@ -47,13 +48,15 @@ enum class Tool : int32_t {
     ScrubBrush,  // scrubs walls and the chimney stones
     Shovel,      // snow, ash
     Saw,         // cuts the fallen rafter into pieces you can carry
+    PryBar,      // lifts rotten boards and the boards over the window
+    Hammer,      // mends the chair
     Count
 };
 constexpr int kToolCount = static_cast<int>(Tool::Count);
 const char* toolName(Tool t);
 
 // What the player's hands are full of, if anything.
-enum class Carry : int32_t { Nothing = 0, Debris = 1 };
+enum class Carry : int32_t { Nothing = 0, Debris = 1, Item = 2 };
 
 // Kinds of damage the survey asks the player to find, as bits of World::surveyed.
 constexpr uint32_t kSurveyGrime = 1u << 0;
@@ -70,7 +73,7 @@ struct World {
     Player player;
     Tool tool = Tool::None;
     Carry carry = Carry::Nothing;
-    int32_t carryIndex = -1;  // into debris while carrying debris
+    int32_t carryIndex = -1;  // into debris or items, by what is carried
 
     // A job that takes a while (sawing, shovelling): what it is aimed at and how
     // far along it is. Looking away or letting go resets it.
@@ -81,15 +84,22 @@ struct World {
     std::vector<Debris> debris;
     std::array<PlankState, 3> planks{};         // one per layout::kRottenSpans entry
     std::array<int32_t, 4> windowBoards{};      // 1 while nailed over the window
-    int32_t roofPatches = 0;                    // 0..4 sections of the hole patched
+    uint32_t roofPatched = 0;                   // bit k: section k (0..3) of the roof hole patched
     ChairState chair = ChairState::Broken;
     TableState table = TableState::Toppled;
     float snow = 1.0f;                          // the drift under the roof hole, 0..1
     int32_t debrisHauled = 0;                   // pieces carried out to the pile in the yard
     Grime grime;
+    std::vector<Item> items;                    // materials and furnishings, from the wagon
+
+    // Steps once finished stay finished, even if the player makes a new mess.
+    bool cleared = false;
+    bool repaired = false;
 
     uint32_t surveyed = 0;                      // kSurvey* bits the player has looked at
 };
+
+constexpr uint32_t kRoofAllPatched = 0xF;
 
 // A new game: the ruin as the player finds it, the player in the yard.
 World newWorld(uint64_t seed);

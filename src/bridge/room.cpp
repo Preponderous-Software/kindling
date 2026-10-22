@@ -48,7 +48,7 @@ float backSlopeY(float z) { return kEaveY + (z - kEaveZ0) / (kRidgeZ - kEaveZ0) 
 float frontSlopeY(float z) { return kRidgeY - (z - kRidgeZ) / (kEaveZ1 - kRidgeZ) * (kRidgeY - kEaveY); }
 
 // The roof hole's four sections (a 2 x 2 grid); section k is patched once
-// World::roofPatches > k.
+// bit k of World::roofPatched is set.
 constexpr float kHoleXs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
 constexpr float kHoleZs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
 
@@ -137,7 +137,7 @@ void ceiling(MeshData& m, const World& w) {
     m.box({L::kRoofHoleX0, y0, -3.1f}, {L::kRoofHoleX1, y1, L::kRoofHoleZ0}, kCeiling);
     m.box({L::kRoofHoleX0, y0, L::kRoofHoleZ1}, {L::kRoofHoleX1, y1, 4.3f}, kCeiling);
     for (int k = 0; k < 4; ++k) {
-        if (w.roofPatches <= k) continue;
+        if (!((w.roofPatched >> k) & 1u)) continue;
         const int i = k % 2, j = k / 2;
         m.box({kHoleXs[i], y0, kHoleZs[j]}, {kHoleXs[i + 1], y1, kHoleZs[j + 1]}, vary(kCeiling, 90 + k, 0.2f));
     }
@@ -165,7 +165,7 @@ void roof(MeshData& m, const World& w) {
         for (int j = 0; j < 4; ++j) {
             const bool hole = i >= 1 && i <= 2 && j >= 1 && j <= 2;
             const int section = (i - 1) + 2 * (j - 1);
-            if (hole && w.roofPatches <= section) continue;
+            if (hole && !((w.roofPatched >> section) & 1u)) continue;
             roofPanel(m, xs[i], xs[i + 1], zs[j], zs[j + 1], true,
                       hole ? vary(kShingle, 70 + section, 0.25f) : vary(kShingle, i * 5 + j));
         }
@@ -425,7 +425,7 @@ uint64_t partVersion(Part part, const World& w) {
             return static_cast<uint64_t>(w.planks[0]) | static_cast<uint64_t>(w.planks[1]) << 4 |
                    static_cast<uint64_t>(w.planks[2]) << 8;
         case Part::Ceiling:
-        case Part::Roof: return static_cast<uint64_t>(w.roofPatches);
+        case Part::Roof: return static_cast<uint64_t>(w.roofPatched);
         case Part::Boards: {
             uint64_t v = 0;
             for (int b = 0; b < 4; ++b) v |= static_cast<uint64_t>(w.windowBoards[b] != 0) << b;
@@ -455,6 +455,91 @@ MeshData buildDebris(const Debris& d, int32_t index) {
     }
     m.endTag();
     return m;
+}
+
+MeshData buildItem(const Item& item, int32_t index) {
+    MeshData m;
+    m.beginTag(TargetKind::Item, index);
+    const Rgb wicker{0.45f, 0.31f, 0.15f}, cream{0.82f, 0.76f, 0.60f}, red{0.40f, 0.10f, 0.07f};
+    switch (item.kind) {
+        case ItemKind::Plank: m.box({-0.5f, 0, -0.09f}, {0.5f, 0.05f, 0.09f}, kNewPlank); break;
+        case ItemKind::Shingles:
+            for (int k = 0; k < 4; ++k)
+                m.box({-0.2f, 0.03f * k, -0.15f}, {0.2f, 0.03f * k + 0.025f, 0.15f}, vary({0.30f, 0.24f, 0.18f}, k, 0.2f));
+            m.box({-0.02f, 0, -0.16f}, {0.02f, 0.13f, 0.16f}, {0.55f, 0.47f, 0.30f});  // twine
+            break;
+        case ItemKind::Rug: {
+            const float rings[5][2] = {{1.4f, 0.9f}, {1.15f, 0.7f}, {0.95f, 0.53f}, {0.65f, 0.33f}, {0.4f, 0.15f}};
+            const Rgb colours[5] = {{0.30f, 0.09f, 0.06f}, {0.45f, 0.34f, 0.18f}, {0.26f, 0.08f, 0.055f},
+                                    {0.22f, 0.28f, 0.40f}, {0.45f, 0.34f, 0.18f}};
+            for (int k = 0; k < 5; ++k) m.disc({0, 0.006f + 0.002f * k, 0}, rings[k][0], rings[k][1], colours[k]);
+            break;
+        }
+        case ItemKind::Quilt: {
+            const Rgb patches[5] = {{0.55f, 0.14f, 0.12f}, {0.85f, 0.75f, 0.55f}, {0.20f, 0.32f, 0.50f},
+                                    {0.70f, 0.50f, 0.20f}, {0.30f, 0.45f, 0.30f}};
+            for (int i = 0; i < 6; ++i)
+                for (int j = 0; j < 4; ++j)
+                    m.box({-0.3f + 0.1f * i, -0.26f + 0.13f * j, -0.015f}, {-0.2f + 0.1f * i, -0.13f + 0.13f * j, 0.015f},
+                          patches[(i + 2 * j) % 5]);
+            break;
+        }
+        case ItemKind::Curtains:
+            // Hung either side of the window (on the left wall, so along z).
+            m.box({0.02f, -1.3f, -1.175f}, {0.08f, 0.05f, -0.705f}, red);
+            m.box({0.02f, -1.3f, 0.705f}, {0.08f, 0.05f, 1.175f}, red);
+            m.box({0.0f, 0.02f, -1.3f}, {0.07f, 0.08f, 1.3f}, {0.12f, 0.07f, 0.04f});  // the rod
+            break;
+        case ItemKind::Sampler:
+            m.box({-0.52f, -0.36f, -0.05f}, {0.52f, 0.36f, 0.0f}, {0.17f, 0.09f, 0.04f});
+            m.box({-0.44f, -0.28f, 0.0f}, {0.44f, 0.28f, 0.02f}, {0.78f, 0.72f, 0.58f});
+            for (int k = 0; k < 5; ++k)
+                m.box({-0.3f + 0.16f * k, 0.0f, 0.02f}, {-0.2f + 0.16f * k, 0.12f, 0.03f},
+                      k % 2 ? Rgb{0.18f, 0.35f, 0.22f} : Rgb{0.6f, 0.12f, 0.1f});
+            m.box({-0.32f, -0.12f, 0.02f}, {0.28f, -0.08f, 0.03f}, {0.25f, 0.30f, 0.45f});
+            break;
+        case ItemKind::Crock: m.rod({0, 0, 0}, {0, 0.26f, 0}, 0.08f, {0.55f, 0.48f, 0.32f}, 14); break;
+        case ItemKind::Jar: m.rod({0, 0, 0}, {0, 0.2f, 0}, 0.06f, {0.25f, 0.40f, 0.50f}, 14); break;
+        case ItemKind::Clock:
+            m.box({-0.15f, 0, -0.07f}, {0.15f, 0.32f, 0.07f}, {0.25f, 0.13f, 0.06f});
+            m.rod({0, 0.2f, 0.07f}, {0, 0.2f, 0.08f}, 0.09f, {0.85f, 0.8f, 0.65f}, 16);
+            break;
+        case ItemKind::Candle:
+            m.rod({0, 0, 0}, {0, 0.01f, 0}, 0.08f, {0.45f, 0.38f, 0.22f}, 12);
+            m.rod({0, 0.01f, 0}, {0, 0.23f, 0}, 0.04f, cream, 10);
+            break;
+        case ItemKind::Basket:
+            m.rod({0, 0, 0}, {0, 0.36f, 0}, 0.21f, wicker, 14);
+            for (int k = 0; k < 9; ++k) {
+                const float x = 0.12f * std::cos(k * 2.1f), z = 0.12f * std::sin(k * 1.7f);
+                m.box({x - 0.015f, 0.36f, z - 0.015f}, {x + 0.015f, 0.5f + 0.02f * (k % 4), z + 0.015f},
+                      vary({0.55f, 0.40f, 0.22f}, k));
+            }
+            break;
+        case ItemKind::Count: break;
+    }
+    m.endTag();
+    return m;
+}
+
+void itemTransform(const Item& item, float out[16]) {
+    // Big things ride folded or rolled while carried, so they do not fill the view.
+    const bool big = item.kind == ItemKind::Rug || item.kind == ItemKind::Curtains || item.kind == ItemKind::Sampler;
+    const float k = item.place == ItemPlace::Carried && big ? 0.3f : 1.0f;
+    const float c = std::cos(item.yaw) * k, s = std::sin(item.yaw) * k;
+    const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, item.pos.x, item.pos.y, item.pos.z, 1};
+    for (int i = 0; i < 16; ++i) out[i] = m[i];
+}
+
+void itemFootprint(ItemKind kind, float& halfX, float& halfZ) {
+    switch (kind) {
+        case ItemKind::Rug: halfX = 1.4f; halfZ = 0.9f; break;
+        case ItemKind::Basket: halfX = halfZ = 0.22f; break;
+        case ItemKind::Sampler: halfX = 0.52f; halfZ = 0.36f; break;
+        case ItemKind::Curtains: halfX = 0.1f; halfZ = 1.2f; break;
+        case ItemKind::Quilt: halfX = 0.3f; halfZ = 0.3f; break;
+        default: halfX = halfZ = 0.12f; break;
+    }
 }
 
 void debrisTransform(const Debris& d, float out[16]) {

@@ -166,6 +166,12 @@ int main() {
         CHECK(progress(w).step == Step::Clear);  // the snow is still there
         w.snow = 0;
         CHECK(progress(w).cleared);
+        tick(w, Input{});  // the tick that notices latches it
+        CHECK(w.cleared);
+        CHECK(progress(w).step == Step::Repair);
+        // A new mess later does not send the player back to Clear.
+        w.debris[0].hauled = false;
+        tick(w, Input{});
         CHECK(progress(w).step == Step::Repair);
     }
 
