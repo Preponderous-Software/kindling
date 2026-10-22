@@ -11,6 +11,22 @@ endif()
 option(KINDLING_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 option(KINDLING_BUILD_TESTS "Build the test suite" ON)
 option(KINDLING_WITH_STRATA "Build the playable game on the Strata engine" ON)
+option(KINDLING_WEB "Build the browser game (Emscripten + Strata's WebGL 2 backend)" OFF)
+
+# Emscripten: the rules and tests build as they are and the tests run under
+# Node; KINDLING_WEB adds the browser game. Strata compiles C++ exceptions as
+# wasm exceptions, and everything in one .wasm must match.
+if(EMSCRIPTEN)
+  cmake_minimum_required(VERSION 3.24)
+  add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fwasm-exceptions>")
+  add_link_options(-fwasm-exceptions -sALLOW_MEMORY_GROWTH=1)
+  if(KINDLING_WITH_STRATA)
+    message(FATAL_ERROR "KINDLING_WITH_STRATA builds the desktop game: use -DKINDLING_WITH_STRATA=OFF -DKINDLING_WEB=ON")
+  endif()
+endif()
+if(KINDLING_WEB AND NOT EMSCRIPTEN)
+  message(FATAL_ERROR "KINDLING_WEB needs Emscripten (emcmake cmake ...)")
+endif()
 
 function(kindling_warnings target)
   if(MSVC)
@@ -79,20 +95,29 @@ if(KINDLING_BUILD_TESTS)
     target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record kindling_save)
     target_include_directories(test_${t} PRIVATE tests)
     kindling_warnings(test_${t})
+    if(EMSCRIPTEN)
+      # Under Node, the tests read and write the real filesystem.
+      target_link_options(test_${t} PRIVATE -sNODERAWFS=1)
+    endif()
     add_test(NAME ${t} COMMAND test_${t} "${CMAKE_CURRENT_BINARY_DIR}")
   endforeach()
 endif()
 
 # ---------------------------------------------------------------- the game on Strata
 # Strata is fetched at KINDLING_STRATA_REF, or taken from a local checkout with
-# -DFETCHCONTENT_SOURCE_DIR_STRATA=<path>.
-if(KINDLING_WITH_STRATA)
+# -DFETCHCONTENT_SOURCE_DIR_STRATA=<path>. The desktop game (KINDLING_WITH_STRATA)
+# and the browser game (KINDLING_WEB) share everything but their main().
+if(KINDLING_WITH_STRATA OR KINDLING_WEB)
   cmake_minimum_required(VERSION 3.24)
   include(FetchContent)
   set(KINDLING_STRATA_REF "6d0eeb7b6e61dc525fc88821150f93ebfd14c5f6" CACHE STRING "Strata git ref (a full commit SHA)")
   set(STRATA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(STRATA_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
   set(STRATA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+  if(KINDLING_WEB)
+    set(STRATA_WITH_USD OFF CACHE BOOL "" FORCE)
+    set(STRATA_WITH_SIM OFF CACHE BOOL "" FORCE)
+  endif()
   FetchContent_Declare(strata
     GIT_REPOSITORY https://github.com/Preponderous-Software/strata.git
     GIT_TAG ${KINDLING_STRATA_REF})
@@ -103,7 +128,31 @@ if(KINDLING_WITH_STRATA)
   target_link_libraries(kindling_bridge PUBLIC kindling_geometry strata::static)
   kindling_warnings(kindling_bridge)
 
+  # Playing: the HUD, the reveal, and a game session (input, autosave).
+  add_library(kindling_play STATIC src/play/hud.cpp src/play/session.cpp)
+  target_include_directories(kindling_play PUBLIC src)
+  target_link_libraries(kindling_play PUBLIC kindling_bridge kindling_record kindling_save)
+  kindling_warnings(kindling_play)
+endif()
+
+if(KINDLING_WITH_STRATA)
   add_executable(kindling app/main.cpp)
-  target_link_libraries(kindling PRIVATE kindling_bridge kindling_record kindling_save)
+  target_link_libraries(kindling PRIVATE kindling_play)
   kindling_warnings(kindling)
+endif()
+
+# emcmake cmake -S . -B build-web -DKINDLING_WITH_STRATA=OFF -DKINDLING_WEB=ON:
+# the page is kindling.html + .js + .wasm; saves go to IndexedDB (docs/WEB.md).
+if(KINDLING_WEB)
+  add_executable(kindling-web app/web_main.cpp)
+  target_link_libraries(kindling-web PRIVATE kindling_play)
+  kindling_warnings(kindling-web)
+  set_target_properties(kindling-web PROPERTIES OUTPUT_NAME kindling SUFFIX ".html")
+  target_link_options(kindling-web PRIVATE
+    -sSTACK_SIZE=1MB
+    -lidbfs.js
+    "-sEXPORTED_FUNCTIONS=_main,_kindling_look,_kindling_stick,_kindling_use,_kindling_press,_kindling_captured,_kindling_help,_kindling_skip_reveal,_kindling_save,_kindling_restart,_kindling_resize,_kindling_status"
+    -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,FS,IDBFS,addRunDependency,removeRunDependency
+    "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html")
+  set_property(TARGET kindling-web APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html")
 endif()

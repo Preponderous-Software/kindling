@@ -7,9 +7,9 @@ grime, tools, debris, repairs, furnishings, Ada's brief, firewood, the hearth, t
 arrival, the mare, the reveal's keyframes, the step checklist and an autopilot that plays the whole MVP
 (`src/sim/`), the replay export (`src/record/`), saves (`src/save/`), the room as tagged meshes
 (`src/bridge/room.*`), the scene, grime textures and mesh picking on Strata (`src/bridge/scene.*`),
-and the first-person app (`app/main.cpp`). Still plans: USD prefabs and data-driven content
-(Content), model loading, the browser build, and the planned folder layout's `src/play/` split
-(input and UI live in `app/main.cpp` for now). The simulation core is described as designed; where
+the HUD, the reveal and a play session with its input and autosave (`src/play/`), the desktop app
+(`app/main.cpp`) and the browser build (`app/web_main.cpp`, `web/`, [docs/WEB.md](docs/WEB.md)).
+Still plans: USD prefabs and data-driven content (Content) and model loading. The simulation core is described as designed; where
 the MVP simplified it (one cabin, fixed fixtures rather than generic task lists), the code is the
 reference.
 
@@ -60,7 +60,7 @@ The simulation is a deterministic, fixed-step model of the world, independent of
 - **State fingerprint.** `strata::sim::StateHasher` (FNV-1a 64) over every saved field. It is
   the determinism check in tests and the state hash in replays.
 
-As implemented, the MVP's simulation does not use `strata::sim`. `app/main.cpp` turns elapsed time
+As implemented, the MVP's simulation does not use `strata::sim`. The play session (`src/play/session.cpp`) turns elapsed time
 into 30 ticks a second itself; `src/sim/rng.h` is Kindling's own PCG32, used only while building a
 new world; the World is one struct with fixed fields (`src/sim/world.h`); and `fingerprint` in
 `src/sim/world.cpp` is Kindling's own FNV-1a 64 over every saved field.
@@ -197,22 +197,24 @@ for the hearth room. It validates against the contract and plays in usd-web.
 - **Desktop first:** Windows (MSVC) and Linux. The MVP build needs no OpenUSD (its saves are
   Kindling's own, see [Saves](#saves)); Strata's prebuilt OpenUSD is planned for saves after the
   MVP and for content.
-- **Browser later:** Strata runs on WebGL 2 through Emscripten but has no saves in the browser
-  yet. A browser build could be published with
-  [arcade-deploy](https://github.com/Stephenson-Software/arcade-deploy) and get sign-in and cloud
-  saves from [arcade-social](https://github.com/Stephenson-Software/arcade-social).
+- **Browser:** the same game on Strata's WebGL 2 backend through Emscripten
+  (`-DKINDLING_WEB=ON`, [docs/WEB.md](docs/WEB.md)), published to arcade with
+  [arcade-deploy](https://github.com/Stephenson-Software/arcade-deploy). It writes Kindling's own
+  save format to IndexedDB. Sign-in and cloud saves from
+  [arcade-social](https://github.com/Stephenson-Software/arcade-social) are a later option.
 
-## Planned layout
+## Layout
 
 ```text
 kindling/
   src/sim/        restoration model, settlers, seasons, firewood (no rendering, no USD)
-  src/play/       first-person input, interaction, UI
+  src/play/       the HUD, the reveal, a play session (input, autosave), shared by both apps
   src/bridge/     game state to Strata meshes and lights
   src/save/       the checksummed save file (USD layers through Strata's save core after the MVP)
   src/record/     the replay writer for the reveal
-  app/            the executable
-  content/        prefabs (USD) and people, briefs and words (data)
+  app/            the desktop game (main.cpp) and the browser game (web_main.cpp)
+  web/            the browser page's shell and its smoke test
+  content/        prefabs (USD) and people, briefs and words (data; planned)
   tests/          determinism, golden images, save corruption, replay validation
   prototypes/     the M0 prototypes
   docs/           images, playtest notes
