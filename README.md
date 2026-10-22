@@ -17,8 +17,8 @@ chopping block, stack the wood, shovel out the old ash, lay kindling and a log, 
 to it until it catches. The day runs from late morning on 11 November into the first frost; the
 fire, a candle and a carried lantern light the night. Then Ada Lark walks up from her wagon, looks
 round, tells you what she thinks of what you made for her, and sits down by the fire, and the
-whole restoration plays back as a timelapse. Saves and the horse come in the last milestones;
-see [MVP.md](MVP.md).
+whole restoration plays back as a timelapse. The game saves as you go and continues where you
+left off. The horse comes in the last milestone; see [MVP.md](MVP.md).
 
 ![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from a cold grey morning to the hearth lit at night with Ada by the fire](docs/images/reveal.gif)
 
@@ -58,6 +58,7 @@ simulation and its tests, with no engine.
 | R | turn what you carry |
 | L | light or put out your lantern |
 | T | play the restoration back again, once Ada is home |
+| F5 / F9 | save now / reload the last save (it also autosaves every two minutes, and on quit) |
 | F1 | show or hide the help |
 | F12 | screenshot |
 | Esc | free the mouse (Esc again quits) |

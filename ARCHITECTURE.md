@@ -121,15 +121,23 @@ Not needed for the MVP: skeletal animation, physics, a UI toolkit beyond Strata'
 
 ## Saves
 
-Saves go through Strata's `modules/save`, the same save core steading uses:
+**For the MVP, Kindling writes its own save file** (`src/save/`), chosen by the owner because the
+OpenUSD prebuilt Strata's save core needs could not be built and tested on the development
+machine. It keeps the save core's guarantees:
 
-- each save is content-addressed and checksummed (SHA-256) before OpenUSD ever parses it;
-- the previous save is always kept, and a damaged save is refused rather than half-loaded;
-- saves are written off the main thread.
+- the World is written field by field, little-endian, after a magic, a format version and a length,
+  and followed by a SHA-256 of the payload; the checksum is verified before a byte is read, and
+  every read is bounds-checked, so a damaged or truncated save is refused, never half-loaded;
+- a save goes to a temporary file and is renamed into place; the save it replaces is kept as the
+  previous save, and loaded instead when the current one is damaged; a damaged save never
+  replaces a good previous one;
+- the game loads the slot on start (unless `--new`), saves with F5, reloads with F9, autosaves
+  every two minutes and on quit. The slot defaults to `%APPDATA%\Kindling\default` on Windows and
+  `~/.local/share/kindling/default` elsewhere (`--slot DIR` overrides).
 
-Following steading's model, the world is a USD **base layer** (the valley as designed), content
-packs are **sublayers**, and a save is a **thin delta layer** over them. The simulation runs on
-flat arrays and meets USD only at load, save and record time.
+The save holds the reveal's history, so the restoration plays back after a reload. Moving to
+Strata's `modules/save`, with the world as a USD base layer, content packs as sublayers and a save
+as a thin delta layer over them (steading's model), is the plan after the MVP.
 
 ## Content
 

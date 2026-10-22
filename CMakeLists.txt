@@ -65,11 +65,18 @@ target_include_directories(kindling_record SYSTEM PRIVATE third_party)
 target_link_libraries(kindling_record PUBLIC kindling_sim)
 kindling_warnings(kindling_record)
 
+# Saves: the World as a checksummed file, written atomically, with the previous
+# save kept. Kindling's own format for the MVP (see ARCHITECTURE.md).
+add_library(kindling_save STATIC src/save/save.cpp src/save/sha256.cpp)
+target_include_directories(kindling_save PUBLIC src)
+target_link_libraries(kindling_save PUBLIC kindling_sim)
+kindling_warnings(kindling_save)
+
 if(KINDLING_BUILD_TESTS)
   enable_testing()
-  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough)
+  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough saves)
     add_executable(test_${t} tests/test_${t}.cpp)
-    target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record)
+    target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record kindling_save)
     target_include_directories(test_${t} PRIVATE tests)
     kindling_warnings(test_${t})
     add_test(NAME ${t} COMMAND test_${t} "${CMAKE_CURRENT_BINARY_DIR}")
@@ -97,6 +104,6 @@ if(KINDLING_WITH_STRATA)
   kindling_warnings(kindling_bridge)
 
   add_executable(kindling app/main.cpp)
-  target_link_libraries(kindling PRIVATE kindling_bridge kindling_record)
+  target_link_libraries(kindling PRIVATE kindling_bridge kindling_record kindling_save)
   kindling_warnings(kindling)
 endif()
