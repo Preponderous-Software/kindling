@@ -203,6 +203,30 @@ for the hearth room. It validates against the contract and plays in usd-web.
   save format to IndexedDB. Sign-in and cloud saves from
   [arcade-social](https://github.com/Stephenson-Software/arcade-social) are a later option.
 
+## Playtesting by agents
+
+`kindling --playtest-out DIR` (desktop or `--headless --autopilot`) writes what the player sees for
+an AI playtest harness, so agents playing the real game headless can steer and check numbers
+instead of guessing from screenshots. `src/playtest/probe.*` does it without the engine: the host
+passes the screen, the frame rate and the HUD's words in a `HostView`, and the recorder only reads
+the `World`, so a game with the flag plays exactly as one without it (`test_playtest` checks the
+fingerprint).
+
+- `DIR/state.json`, rewritten about twice a second (a temporary file renamed over it): `wallTimeMs`,
+  `version`, `screen` (`WORLD`, or `REVEAL` during the timelapse), `fps`, `world`, `tps` (ticks a
+  second; 30 is full speed), `seed`, `tick`, the `player` (`x`, `z`, `yawDeg` growing to the
+  right, `pitchDeg`, tool, what is carried), the step as `objective`, the checklist, what the
+  crosshair is on (`aim`), the step's numbers (`progress`), the settler, the hearth and the mare,
+  and `nearest`: the door, wagon, hearth, window, chopping block, mare and the nearest debris, each
+  with a distance in metres and a `bearing` in degrees from where the player faces, + to the right.
+- `DIR/events.jsonl`, one object a line with `type`, `tick` and `wallTimeMs`: `world` (created or
+  loaded), `screen` (from, to), `objective_completed` (one per step: Survey, Clear, Repair,
+  Furnish, Kindle, Welcome), `status` (every message the game shows) and `save`.
+
+The arrow keys look around as well as the mouse; a harness turns with them, because a key held for
+a time turns by the same amount at any frame rate. A key tapped between two frames still counts for
+one tick.
+
 ## Layout
 
 ```text
@@ -212,6 +236,7 @@ kindling/
   src/bridge/     game state to Strata meshes and lights
   src/save/       the checksummed save file (USD layers through Strata's save core after the MVP)
   src/record/     the replay writer for the reveal
+  src/playtest/   --playtest-out: state.json and events.jsonl for AI playtesters (no engine)
   app/            the desktop game (main.cpp) and the browser game (web_main.cpp)
   web/            the browser page's shell and its smoke test
   content/        prefabs (USD) and people, briefs and words (data; planned)

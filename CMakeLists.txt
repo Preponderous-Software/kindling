@@ -88,11 +88,19 @@ target_include_directories(kindling_save PUBLIC src)
 target_link_libraries(kindling_save PUBLIC kindling_sim)
 kindling_warnings(kindling_save)
 
+# The playtest probe (--playtest-out): state.json and events.jsonl for AI
+# playtesters, in the format playtester's probe contract defines. No engine.
+add_library(kindling_playtest STATIC src/playtest/probe.cpp)
+target_include_directories(kindling_playtest PUBLIC src)
+target_link_libraries(kindling_playtest PUBLIC kindling_sim)
+target_compile_definitions(kindling_playtest PRIVATE KINDLING_VERSION="${PROJECT_VERSION}")
+kindling_warnings(kindling_playtest)
+
 if(KINDLING_BUILD_TESTS)
   enable_testing()
-  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough saves)
+  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough saves playtest)
     add_executable(test_${t} tests/test_${t}.cpp)
-    target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record kindling_save)
+    target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record kindling_save kindling_playtest)
     target_include_directories(test_${t} PRIVATE tests)
     kindling_warnings(test_${t})
     if(EMSCRIPTEN)
@@ -131,7 +139,7 @@ if(KINDLING_WITH_STRATA OR KINDLING_WEB)
   # Playing: the HUD, the reveal, and a game session (input, autosave).
   add_library(kindling_play STATIC src/play/hud.cpp src/play/session.cpp)
   target_include_directories(kindling_play PUBLIC src)
-  target_link_libraries(kindling_play PUBLIC kindling_bridge kindling_record kindling_save)
+  target_link_libraries(kindling_play PUBLIC kindling_bridge kindling_record kindling_save kindling_playtest)
   kindling_warnings(kindling_play)
 endif()
 
