@@ -303,23 +303,36 @@ void Scene::animate(const World& w, double seconds) {
 
 void Scene::lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const {
     out.clear();
+    int boardsOff = 0;
+    for (int32_t b : w.windowBoards) boardsOff += b ? 0 : 1;
+    const float off = static_cast<float>(boardsOff);
     if (daylight > 0.02f) {
-        // Light spilling in: a soft fill through the room from the open door,
-        // a shaft under each open section of the roof, and the window once it
-        // is unboarded. None casts shadows; they stand in for bounced light.
+        // Bounced daylight, none of it casting shadows: through the open door,
+        // under each open section of the roof, and through the window as its
+        // boards come off. The ruin is dim but readable, and every board pried
+        // off the window brightens the room.
         const Vec3 sky{0.75f, 0.82f, 1.0f};
-        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 0.5f * daylight, 0});
+        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 1.6f * daylight, 0});
+        out.push_back({{0.0f, 2.4f, 0.6f}, 7.0f, {0.86f, 0.86f, 0.9f}, (0.8f + 0.2f * off) * daylight, 0});
+        out.push_back({{-0.5f, 2.2f, -1.9f}, 5.0f, {0.86f, 0.86f, 0.9f}, (0.5f + 0.12f * off) * daylight, 0});
         const float xs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
         const float zs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
         for (int k = 0; k < 4; ++k)
             if (!((w.roofPatched >> k) & 1u))
                 out.push_back({{(xs[k % 2] + xs[k % 2 + 1]) / 2, 2.6f, (zs[k / 2] + zs[k / 2 + 1]) / 2}, 4.5f,
-                               {sky.x, sky.y, sky.z}, 0.25f * daylight, 0});
-        int open = 0;
-        for (int32_t b : w.windowBoards) open += b ? 0 : 1;
-        if (open > 0)
-            out.push_back({{L::kInnerX0 + 0.5f, 1.6f, (L::kWindowZ0 + L::kWindowZ1) / 2}, 7.0f, {1.0f, 0.95f, 0.85f},
-                           0.22f * daylight * static_cast<float>(open), 0});
+                               {sky.x, sky.y, sky.z}, 0.35f * daylight, 0});
+        if (boardsOff > 0) {
+            const float wz = (L::kWindowZ0 + L::kWindowZ1) / 2;
+            out.push_back({{L::kInnerX0 + 0.5f, 1.6f, wz}, 7.0f, {1.0f, 0.95f, 0.85f}, 0.6f * daylight * off, 0});
+            // The patch of light on the floor under it.
+            out.push_back({{L::kInnerX0 + 1.3f, 0.4f, wz}, 3.5f, {1.0f, 0.95f, 0.85f}, 0.35f * daylight * off, 0});
+        }
+    }
+    if (daylight < 0.3f) {
+        // Moonlight and starlight, faint, so a night without a fire is dark
+        // but never black.
+        const float night = (0.3f - daylight) / 0.3f;
+        out.push_back({{0.0f, 2.4f, 0.5f}, 8.0f, {0.5f, 0.6f, 0.9f}, (0.1f + 0.03f * off) * night, 0});
     }
     const float fire = w.hearth.lit ? w.hearth.fire : 0.0f;
     if (fire > 0.01f) {
