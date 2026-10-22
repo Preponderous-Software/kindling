@@ -4,6 +4,7 @@
 //            [--playtest-out DIR]
 //   kindling --headless --tour --frames DIR [--width W --height H]
 //   kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR] [--replay PATH]
+//   kindling --headless --closeups DIR
 //            [--playtest-out DIR]
 //
 // --playtest-out DIR writes state.json and events.jsonl for AI playtesters
@@ -21,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -30,6 +32,7 @@
 #include "playtest/probe.h"
 #include "save/save.h"
 #include "sim/autopilot.h"
+#include "sim/layout.h"
 #include "sim/progress.h"
 #include "sim/rules.h"
 #include "strata/strata.hpp"
@@ -51,6 +54,7 @@ struct Args {
     std::string framesDir;
     int frameEvery = 300;      // headless autopilot: ticks between frames
     std::string revealFramesDir;
+    std::string closeupsDir;   // headless: close-ups of the people, the mare and the furniture
     std::string replayPath;    // default: in the save slot
     std::string slot;          // default: defaultSlot()
     bool fresh = false;        // start a new game even if there is a save
@@ -81,6 +85,7 @@ bool parseArgs(int argc, char** argv, Args& a) {
         else if (s == "--speed") a.speed = std::max(1, std::atoi(next("--speed")));
         else if (s == "--frame-every") a.frameEvery = std::max(1, std::atoi(next("--frame-every")));
         else if (s == "--reveal-frames") a.revealFramesDir = next("--reveal-frames");
+        else if (s == "--closeups") a.closeupsDir = next("--closeups");
         else if (s == "--replay") a.replayPath = next("--replay");
         else if (s == "--slot") a.slot = next("--slot");
         else if (s == "--new") a.fresh = true;
@@ -93,8 +98,8 @@ bool parseArgs(int argc, char** argv, Args& a) {
             return false;
         }
     }
-    if (a.headless && !a.tour && !a.autopilot) {
-        std::fprintf(stderr, "kindling: --headless needs --tour or --autopilot (there is no one to play)\n");
+    if (a.headless && !a.tour && !a.autopilot && a.closeupsDir.empty()) {
+        std::fprintf(stderr, "kindling: --headless needs --tour, --autopilot or --closeups (there is no one to play)\n");
         return false;
     }
     return true;
@@ -253,6 +258,69 @@ int runHeadlessAutopilot(strata::Engine& engine, const Args& args) {
     return done ? 0 : 1;
 }
 
+// ---- close-ups: the models seen near, by daylight, for checking art
+
+// Puts the player's eye at (x, z) looking at `target`, so a first-person frame
+// is a close-up of it.
+void lookAt(World& w, float x, float z, Vec3 target) {
+    w.player.x = x;
+    w.player.z = z;
+    const float dx = target.x - x, dz = target.z - z, dy = target.y - layout::kEyeHeight;
+    w.player.yaw = detAtan2(dx, -dz);
+    w.player.pitch = detAtan2(dy, std::sqrt(dx * dx + dz * dz));
+}
+
+// The tick nearest mid-afternoon on the world's own day, so close-ups are lit
+// by daylight.
+int64_t afternoonTick(const World& w) {
+    World probe = w;
+    probe.tick = 0;
+    while (timeOfDay(probe) < 14.5 / 24.0) probe.tick += kTickRate;
+    return probe.tick;
+}
+
+int runCloseups(strata::Engine& engine, const Args& args) {
+    struct Shot {
+        const char* name;
+        float x, z;
+        Vec3 target;
+    };
+    auto shoot = [&](World w, const Shot* shots, size_t n) {
+        bridge::Scene scene(engine);
+        w.tick = afternoonTick(w);
+        w.lantern = false;
+        std::vector<Message> none;
+        for (size_t i = 0; i < n; ++i) {
+            lookAt(w, shots[i].x, shots[i].z, shots[i].target);
+            render(engine, scene, w, Aim{}, Help::Hidden, none, 10.0, true);  // no words
+            engine.present();
+            engine.saveScreenshotPng(args.closeupsDir + "/" + shots[i].name + ".png");
+            std::printf("%s\n", shots[i].name);
+        }
+    };
+    // The ruin as found.
+    const Shot ruin[] = {
+        {"chair-broken", 1.0f, 0.3f, {1.65f, 0.6f, -1.15f}},
+        {"table-toppled", -1.9f, 2.6f, {-3.3f, 0.3f, 1.6f}},
+    };
+    shoot(newWorld(args.seed), ruin, std::size(ruin));
+    // The cabin restored: the autopilot plays it through, the mare included.
+    World w = newWorld(args.seed);
+    Autopilot pilot;
+    for (int i = 0; i < 60 * 60 * kTickRate && progress(w).step != Step::Done; ++i) tick(w, pilot.next(w));
+    for (int i = 0; i < 120 * kTickRate && !(w.horse.dirt <= 0 && w.horse.hunger < 0.1f); ++i) tick(w, pilot.next(w));
+    const Vec3 ada{w.settler.x, 1.0f, w.settler.z};
+    const Shot home[] = {
+        {"ada", w.settler.x + 0.9f, w.settler.z - 1.4f, ada},
+        {"chair-mended", 0.6f, 0.0f, {1.65f, 0.7f, -1.15f}},
+        {"table", -1.9f, 2.6f, {-3.5f, 0.6f, 1.45f}},
+        {"mare-side", layout::kHorse.x - 2.4f, layout::kHorse.z + 0.1f, {layout::kHorse.x, 1.0f, layout::kHorse.z}},
+        {"mare-head", layout::kHorse.x - 0.9f, layout::kHorse.z - 2.1f, {layout::kHorse.x, 1.7f, layout::kHorse.z - 1.3f}},
+    };
+    shoot(w, home, std::size(home));
+    return 0;
+}
+
 int runGame(strata::Engine& engine, const Args& args) {
     play::SessionOptions o;
     o.seed = args.seed;
@@ -294,6 +362,7 @@ int main(int argc, char** argv) {
         auto engine = strata::Engine::create(desc);
         play::setLighting(*engine);
         if (args.tour) return runTour(*engine, args);
+        if (!args.closeupsDir.empty()) return runCloseups(*engine, args);
         if (args.headless) return runHeadlessAutopilot(*engine, args);
         return runGame(*engine, args);
     } catch (const strata::Error& e) {

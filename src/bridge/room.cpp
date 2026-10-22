@@ -249,19 +249,43 @@ void boards(MeshData& m, const World& w) {
 }
 
 void chair(MeshData& m, const World& w) {
-    const float cx = 1.65f, cz = -1.15f;
+    const float cx = kChairSeatX, cz = -1.15f;
     const bool mended = w.chair == ChairState::Mended;
     m.beginTag(TargetKind::Chair);
-    m.box({cx - 0.3f, 0.46f, cz - 0.27f}, {cx + 0.3f, 0.52f, cz + 0.27f}, kWood);
-    for (float lx : {cx - 0.26f, cx + 0.22f}) {
-        for (float lz : {cz - 0.24f, cz + 0.2f}) m.box({lx, 0.1f, lz}, {lx + 0.04f, 0.48f, lz + 0.04f}, kWood);
-        m.box({lx - 0.01f, 0.05f, cz - 0.5f}, {lx + 0.05f, 0.12f, cz + 0.5f}, kWood);  // rockers
-        m.box({lx, 0.48f, cz + 0.22f}, {lx + 0.04f, 1.3f, cz + 0.27f}, kWood);          // back posts
-        m.box({lx - 0.01f, 0.72f, cz - 0.26f}, {lx + 0.05f, 0.76f, cz + 0.27f}, kWood);  // arms
+    // The seat, with a rounded front edge.
+    m.box({cx - 0.27f, 0.46f, cz - 0.24f}, {cx + 0.27f, 0.51f, cz + 0.25f}, kWood);
+    m.logX(cx - 0.27f, cx + 0.27f, 0.485f, cz - 0.24f, 0.025f, kWood, kWood, 8);
+    // The back leans: a point on it at height y.
+    auto backZ = [&](float y) { return cz + 0.22f + 0.1f * (y - 0.47f) / 0.83f; };
+    for (float side : {-1.0f, 1.0f}) {
+        const float lx = cx + side * 0.24f;
+        for (float lz : {cz - 0.2f, cz + 0.2f})
+            m.frustum({lx, 0.1f, lz}, {lx, 0.47f, lz}, 0.03f, 0.022f, kWood, 8);  // turned legs
+        std::vector<Vec3> rocker;  // a curved rocker under each side
+        for (int i = 0; i <= 10; ++i) {
+            const float t = -1.0f + 0.2f * static_cast<float>(i);
+            rocker.push_back({lx, 0.06f + 0.07f * t * t, cz + 0.5f * t});
+        }
+        m.tube(rocker, 0.025f, kWood, 8);
+        m.frustum({lx, 0.47f, backZ(0.47f)}, {lx, 1.3f, backZ(1.3f)}, 0.028f, 0.02f, kWood, 8);  // back posts
+        m.tube({{lx, 0.74f, cz + 0.26f}, {lx, 0.76f, cz}, {lx, 0.73f, cz - 0.26f}}, 0.024f, kWood, 8);  // arms
+        m.rod({lx, 0.5f, cz - 0.22f}, {lx, 0.73f, cz - 0.24f}, 0.017f, kWood, 6);
     }
-    for (int k = 0; k < (mended ? 3 : 1); ++k)
-        m.box({cx - 0.24f, 0.8f + k * 0.17f, cz + 0.23f}, {cx + 0.24f, 0.86f + k * 0.17f, cz + 0.26f}, kWood);
-    if (mended) m.box({cx - 0.28f, 1.24f, cz + 0.22f}, {cx + 0.28f, 1.32f, cz + 0.28f}, kWood);
+    if (mended) {
+        // A full back again: a bowed crest rail, a middle rail, five spindles.
+        m.tube({{cx - 0.25f, 1.24f, backZ(1.24f)}, {cx, 1.28f, backZ(1.24f) + 0.03f}, {cx + 0.25f, 1.24f, backZ(1.24f)}},
+               0.03f, kWood, 8);
+        m.logX(cx - 0.24f, cx + 0.24f, 0.82f, backZ(0.82f), 0.022f, kWood, kWood, 8);
+        for (int k = 0; k < 5; ++k) {
+            const float x = cx - 0.16f + 0.08f * static_cast<float>(k);
+            m.rod({x, 0.51f, backZ(0.51f)}, {x, 1.23f, backZ(1.23f) + 0.015f}, 0.013f, kWood, 6);
+        }
+    } else {
+        // Broken: one rail left, and two spindles snapped short.
+        m.logX(cx - 0.24f, cx + 0.24f, 0.82f, backZ(0.82f), 0.022f, kWood, kWood, 8);
+        m.rod({cx - 0.08f, 0.51f, backZ(0.51f)}, {cx - 0.08f, 0.97f, backZ(0.97f)}, 0.013f, kWood, 6);
+        m.rod({cx + 0.1f, 0.51f, backZ(0.51f)}, {cx + 0.12f, 0.9f, backZ(0.9f) - 0.04f}, 0.013f, kWood, 6);
+    }
     m.endTag();
 }
 
@@ -269,13 +293,23 @@ void table(MeshData& m, const World& w) {
     m.beginTag(TargetKind::Table);
     if (w.table == TableState::Toppled) {
         // On its side by the window: the top stands on edge, legs sticking out.
-        m.box({-3.62f, L::kFloorY, 1.05f}, {-3.56f, 0.66f, 2.15f}, kWood);
-        for (float lz : {1.12f, 2.02f})
-            for (float ly : {0.12f, 0.54f}) m.box({-3.56f, ly, lz}, {-2.86f, ly + 0.05f, lz + 0.05f}, kWood);
+        for (int k = 0; k < 3; ++k)
+            m.box({-3.62f, L::kFloorY + 0.22f * static_cast<float>(k), 1.05f},
+                  {-3.56f, L::kFloorY + 0.22f * static_cast<float>(k + 1) - 0.006f, 2.15f}, vary(kWood, 70u + k, 0.1f));
+        for (float lz : {1.12f, 2.07f})
+            for (float ly : {0.12f, 0.54f})
+                m.frustum({-3.56f, ly, lz}, {-2.9f, ly, lz}, 0.03f, 0.022f, kWood, 8);
     } else {
-        m.box({-3.8f, 0.7f, 0.9f}, {-3.2f, 0.75f, 2.0f}, kWood);
-        for (float lz : {0.95f, 1.9f})
-            for (float lx : {-3.75f, -3.3f}) m.box({lx, 0, lz}, {lx + 0.05f, 0.7f, lz + 0.05f}, kWood);
+        // Three planks with seams between them, an apron, and tapered legs.
+        for (int k = 0; k < 3; ++k)
+            m.box({-3.8f + 0.2f * static_cast<float>(k), 0.7f, 0.9f},
+                  {-3.8f + 0.2f * static_cast<float>(k + 1) - 0.006f, 0.75f, 2.0f}, vary(kWood, 70u + k, 0.1f));
+        m.box({-3.74f, 0.6f, 0.97f}, {-3.26f, 0.7f, 1.0f}, kWood);
+        m.box({-3.74f, 0.6f, 1.9f}, {-3.26f, 0.7f, 1.93f}, kWood);
+        m.box({-3.74f, 0.6f, 1.0f}, {-3.71f, 0.7f, 1.9f}, kWood);
+        m.box({-3.29f, 0.6f, 1.0f}, {-3.26f, 0.7f, 1.9f}, kWood);
+        for (float lz : {0.975f, 1.925f})
+            for (float lx : {-3.725f, -3.275f}) m.frustum({lx, 0, lz}, {lx, 0.7f, lz}, 0.022f, 0.032f, kWood, 8);
     }
     m.endTag();
 }
@@ -455,29 +489,59 @@ MeshData buildCandleFlame() {
 }
 
 MeshData buildSettler() {
+    // Ada, facing -z: a long skirt and apron, a fitted bodice under a shawl,
+    // her hair put up behind.
     MeshData m;
-    const Rgb dress{0.32f, 0.12f, 0.30f}, shawl{0.62f, 0.52f, 0.36f}, skin{0.78f, 0.56f, 0.44f}, hair{0.18f, 0.10f, 0.06f};
-    m.cone({0, 0, 0}, 0.3f, 1.05f, dress, dress, 14);           // skirt
-    m.rod({0, 0.85f, 0}, {0, 1.32f, 0}, 0.15f, dress, 12);       // bodice
-    m.ellipsoid({0, 1.25f, 0}, {0.21f, 0.1f, 0.17f}, shawl, 12, 6);
-    m.rod({0, 1.32f, 0}, {0, 1.4f, 0}, 0.05f, skin, 8);           // neck
-    m.ellipsoid({0, 1.5f, 0}, {0.1f, 0.12f, 0.11f}, skin, 12, 8);
-    m.ellipsoid({0, 1.56f, 0.06f}, {0.09f, 0.08f, 0.07f}, hair, 10, 6);  // her hair, put up behind
-    m.ellipsoid({0, 1.6f, 0.11f}, {0.05f, 0.05f, 0.05f}, hair, 8, 5);
-    for (float side : {-1.0f, 1.0f})
-        m.rod({side * 0.17f, 1.25f, 0}, {side * 0.2f, 0.9f, -0.05f}, 0.045f, shawl, 8);  // arms
+    const Rgb dress{0.32f, 0.12f, 0.30f}, apron{0.66f, 0.62f, 0.52f}, shawl{0.62f, 0.52f, 0.36f},
+        skin{0.78f, 0.56f, 0.44f}, hair{0.18f, 0.10f, 0.06f}, shoe{0.07f, 0.05f, 0.04f};
+    m.frustum({0, 0.04f, 0}, {0, 0.9f, 0}, 0.33f, 0.15f, dress, 16);          // skirt
+    m.ellipsoid({0, 0.62f, -0.2f}, {0.15f, 0.27f, 0.045f}, apron, 12, 8);      // apron
+    for (float side : {-1.0f, 1.0f}) m.ellipsoid({side * 0.09f, 0.03f, -0.28f}, {0.05f, 0.03f, 0.08f}, shoe, 8, 5);
+    m.frustum({0, 0.88f, 0}, {0, 1.16f, 0}, 0.13f, 0.16f, dress, 14);         // bodice
+    m.frustum({0, 1.16f, 0}, {0, 1.32f, 0}, 0.16f, 0.12f, dress, 14);
+    m.ellipsoid({0, 1.25f, 0.01f}, {0.21f, 0.1f, 0.17f}, shawl, 14, 6);        // shawl
+    m.ellipsoid({0, 1.08f, 0.1f}, {0.12f, 0.16f, 0.05f}, shawl, 10, 6);        // its point, down her back
+    m.frustum({0, 1.3f, 0}, {0, 1.41f, 0}, 0.05f, 0.045f, skin, 8);           // neck
+    m.ellipsoid({0, 1.51f, 0}, {0.095f, 0.12f, 0.105f}, skin, 14, 10);        // head
+    m.ellipsoid({0, 1.49f, -0.1f}, {0.018f, 0.025f, 0.02f}, skin, 6, 4);      // nose
+    m.ellipsoid({0, 1.56f, 0.03f}, {0.1f, 0.09f, 0.1f}, hair, 12, 6);         // hair, parted and drawn back
+    m.ellipsoid({0, 1.57f, 0.12f}, {0.055f, 0.055f, 0.05f}, hair, 10, 6);     // the bun
+    for (float side : {-1.0f, 1.0f}) {
+        // Arms bent at the elbow, hands folded in front of her.
+        const Vec3 shoulder{side * 0.18f, 1.24f, 0}, elbow{side * 0.21f, 0.98f, -0.04f}, wrist{side * 0.07f, 0.86f, -0.17f};
+        m.frustum(shoulder, elbow, 0.05f, 0.04f, shawl, 8);
+        m.frustum(elbow, wrist, 0.04f, 0.032f, dress, 8);
+        m.ellipsoid(wrist + Vec3{-side * 0.02f, -0.01f, -0.02f}, {0.035f, 0.025f, 0.045f}, skin, 8, 5);
+    }
     return m;
 }
 
 MeshData buildHomesteader() {
+    // The homesteader, seen only in the reveal: boots, trousers, a long coat,
+    // a broad-brimmed hat.
     MeshData m;
-    const Rgb trousers{0.20f, 0.18f, 0.16f}, coat{0.36f, 0.24f, 0.14f}, skin{0.76f, 0.55f, 0.42f}, hat{0.16f, 0.12f, 0.08f};
-    for (float side : {-1.0f, 1.0f}) m.rod({side * 0.1f, 0, 0}, {side * 0.1f, 0.85f, 0}, 0.07f, trousers, 8);
-    m.rod({0, 0.8f, 0}, {0, 1.4f, 0}, 0.19f, coat, 12);
-    for (float side : {-1.0f, 1.0f}) m.rod({side * 0.22f, 1.35f, 0}, {side * 0.25f, 0.85f, -0.05f}, 0.055f, coat, 8);
-    m.ellipsoid({0, 1.55f, 0}, {0.1f, 0.12f, 0.11f}, skin, 12, 8);
-    m.rod({0, 1.62f, 0}, {0, 1.64f, 0}, 0.2f, hat, 14);   // brim
-    m.rod({0, 1.64f, 0}, {0, 1.76f, 0}, 0.11f, hat, 12);  // crown
+    const Rgb trousers{0.20f, 0.18f, 0.16f}, coat{0.36f, 0.24f, 0.14f}, skin{0.76f, 0.55f, 0.42f}, hat{0.16f, 0.12f, 0.08f},
+        boot{0.08f, 0.06f, 0.05f}, shirt{0.55f, 0.50f, 0.42f};
+    for (float side : {-1.0f, 1.0f}) {
+        m.frustum({side * 0.1f, 0.3f, 0}, {side * 0.1f, 0.88f, 0}, 0.06f, 0.08f, trousers, 8);
+        m.frustum({side * 0.1f, 0.0f, -0.03f}, {side * 0.1f, 0.32f, 0}, 0.07f, 0.065f, boot, 8);
+        m.ellipsoid({side * 0.1f, 0.04f, -0.08f}, {0.06f, 0.04f, 0.1f}, boot, 8, 5);
+    }
+    m.frustum({0, 0.55f, 0}, {0, 0.95f, 0}, 0.25f, 0.2f, coat, 14);  // the coat's skirts
+    m.frustum({0, 0.95f, 0}, {0, 1.4f, 0}, 0.2f, 0.21f, coat, 14);
+    m.box({-0.05f, 1.15f, -0.215f}, {0.05f, 1.39f, -0.2f}, shirt);     // shirt front
+    for (float side : {-1.0f, 1.0f}) {
+        const Vec3 shoulder{side * 0.23f, 1.34f, 0}, elbow{side * 0.27f, 1.06f, 0.0f}, wrist{side * 0.26f, 0.84f, -0.06f};
+        m.frustum(shoulder, elbow, 0.06f, 0.05f, coat, 8);
+        m.frustum(elbow, wrist, 0.05f, 0.042f, coat, 8);
+        m.ellipsoid(wrist + Vec3{0, -0.04f, 0}, {0.04f, 0.05f, 0.04f}, skin, 8, 5);
+    }
+    m.frustum({0, 1.38f, 0}, {0, 1.46f, 0}, 0.055f, 0.05f, skin, 8);
+    m.ellipsoid({0, 1.56f, 0}, {0.1f, 0.12f, 0.11f}, skin, 14, 10);
+    m.ellipsoid({0, 1.54f, -0.11f}, {0.02f, 0.025f, 0.02f}, skin, 6, 4);  // nose
+    m.ellipsoid({0, 1.47f, -0.05f}, {0.08f, 0.04f, 0.07f}, {0.25f, 0.16f, 0.09f}, 10, 5);  // beard
+    m.rod({0, 1.62f, 0}, {0, 1.64f, 0}, 0.21f, hat, 16);                // brim
+    m.frustum({0, 1.64f, 0}, {0, 1.78f, 0}, 0.115f, 0.1f, hat, 14);     // crown
     return m;
 }
 
@@ -491,15 +555,28 @@ Rgb coat(float dirt) {
 }  // namespace
 
 MeshData buildHorseBody(float dirt) {
+    // The mare facing -z: a barrel with a deep chest and rounded quarters,
+    // legs that bend at knee and hock, dark hooves.
     MeshData m;
     m.beginTag(TargetKind::Horse);
-    const Rgb c = coat(dirt), hoof{0.08f, 0.07f, 0.06f};
-    m.ellipsoid({0, 1.25f, 0}, {0.32f, 0.36f, 0.85f}, c, 16, 10);
-    for (float sx : {-0.2f, 0.2f})
-        for (float sz : {-0.55f, 0.55f}) {
-            m.rod({sx, 1.05f, sz}, {sx, 0.12f, sz}, 0.065f, c, 8);
-            m.rod({sx, 0.12f, sz}, {sx, 0, sz}, 0.08f, hoof, 8);
-        }
+    const Rgb c = coat(dirt), hoof{0.08f, 0.07f, 0.06f}, sock{0.70f, 0.66f, 0.58f};
+    m.ellipsoid({0, 1.27f, 0}, {0.3f, 0.33f, 0.62f}, c, 16, 10);          // barrel
+    m.ellipsoid({0, 1.25f, -0.52f}, {0.27f, 0.34f, 0.3f}, c, 14, 9);      // chest
+    m.ellipsoid({0, 1.33f, 0.55f}, {0.3f, 0.32f, 0.33f}, c, 14, 9);       // quarters
+    for (float sx : {-0.17f, 0.17f}) {
+        // Forelegs: straight, a knee, a cannon, a fetlock.
+        const float fz = -0.55f;
+        m.frustum({sx, 1.1f, fz}, {sx, 0.58f, fz - 0.02f}, 0.1f, 0.06f, c, 8);
+        m.frustum({sx, 0.58f, fz - 0.02f}, {sx, 0.14f, fz}, 0.05f, 0.045f, c, 8);
+        // Hind legs: a gaskin back to the hock, then down.
+        const float hz = 0.6f;
+        m.frustum({sx, 1.15f, hz}, {sx, 0.62f, hz + 0.1f}, 0.13f, 0.065f, c, 8);
+        m.frustum({sx, 0.62f, hz + 0.1f}, {sx, 0.14f, hz + 0.04f}, 0.05f, 0.045f, c, 8);
+        // One white sock behind on the near side; hooves all round.
+        m.frustum({sx, 0.14f, hz + 0.04f}, {sx, 0.04f, hz + 0.03f}, 0.045f, 0.05f, sx < 0 ? sock : c, 8);
+        m.frustum({sx, 0.14f, fz}, {sx, 0.04f, fz}, 0.045f, 0.05f, c, 8);
+        for (float z : {fz, hz + 0.03f}) m.frustum({sx, 0.04f, z}, {sx, 0, z - 0.01f}, 0.05f, 0.06f, hoof, 8);
+    }
     m.endTag();
     return m;
 }
@@ -507,13 +584,27 @@ MeshData buildHorseBody(float dirt) {
 MeshData buildHorseHead(float dirt) {
     MeshData m;
     m.beginTag(TargetKind::Horse);
-    const Rgb c = coat(dirt), mane{0.10f, 0.06f, 0.04f}, blaze{0.85f, 0.82f, 0.76f};
+    const Rgb c = coat(dirt), mane{0.10f, 0.06f, 0.04f}, blaze{0.85f, 0.82f, 0.76f}, dark{0.04f, 0.03f, 0.03f};
     const Vec3 p = kHorseHeadPivot;
-    m.rod(Vec3{0, 1.45f, -0.7f} - p, Vec3{0, 1.95f, -1.05f} - p, 0.14f, c, 10);           // neck
-    m.ellipsoid(Vec3{0, 1.88f, -1.28f} - p, {0.11f, 0.13f, 0.3f}, c, 12, 8);               // head
-    m.box(Vec3{-0.02f, 1.98f, -1.55f} - p, Vec3{0.02f, 2.0f, -1.2f} - p, blaze);           // a white blaze
-    m.box(Vec3{-0.03f, 1.6f, -0.95f} - p, Vec3{0.03f, 2.1f, -0.65f} - p, mane);            // mane
-    for (float sx : {-0.06f, 0.06f}) m.cone(Vec3{sx, 2.0f, -1.08f} - p, 0.035f, 0.12f, c, c, 6);  // ears
+    auto at = [&](float x, float y, float z) { return Vec3{x, y, z} - p; };
+    m.frustum(at(0, 1.4f, -0.64f), at(0, 1.88f, -1.08f), 0.19f, 0.1f, c, 12);     // neck, reaching forward
+    m.ellipsoid(at(0, 1.93f, -1.15f), {0.105f, 0.12f, 0.13f}, c, 12, 8);           // poll and jaw
+    m.frustum(at(0, 1.9f, -1.2f), at(0, 1.63f, -1.43f), 0.1f, 0.068f, c, 12);      // the long face, sloping down
+    m.ellipsoid(at(0, 1.61f, -1.45f), {0.075f, 0.065f, 0.07f}, c, 10, 6);          // muzzle
+    m.tube({at(0, 1.97f, -1.24f), at(0, 1.66f, -1.5f)}, 0.022f, blaze, 6);         // a white blaze down her face
+    for (float sx : {-1.0f, 1.0f}) {
+        m.ellipsoid(at(sx * 0.035f, 1.58f, -1.51f), {0.013f, 0.015f, 0.01f}, dark, 6, 4);  // nostrils
+        m.ellipsoid(at(sx * 0.1f, 1.95f, -1.2f), {0.015f, 0.02f, 0.022f}, dark, 6, 4);     // eyes
+        m.cone(at(sx * 0.05f, 2.02f, -1.08f), 0.032f, 0.13f, c, c, 6);                     // ears
+    }
+    // The mane along the crest of the neck, and a forelock.
+    std::vector<Vec3> crest;
+    for (int i = 0; i <= 6; ++i) {
+        const float t = static_cast<float>(i) / 6.0f;
+        crest.push_back(at(0, 1.6f + 0.42f * t, -0.56f - 0.5f * t));
+    }
+    m.tube(crest, 0.045f, mane, 6);
+    m.tube({at(0, 2.04f, -1.1f), at(0, 2.0f, -1.2f), at(0, 1.93f, -1.26f)}, 0.025f, mane, 6);
     m.endTag();
     return m;
 }
@@ -521,7 +612,14 @@ MeshData buildHorseHead(float dirt) {
 MeshData buildHorseTail() {
     MeshData m;
     m.beginTag(TargetKind::Horse);
-    m.rod({0, 0, 0}, Vec3{0, 0.7f, 1.12f} - kHorseTailPivot, 0.06f, {0.10f, 0.06f, 0.04f}, 8);
+    const Rgb hair{0.10f, 0.06f, 0.04f};
+    std::vector<Vec3> path;
+    for (int i = 0; i <= 6; ++i) {
+        const float t = static_cast<float>(i) / 6.0f;
+        path.push_back(Vec3{0, 1.35f - 0.75f * t, 0.85f + 0.32f * t - 0.12f * t * t} - kHorseTailPivot);
+    }
+    m.tube(path, 0.05f, hair, 8);
+    m.ellipsoid(path.back() + Vec3{0, 0.05f, 0}, {0.07f, 0.14f, 0.06f}, hair, 8, 6);  // the switch
     m.endTag();
     return m;
 }

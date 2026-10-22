@@ -56,6 +56,12 @@ struct MeshData {
     void cone(Vec3 base, float r, float h, Rgb c, Rgb tip, int segments = 10);
     // A cylinder between two arbitrary points, with flat caps.
     void rod(Vec3 a, Vec3 b, float r, Rgb c, int segments = 10);
+    // A tapered cylinder from a (radius ra) to b (radius rb), with flat caps:
+    // limbs, legs, a neck.
+    void frustum(Vec3 a, Vec3 b, float ra, float rb, Rgb c, int segments = 10);
+    // A round tube of radius r along a path of points, with flat caps at the
+    // ends: rockers, a tail, a bent rail.
+    void tube(const std::vector<Vec3>& path, float r, Rgb c, int segments = 8);
     // A flat elliptical disc facing up at height y (a rug's rings).
     void disc(Vec3 centre, float rx, float rz, Rgb c, int segments = 28);
     // An ellipsoid (a snow drift, a tree crown, a horse's belly).
