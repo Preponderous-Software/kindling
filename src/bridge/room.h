@@ -63,6 +63,9 @@ void figureTransform(float x, float z, float yaw, bool seated, float out[16]);
 // The mare, as three rigid parts in her own frame (facing -z, hooves at y 0).
 // The head and tail are built around their pivots so they can turn.
 constexpr Vec3 kHorseHeadPivot{0, 1.45f, -0.7f}, kHorseTailPivot{0, 1.35f, 0.85f};
+// The rocking chair's seat, where Ada is drawn once she sits (the rules leave
+// her standing at the end of her walk, behind the chair's back).
+constexpr float kChairSeatX = 1.65f, kChairSeatZ = -1.1f;
 MeshData buildHorseBody(float dirt);
 MeshData buildHorseHead(float dirt);
 MeshData buildHorseTail();

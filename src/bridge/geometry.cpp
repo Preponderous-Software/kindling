@@ -1,5 +1,6 @@
 #include "bridge/geometry.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace kindling::bridge {
@@ -119,26 +120,30 @@ void MeshData::cone(Vec3 base, float r, float h, Rgb c, Rgb tip, int n) {
     }
 }
 
-void MeshData::rod(Vec3 a, Vec3 b, float r, Rgb c, int n) {
+void MeshData::rod(Vec3 a, Vec3 b, float r, Rgb c, int n) { frustum(a, b, r, r, c, n); }
+
+void MeshData::frustum(Vec3 a, Vec3 b, float ra, float rb, Rgb c, int n) {
     const Vec3 axis = normalize(b - a);
     const Vec3 t = std::fabs(axis.y) < 0.9f ? Vec3{0, 1, 0} : Vec3{1, 0, 0};
     const Vec3 u = normalize(cross(axis, t)), v = cross(axis, u);
     std::vector<uint32_t> r0(n), r1(n);
     for (int k = 0; k < n; ++k) {
         const float ang = kTau * k / n;
-        const Vec3 off = u * (r * std::cos(ang)) + v * (r * std::sin(ang));
-        r0[k] = vertex(a + off, c);
-        r1[k] = vertex(b + off, c);
+        const Vec3 dir = u * std::cos(ang) + v * std::sin(ang);
+        r0[k] = vertex(a + dir * ra, c);
+        r1[k] = vertex(b + dir * rb, c);
     }
     for (int k = 0; k < n; ++k) {
         const int k2 = (k + 1) % n;
         const float mid = kTau * (k + 0.5f) / n;
-        const Vec3 out = u * std::cos(mid) + v * std::sin(mid);
+        // Outward, tilted by the taper.
+        const Vec3 out = u * std::cos(mid) + v * std::sin(mid) + axis * ((ra - rb) / std::max(1e-4f, length(b - a)));
         triangle(r0[k], r1[k], r1[k2], out);
         triangle(r0[k], r1[k2], r0[k2], out);
     }
     for (int end = 0; end < 2; ++end) {
         const Vec3 centre = end ? b : a;
+        const float r = end ? rb : ra;
         const Vec3 out = end ? axis : axis * -1.0f;
         const uint32_t ci = vertex(centre, c);
         std::vector<uint32_t> rim(n);
@@ -147,6 +152,40 @@ void MeshData::rod(Vec3 a, Vec3 b, float r, Rgb c, int n) {
             rim[k] = vertex(centre + u * (r * std::cos(ang)) + v * (r * std::sin(ang)), c);
         }
         for (int k = 0; k < n; ++k) triangle(ci, rim[k], rim[(k + 1) % n], out);
+    }
+}
+
+void MeshData::tube(const std::vector<Vec3>& path, float r, Rgb c, int n) {
+    if (path.size() < 2) return;
+    // One ring per path point, oriented along the path there.
+    std::vector<std::vector<uint32_t>> rings;
+    std::vector<Vec3> dirs;
+    Vec3 up{0, 1, 0};
+    for (size_t i = 0; i < path.size(); ++i) {
+        const Vec3 d = normalize(path[std::min(i + 1, path.size() - 1)] - path[i > 0 ? i - 1 : 0]);
+        const Vec3 t = std::fabs(dot(d, up)) < 0.9f ? up : Vec3{1, 0, 0};
+        const Vec3 u = normalize(cross(d, t)), v = cross(d, u);
+        std::vector<uint32_t> ring(n);
+        for (int k = 0; k < n; ++k) {
+            const float ang = kTau * k / n;
+            ring[k] = vertex(path[i] + u * (r * std::cos(ang)) + v * (r * std::sin(ang)), c);
+        }
+        rings.push_back(ring);
+        dirs.push_back(d);
+    }
+    auto at = [this](uint32_t k) { return Vec3{positions[3 * k], positions[3 * k + 1], positions[3 * k + 2]}; };
+    for (size_t i = 0; i + 1 < path.size(); ++i)
+        for (int k = 0; k < n; ++k) {
+            const int k2 = (k + 1) % n;
+            const Vec3 out = at(rings[i][k]) - path[i];
+            triangle(rings[i][k], rings[i + 1][k], rings[i + 1][k2], out);
+            triangle(rings[i][k], rings[i + 1][k2], rings[i][k2], out);
+        }
+    for (int end = 0; end < 2; ++end) {
+        const size_t i = end ? path.size() - 1 : 0;
+        const Vec3 out = end ? dirs[i] : dirs[i] * -1.0f;
+        const uint32_t ci = vertex(path[i], c);
+        for (int k = 0; k < n; ++k) triangle(ci, rings[i][k], rings[i][(k + 1) % n], out);
     }
 }
 

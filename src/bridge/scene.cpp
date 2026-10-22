@@ -265,7 +265,8 @@ void Scene::animate(const World& w, double seconds) {
     if (!homesteader_) homesteader_ = upload(buildHomesteader());
     const Settler& s = w.settler;
     if (s.state == SettlerState::Away) placeAt(model, {0, kHidden, 0}, 1, 1, 1);
-    else figureTransform(s.x, s.z, s.yaw, s.state == SettlerState::Seated, model);
+    else if (s.state == SettlerState::Seated) figureTransform(kChairSeatX, kChairSeatZ, s.yaw, true, model);
+    else figureTransform(s.x, s.z, s.yaw, false, model);
     engine_.setMeshTransform(settler_, model);
     if (showPlayer_) figureTransform(w.player.x, w.player.z, w.player.yaw, false, model);
     else placeAt(model, {0, kHidden, 0}, 1, 1, 1);
