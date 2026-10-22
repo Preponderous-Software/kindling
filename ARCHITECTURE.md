@@ -60,6 +60,11 @@ The simulation is a deterministic, fixed-step model of the world, independent of
 - **State fingerprint.** `strata::sim::StateHasher` (FNV-1a 64) over every saved field. It is
   the determinism check in tests and the state hash in replays.
 
+As implemented, the MVP's simulation does not use `strata::sim`. `app/main.cpp` turns elapsed time
+into 30 ticks a second itself; `src/sim/rng.h` is Kindling's own PCG32, used only while building a
+new world; the World is one struct with fixed fields (`src/sim/world.h`); and `fingerprint` in
+`src/sim/world.cpp` is Kindling's own FNV-1a 64 over every saved field.
+
 ### Restoration model
 
 A cabin is a set of **fixtures** (wall sections, floor planks, roof sections, windows, the
@@ -189,8 +194,9 @@ for the hearth room. It validates against the contract and plays in usd-web.
 
 ## Builds and platforms
 
-- **Desktop first:** Windows (MSVC) and Linux, using Strata's prebuilt OpenUSD for saves and
-  content.
+- **Desktop first:** Windows (MSVC) and Linux. The MVP build needs no OpenUSD (its saves are
+  Kindling's own, see [Saves](#saves)); Strata's prebuilt OpenUSD is planned for saves after the
+  MVP and for content.
 - **Browser later:** Strata runs on WebGL 2 through Emscripten but has no saves in the browser
   yet. A browser build could be published with
   [arcade-deploy](https://github.com/Stephenson-Software/arcade-deploy) and get sign-in and cloud
@@ -203,7 +209,7 @@ kindling/
   src/sim/        restoration model, settlers, seasons, firewood (no rendering, no USD)
   src/play/       first-person input, interaction, UI
   src/bridge/     game state to Strata meshes and lights
-  src/save/       sim state to and from USD layers through Strata's save core
+  src/save/       the checksummed save file (USD layers through Strata's save core after the MVP)
   src/record/     the replay writer for the reveal
   app/            the executable
   content/        prefabs (USD) and people, briefs and words (data)
