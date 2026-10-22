@@ -1,5 +1,7 @@
 #include "bridge/scene.h"
 
+#include <cmath>
+
 #include "sim/layout.h"
 
 namespace kindling::bridge {
@@ -33,6 +35,8 @@ Scene::~Scene() {
     for (Held& h : parts_) drop(h);
     for (Held& h : debris_) drop(h);
     for (Held& h : items_) drop(h);
+    if (flames_) engine_.removeMesh(flames_);
+    if (candleFlame_) engine_.removeMesh(candleFlame_);
     for (uint32_t t : grimeTextures_)
         if (t) engine_.destroyTexture(t);
 }
@@ -182,6 +186,81 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
         }
     }
     return aim;
+}
+
+namespace {
+
+uint32_t uploadUnlit(strata::Engine& engine, const MeshData& m) {
+    StrataTexturedMesh tm{};
+    tm.mesh.positions = m.positions.data();
+    tm.mesh.colors = m.colors.data();
+    tm.mesh.indices = m.indices.data();
+    tm.mesh.vertex_count = static_cast<int32_t>(m.vertexCount());
+    tm.mesh.index_count = static_cast<int32_t>(m.indices.size());
+    tm.mesh.color[3] = 1;
+    tm.flags = STRATA_MESH_UNLIT;
+    return engine.addTexturedMesh(tm);
+}
+
+void placeAt(float out[16], Vec3 p, float sx, float sy, float sz) {
+    const float m[16] = {sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, p.x, p.y, p.z, 1};
+    for (int i = 0; i < 16; ++i) out[i] = m[i];
+}
+
+// Flicker in 0.75..1.0, a sum of out-of-step waves so it never looks periodic.
+float flicker(double t, float phase) {
+    const double v = 0.5 * std::sin(t * 13.1 + phase) + 0.3 * std::sin(t * 7.3 + 2.0 * phase) + 0.2 * std::sin(t * 23.7);
+    return static_cast<float>(0.875 + 0.125 * v);
+}
+
+const Item* placedCandle(const World& w) {
+    for (const Item& it : w.items)
+        if (it.kind == ItemKind::Candle && it.place == ItemPlace::Placed) return &it;
+    return nullptr;
+}
+
+constexpr float kHidden = -100.0f;  // below the ground: an unlit mesh "switched off"
+const Vec3 kFireBase{(L::kFireboxX0 + L::kFireboxX1) / 2, 0.22f, -2.6f};
+
+}  // namespace
+
+void Scene::animate(const World& w, double seconds) {
+    if (!flames_) flames_ = uploadUnlit(engine_, buildFlames());
+    if (!candleFlame_) candleFlame_ = uploadUnlit(engine_, buildCandleFlame());
+    float model[16];
+    const float fire = w.hearth.lit ? w.hearth.fire : 0.0f;
+    if (fire > 0.01f) {
+        const float f = flicker(seconds, 0.0f);
+        placeAt(model, kFireBase, 0.5f + 0.5f * fire, fire * f, 0.7f + 0.3f * fire);
+    } else {
+        placeAt(model, {0, kHidden, 0}, 1, 1, 1);
+    }
+    engine_.setMeshTransform(flames_, model);
+
+    const Item* candle = placedCandle(w);
+    if (candle && w.hearth.candleLit) placeAt(model, candle->pos + Vec3{0, 0.23f, 0}, 1, flicker(seconds, 1.7f), 1);
+    else placeAt(model, {0, kHidden, 0}, 1, 1, 1);
+    engine_.setMeshTransform(candleFlame_, model);
+}
+
+void Scene::lights(const World& w, double seconds, std::vector<StrataPointLight>& out) const {
+    out.clear();
+    const float fire = w.hearth.lit ? w.hearth.fire : 0.0f;
+    if (fire > 0.01f) {
+        const float f = flicker(seconds, 0.4f);
+        out.push_back({{kFireBase.x, 0.55f, -2.4f}, 9.0f, {1.0f, 0.56f, 0.26f}, 5.5f * fire * f,
+                       STRATA_POINT_LIGHT_CAST_SHADOWS});
+        out.push_back({{kFireBase.x, 0.75f, -1.7f}, 5.5f, {1.0f, 0.6f, 0.3f}, 0.9f * fire * f, 0});
+    }
+    const Item* candle = placedCandle(w);
+    if (candle && w.hearth.candleLit)
+        out.push_back({{candle->pos.x, candle->pos.y + 0.3f, candle->pos.z + 0.08f}, 2.6f, {1.0f, 0.75f, 0.4f},
+                       1.6f * flicker(seconds, 2.3f), STRATA_POINT_LIGHT_CAST_SHADOWS});
+    if (w.lantern) {
+        const Vec3 f = lookDirection(w.player.yaw, 0);
+        out.push_back({{w.player.x + f.x * 0.3f, 1.2f, w.player.z + f.z * 0.3f}, 6.0f, {1.0f, 0.8f, 0.5f},
+                       1.6f * flicker(seconds, 3.1f), 0});
+    }
 }
 
 size_t Scene::meshCount() const { return byId_.size(); }

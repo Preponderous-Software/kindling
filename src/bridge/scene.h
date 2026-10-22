@@ -24,6 +24,14 @@ public:
     // Rebuilds whatever changed since the last call (everything on the first).
     void sync(const World& w);
 
+    // Per-frame motion that is not part of the World: the flames flicker.
+    // `seconds` is real time, so the flicker never touches the simulation.
+    void animate(const World& w, double seconds);
+
+    // The point lights for this moment: the fire, its glow, the candle, the
+    // lantern in the player's hand. Flickers with `seconds` like the flames.
+    void lights(const World& w, double seconds, std::vector<StrataPointLight>& out) const;
+
     // Re-uploads the grime texels a tick changed.
     void updateGrime(const World& w, const std::array<TexelRect, kSurfaceCount>& changed);
 
@@ -49,6 +57,7 @@ private:
     std::array<Held, static_cast<size_t>(Part::Count)> parts_{};
     std::vector<Held> debris_;  // one per World::debris entry
     std::vector<Held> items_;   // one per World::items entry
+    uint32_t flames_ = 0, candleFlame_ = 0;  // unlit meshes, not pickable
     std::unordered_map<uint32_t, const Held*> byId_;
     std::array<uint32_t, kSurfaceCount> grimeTextures_{};
     std::vector<uint8_t> scratch_;

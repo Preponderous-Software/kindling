@@ -3,9 +3,10 @@
 //   kindling [--seed N] [--width W --height H]
 //   kindling --headless --tour --frames DIR [--width W --height H]
 //
-// Controls: mouse to look, W A S D to walk, Shift to hurry, 1-6 to take a tool
+// Controls: mouse to look, W A S D to walk, Shift to hurry, 1-8 to take a tool
 // (` for bare hands), hold the left button to work, E to pick up or put down,
-// R to turn what you carry, F1 for help, Esc to free the mouse (Esc again quits). --tour plays a short
+// R to turn what you carry, L for the lantern, F1 for help, Esc to free the
+// mouse (Esc again quits). --tour plays a short
 // scripted visit and, headless, writes a screenshot at each stop to DIR.
 #include <chrono>
 #include <cmath>
@@ -28,7 +29,7 @@ namespace L = kindling::layout;
 namespace {
 
 // SDL3 scancodes (USB HID usage ids), which Strata reports as-is.
-constexpr int kA = 4, kD = 7, kE = 8, kR = 21, kS = 22, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58,
+constexpr int kA = 4, kD = 7, kE = 8, kL = 15, kR = 21, kS = 22, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58,
               kF12 = 69, kLShift = 225, kRShift = 229;
 constexpr int kMaxScancode = 512;
 constexpr float kMouseSensitivity = 0.0025f;  // radians per pixel
@@ -76,16 +77,20 @@ void usage() {
               "       kindling --headless --tour --frames DIR [--width W --height H]");
 }
 
-// Late morning on 11 November, in a Montana valley: the sun low in the south.
-void setDaylight(strata::Engine& engine) {
+void setLighting(strata::Engine& engine) {
     StrataLighting light = strata::lightingDefaults(STRATA_LIGHTING_SUN);
     light.cascade_count = 4;
     light.shadow_map_size = 2048;
     light.shadow_distance = 45.0f;
     light.fog = 1;
     engine.setLighting(light);
-    const double unixSeconds = 1794418200.0;  // 2026-11-11 10:30 at UTC-7; the sky's geometry, not the year
-    const StrataSolarPosition sun = strata::solarPosition(unixSeconds, 46.6, -112.0);
+}
+
+// The sun (or the moon's sky) at the game's time, over a Montana valley in
+// November. 2026 is used for the sky's geometry only; the date is what matters.
+void setSky(strata::Engine& engine, const World& w) {
+    const double midnightUtc = 1794380400.0;  // 2026-11-11 00:00 at UTC-7
+    const StrataSolarPosition sun = strata::solarPosition(midnightUtc + gameMinutes(w) * 60.0, 46.6, -112.0);
     engine.setSunDirection(sun.to_sun);
     // Daylight spilling in through the door and the roof hole: a soft fill that
     // stands in for bounced light, which the renderer does not compute.
@@ -93,6 +98,15 @@ void setDaylight(strata::Engine& engine) {
     const StrataPointLight shaft{{0.1f, 2.6f, -0.9f}, 4.5f, {0.75f, 0.82f, 1.0f}, 0.6f, 0};
     const StrataPointLight lights[2] = {fill, shaft};
     engine.setPointLights(lights, 2);
+}
+
+std::string clockText(const World& w) {
+    const int day = dayNumber(w);
+    const int minute = static_cast<int>(timeOfDay(w) * 1440.0);
+    char buf[64];
+    std::snprintf(buf, sizeof buf, "%d November  %d:%02d %s", 11 + day, (minute / 60 + 11) % 12 + 1, minute % 60,
+                  minute < 720 ? "am" : "pm");
+    return buf;
 }
 
 StrataCamera playerCamera(const Player& p, float aspect) {
@@ -163,6 +177,13 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         row(p.floorClean >= kFloorCleanGoal, "Sweep the floor (" + percent(p.floorClean) + ")");
         row(p.wallsClean >= kWallCleanGoal, "Scrub the walls (" + percent(p.wallsClean) + ")");
         row(p.hearthClean >= kWallCleanGoal, "Scrub the chimney (" + percent(p.hearthClean) + ")");
+    } else if (p.step == Step::Kindle) {
+        row(p.woodStacked, "Split firewood and stack it by the hearth (" + std::to_string(w.wood.woodpile) + " of " +
+                               std::to_string(kWoodpileGoal) + ")");
+        row(p.ashOut, "Shovel out the old ash");
+        row(p.kindlingLaid, "Lay kindling in the hearth");
+        row(p.logsLaid, "Lay a split log on the andirons");
+        row(p.burning, "Strike a match and hold it till it catches");
     } else if (p.step == Step::Repair) {
         row(p.planksLeft == 0, "Replace the rotten floorboards (" + std::to_string(p.planksLeft) + " left)");
         row(p.roofLeft == 0, "Patch the roof (" + std::to_string(p.roofLeft) + " sections open)");
@@ -170,12 +191,12 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         row(p.chairMended, "Mend the rocking chair");
         row(p.tableUpright, "Set the table right");
         row(p.debrisLeft == 0, "Haul out the old wood (" + std::to_string(p.debrisLeft) + " pieces)");
-    } else {
+    } else if (p.step == Step::Furnish || p.step >= Step::Welcome) {
         if (p.step == Step::Furnish) {
             row(p.furnished >= kFurnishGoal, "Bring in furnishings (" + std::to_string(p.furnished) + " of " +
                                                  std::to_string(kFurnishGoal) + ")");
         } else {
-            text(texts, 20, y, 16, kDim, "The hearth is next. That comes in the next milestone.", storage);
+            text(texts, 20, y, 16, kDim, "Ada is on her way. Her welcome comes in the next milestone.", storage);
             y += 24;
         }
         y += 8;
@@ -184,6 +205,9 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         y += 26;
         for (const BriefPoint& bp : b.points) row(bp.met, bp.wish);
     }
+
+    const std::string clock = clockText(w);
+    text(texts, static_cast<float>(width) - 9.0f * static_cast<float>(clock.size()) - 20, 20, 16, kDim, clock, storage);
 
     // The tool belt, and what is in hand.
     std::string belt;
@@ -195,6 +219,10 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     if (w.carry == Carry::Debris)
         text(texts, cx - 120, static_cast<float>(height) - 68, 16, kEmber, "Carrying: E to put down (outside to haul out)",
              storage);
+    if (w.carry == Carry::Firewood) {
+        const std::string line = std::string("Carrying ") + woodName(static_cast<Wood>(w.carryIndex)) + ": E to put it where it goes";
+        text(texts, cx - 4.0f * static_cast<float>(line.size()), static_cast<float>(height) - 68, 16, kEmber, line, storage);
+    }
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         const std::string line = std::string("Carrying ") + itemName(it.kind) +
@@ -212,9 +240,9 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     if (help) {
         const char* lines[] = {"Mouse      look",       "W A S D    walk",          "Shift      hurry",
                                "1-6        take a tool", "Left mouse work with it", "E          pick up / put down",
-                               "R          turn what you carry", "Esc        free the mouse / quit",
-                               "F1  hide help   F12  screenshot"};
-        float hy = static_cast<float>(height) - 24 * 9 - 80;
+                               "R          turn what you carry", "L          lantern",
+                               "Esc        free the mouse / quit", "F1  hide help   F12  screenshot"};
+        float hy = static_cast<float>(height) - 24 * 10 - 80;
         for (const char* l : lines) {
             text(texts, 20, hy, 16, kDim, l, storage);
             hy += 24;
@@ -252,8 +280,13 @@ void drawPlacement(strata::Engine& engine, const World& w, const Aim& aim) {
 }
 
 void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const Aim& aim, bool help,
-            const std::vector<Message>& messages) {
+            const std::vector<Message>& messages, double seconds) {
     scene.sync(w);
+    scene.animate(w, seconds);
+    std::vector<StrataPointLight> lights;
+    scene.lights(w, seconds, lights);
+    engine.setPointLights(lights.data(), lights.size());
+    setSky(engine, w);
     int32_t width = 0, height = 0;
     engine.drawableSize(width, height);
     const float aspect = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;
@@ -334,7 +367,7 @@ int runTour(strata::Engine& engine, const Args& args) {
         pitch = stop.pitch;
         if (!stop.name) continue;
         aim = aimFor(scene, w);
-        render(engine, scene, w, aim, false, none);
+        render(engine, scene, w, aim, false, none, static_cast<double>(w.tick) / kTickRate);
         engine.present();
         const Description d = describe(w, aim);
         std::printf("%s: player (%.2f, %.2f) aim %s [kind %d index %d dist %.2f]\n", stop.name, w.player.x, w.player.z,
@@ -353,7 +386,7 @@ int runGame(strata::Engine& engine, const Args& args) {
     scene.sync(w);
     bool keys[kMaxScancode] = {};
     bool captured = false, help = true, running = true, mouseDown = false;
-    bool interactPressed = false;
+    bool interactPressed = false, lanternPressed = false;
     int32_t toolPressed = -1, rotatePressed = 0;
     float yaw = w.player.yaw, pitch = 0;
     Aim aim;
@@ -388,6 +421,7 @@ int runGame(strata::Engine& engine, const Args& args) {
                     else if (e.scancode == kF12) engine.saveScreenshotPng("kindling-screenshot.png");
                     else if (e.scancode == kE) interactPressed = true;
                     else if (e.scancode == kR) rotatePressed += 1;
+                    else if (e.scancode == kL) lanternPressed = true;
                     else if (e.scancode == kGrave) toolPressed = 0;
                     else if (e.scancode >= k1 && e.scancode < k1 + kToolCount - 1) toolPressed = e.scancode - k1 + 1;
                     break;
@@ -429,6 +463,8 @@ int runGame(strata::Engine& engine, const Args& args) {
             in.interact = interactPressed;
             in.selectTool = toolPressed;
             in.rotate = rotatePressed;
+            in.toggleLantern = lanternPressed;
+            lanternPressed = false;
             interactPressed = false;
             toolPressed = -1;
             rotatePressed = 0;
@@ -441,7 +477,7 @@ int runGame(strata::Engine& engine, const Args& args) {
         }
         while (!messages.empty() && messages.front().until < clock) messages.erase(messages.begin());
         if (messages.size() > 3) messages.erase(messages.begin(), messages.end() - 3);
-        render(engine, scene, w, aim, help, messages);
+        render(engine, scene, w, aim, help, messages, clock);
         engine.present();
     }
     return 0;
@@ -462,7 +498,7 @@ int main(int argc, char** argv) {
         desc.height = args.height;
         desc.title = "Kindling";
         auto engine = strata::Engine::create(desc);
-        setDaylight(*engine);
+        setLighting(*engine);
         return args.tour ? runTour(*engine, args) : runGame(*engine, args);
     } catch (const strata::Error& e) {
         std::fprintf(stderr, "kindling: %s\n", e.what());
