@@ -526,6 +526,17 @@ int runHeadlessAutopilot(strata::Engine& engine, const Args& args) {
         }
     }
     const bool done = progress(w).step == Step::Done;
+    // Then the mare: fed and brushed, with a last frame of her.
+    for (int i = 0; done && i < 120 * kTickRate && !(w.horse.dirt <= 0 && w.horse.hunger < 0.1f); ++i) {
+        TickEvents ev;
+        tick(w, pilot.next(w), &ev);
+        scene.updateGrime(w, ev.grime);
+    }
+    for (int i = 0; done && i < 3 * kTickRate; ++i) tick(w, pilot.next(w));
+    if (done && !args.framesDir.empty()) {
+        render(engine, scene, w, aimFor(scene, w), false, none, static_cast<double>(w.tick) / kTickRate);
+        engine.saveScreenshotPng(args.framesDir + "/frame-mare.png");
+    }
     std::printf("%s after %.1f minutes of play; %zu keyframes; fingerprint %016llx\n",
                 done ? "Done" : "NOT done", static_cast<double>(w.tick) / kTickRate / 60.0, w.history.size(),
                 static_cast<unsigned long long>(fingerprint(w)));

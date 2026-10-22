@@ -370,7 +370,7 @@ Autopilot::Goal Autopilot::choose(const World& w) {
                 return go(kHayStand, TargetKind::HayBale, -1, kHayPoint, Tool::None, false, true, "fetching hay");
             if (w.horse.dirt > 0)
                 return go(kHorseSideStand, TargetKind::Horse, -1, kHorseSidePoint, Tool::CurryComb, true, false, "brushing the mare");
-            return go({7.6f, 6.6f}, TargetKind::Horse, -1, kHorseHeadPoint, Tool::None, false, false, "with the mare");
+            return go({6.3f, 6.5f}, TargetKind::Horse, -1, kHorseSidePoint, Tool::None, false, false, "with the mare");
     }
     return g;
 }
