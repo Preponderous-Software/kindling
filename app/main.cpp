@@ -88,16 +88,12 @@ void setLighting(strata::Engine& engine) {
 
 // The sun (or the moon's sky) at the game's time, over a Montana valley in
 // November. 2026 is used for the sky's geometry only; the date is what matters.
-void setSky(strata::Engine& engine, const World& w) {
+// Returns daylight, 0 at night to 1 with the sun well up.
+float setSky(strata::Engine& engine, const World& w) {
     const double midnightUtc = 1794380400.0;  // 2026-11-11 00:00 at UTC-7
     const StrataSolarPosition sun = strata::solarPosition(midnightUtc + gameMinutes(w) * 60.0, 46.6, -112.0);
     engine.setSunDirection(sun.to_sun);
-    // Daylight spilling in through the door and the roof hole: a soft fill that
-    // stands in for bounced light, which the renderer does not compute.
-    const StrataPointLight fill{{1.5f, 2.2f, 2.6f}, 8.0f, {0.75f, 0.82f, 1.0f}, 0.5f, 0};
-    const StrataPointLight shaft{{0.1f, 2.6f, -0.9f}, 4.5f, {0.75f, 0.82f, 1.0f}, 0.6f, 0};
-    const StrataPointLight lights[2] = {fill, shaft};
-    engine.setPointLights(lights, 2);
+    return clampf((sun.elevation_degrees + 4.0f) / 16.0f, 0.0f, 1.0f);
 }
 
 std::string clockText(const World& w) {
@@ -120,6 +116,9 @@ StrataCamera playerCamera(const Player& p, float aspect) {
 const float kWhite[4] = {0.92f, 0.88f, 0.80f, 1.0f};
 const float kDim[4] = {0.62f, 0.60f, 0.56f, 1.0f};
 const float kEmber[4] = {0.95f, 0.45f, 0.14f, 1.0f};
+
+// Strata's 8x8 font draws each glyph in a square cell `size` pixels wide.
+float centred(float cx, float size, const std::string& s) { return cx - 0.5f * size * static_cast<float>(s.size()); }
 
 void text(std::vector<StrataText>& out, float x, float y, float size, const float color[4], const std::string& s,
           std::vector<std::string>& storage) {
@@ -151,9 +150,9 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     const Description d = describe(w, aim);
     if (!d.name.empty() && aim.distance <= L::kReach * 2.5f) {
         const float* c = aim.distance <= L::kReach ? kWhite : kDim;
-        text(texts, cx - 4.5f * static_cast<float>(d.name.size()), cy + 28, 18, c, d.name, storage);
+        text(texts, centred(cx, 18, d.name), cy + 28, 18, c, d.name, storage);
         if (!d.hint.empty())
-            text(texts, cx - 4.0f * static_cast<float>(d.hint.size()), cy + 52, 16, kDim, d.hint, storage);
+            text(texts, centred(cx, 14, d.hint), cy + 52, 14, kDim, d.hint, storage);
     }
 
     // The checklist for the step the player is on.
@@ -207,33 +206,35 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     }
 
     const std::string clock = clockText(w);
-    text(texts, static_cast<float>(width) - 9.0f * static_cast<float>(clock.size()) - 20, 20, 16, kDim, clock, storage);
+    text(texts, static_cast<float>(width) - 16.0f * static_cast<float>(clock.size()) - 20, 20, 16, kDim, clock, storage);
 
     // The tool belt, and what is in hand.
     std::string belt;
     for (int t = 1; t < kToolCount; ++t) {
         const bool held = static_cast<int>(w.tool) == t;
-        belt += (held ? "[" : " ") + std::to_string(t) + " " + toolName(static_cast<Tool>(t)) + (held ? "]" : " ") + "  ";
+        belt += (held ? "[" : " ") + std::to_string(t) + " " + toolName(static_cast<Tool>(t)) + (held ? "]" : " ") + " ";
     }
-    text(texts, cx - 4.0f * static_cast<float>(belt.size()), static_cast<float>(height) - 40, 16, kWhite, belt, storage);
+    text(texts, centred(cx, 12, belt), static_cast<float>(height) - 36, 12, kWhite, belt, storage);
     if (w.carry == Carry::Debris)
-        text(texts, cx - 120, static_cast<float>(height) - 68, 16, kEmber, "Carrying: E to put down (outside to haul out)",
-             storage);
+        {
+        const std::string line = "Carrying: E to put down (outside to haul out)";
+        text(texts, centred(cx, 14, line), static_cast<float>(height) - 64, 14, kEmber, line, storage);
+    }
     if (w.carry == Carry::Firewood) {
         const std::string line = std::string("Carrying ") + woodName(static_cast<Wood>(w.carryIndex)) + ": E to put it where it goes";
-        text(texts, cx - 4.0f * static_cast<float>(line.size()), static_cast<float>(height) - 68, 16, kEmber, line, storage);
+        text(texts, centred(cx, 14, line), static_cast<float>(height) - 64, 14, kEmber, line, storage);
     }
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         const std::string line = std::string("Carrying ") + itemName(it.kind) +
                                  (isMaterial(it.kind) ? ": aim where it goes and hold the left button"
                                                       : ": E to put it down, R to turn it, E at the wagon to put it back");
-        text(texts, cx - 4.0f * static_cast<float>(line.size()), static_cast<float>(height) - 68, 16, kEmber, line, storage);
+        text(texts, centred(cx, 14, line), static_cast<float>(height) - 64, 14, kEmber, line, storage);
     }
 
     float my = cy + 90;
     for (const Message& m : messages) {
-        text(texts, cx - 4.0f * static_cast<float>(m.text.size()), my, 16, kEmber, m.text, storage);
+        text(texts, centred(cx, 14, m.text), my, 14, kEmber, m.text, storage);
         my += 22;
     }
 
@@ -284,9 +285,8 @@ void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const 
     scene.sync(w);
     scene.animate(w, seconds);
     std::vector<StrataPointLight> lights;
-    scene.lights(w, seconds, lights);
+    scene.lights(w, seconds, setSky(engine, w), lights);
     engine.setPointLights(lights.data(), lights.size());
-    setSky(engine, w);
     int32_t width = 0, height = 0;
     engine.drawableSize(width, height);
     const float aspect = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;

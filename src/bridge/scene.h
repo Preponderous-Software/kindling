@@ -28,9 +28,11 @@ public:
     // `seconds` is real time, so the flicker never touches the simulation.
     void animate(const World& w, double seconds);
 
-    // The point lights for this moment: the fire, its glow, the candle, the
-    // lantern in the player's hand. Flickers with `seconds` like the flames.
-    void lights(const World& w, double seconds, std::vector<StrataPointLight>& out) const;
+    // The point lights for this moment: daylight coming in (through the door,
+    // the roof hole and the window, scaled by `daylight` 0..1 and by how open
+    // each is), the fire, its glow, the candle, the lantern in the player's
+    // hand. Flickers with `seconds` like the flames.
+    void lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const;
 
     // Re-uploads the grime texels a tick changed.
     void updateGrime(const World& w, const std::array<TexelRect, kSurfaceCount>& changed);

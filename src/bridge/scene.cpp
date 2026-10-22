@@ -243,8 +243,26 @@ void Scene::animate(const World& w, double seconds) {
     engine_.setMeshTransform(candleFlame_, model);
 }
 
-void Scene::lights(const World& w, double seconds, std::vector<StrataPointLight>& out) const {
+void Scene::lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const {
     out.clear();
+    if (daylight > 0.02f) {
+        // Light spilling in: a soft fill through the room from the open door,
+        // a shaft under each open section of the roof, and the window once it
+        // is unboarded. None casts shadows; they stand in for bounced light.
+        const Vec3 sky{0.75f, 0.82f, 1.0f};
+        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 0.35f * daylight, 0});
+        const float xs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
+        const float zs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
+        for (int k = 0; k < 4; ++k)
+            if (!((w.roofPatched >> k) & 1u))
+                out.push_back({{(xs[k % 2] + xs[k % 2 + 1]) / 2, 2.6f, (zs[k / 2] + zs[k / 2 + 1]) / 2}, 4.5f,
+                               {sky.x, sky.y, sky.z}, 0.25f * daylight, 0});
+        int open = 0;
+        for (int32_t b : w.windowBoards) open += b ? 0 : 1;
+        if (open > 0)
+            out.push_back({{L::kInnerX0 + 0.5f, 1.6f, (L::kWindowZ0 + L::kWindowZ1) / 2}, 7.0f, {1.0f, 0.95f, 0.85f},
+                           0.22f * daylight * static_cast<float>(open), 0});
+    }
     const float fire = w.hearth.lit ? w.hearth.fire : 0.0f;
     if (fire > 0.01f) {
         const float f = flicker(seconds, 0.4f);
