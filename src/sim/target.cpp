@@ -95,7 +95,14 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Woodpile:
             return {"Woodpile (" + std::to_string(w.wood.woodpile) + " logs)",
                     w.wood.woodpile < 4 ? "Stack split logs here (E)." : ""};
-        case TargetKind::HayBale: return {"Hay bale", ""};
+        case TargetKind::HayBale:
+            return w.carry == Carry::Hay ? Description{"Hay bale", "Put the hay back (E)."}
+                                         : Description{"Hay bale", "Take an armful for the mare (E)."};
+        case TargetKind::Horse:
+            if (w.horse.eatingSeconds > 0) return {"Your mare", "Eating."};
+            if (w.horse.hunger > 0.5f) return {"Your mare", "She's hungry. Bring her hay from the bale."};
+            if (w.horse.dirt > 0.05f) return {"Your mare", "Dusty from the trail. Brush her (9)."};
+            return {"Your mare", "Content."};
         case TargetKind::Stall: return {"Stall", ""};
         case TargetKind::Item: {
             if (!validIndex(aim.index, w.items.size())) return {};

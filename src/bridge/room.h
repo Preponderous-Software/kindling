@@ -60,6 +60,16 @@ MeshData buildHomesteader();
 // Model matrix for a figure at (x, z) facing yaw, lowered when seated.
 void figureTransform(float x, float z, float yaw, bool seated, float out[16]);
 
+// The mare, as three rigid parts in her own frame (facing -z, hooves at y 0).
+// The head and tail are built around their pivots so they can turn.
+constexpr Vec3 kHorseHeadPivot{0, 1.45f, -0.7f}, kHorseTailPivot{0, 1.35f, 0.85f};
+MeshData buildHorseBody(float dirt);
+MeshData buildHorseHead(float dirt);
+MeshData buildHorseTail();
+// Model matrix: the mare's frame at her stall position, times a part's pose
+// (rotation about y by yaw, then x by pitch, about `pivot`).
+void horsePartTransform(Vec3 pivot, float yaw, float pitch, float roll, float out[16]);
+
 // One material or furnishing, built around its origin; place it with itemTransform.
 MeshData buildItem(const Item& item, int32_t index);
 void itemTransform(const Item& item, float out[16]);

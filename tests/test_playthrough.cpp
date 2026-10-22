@@ -30,13 +30,30 @@ int main(int argc, char** argv) {
     }
     const Progress p = progress(w);
     CHECK(p.step == Step::Done);
+    // Then the mare: fed and brushed, and she shows it.
+    TickEvents ev;
+    std::vector<std::string> said;
+    for (int i = 0; i < 90 * kTickRate && !(w.horse.dirt <= 0 && w.horse.hunger < 0.1f); ++i) {
+        tick(w, pilot.next(w), &ev);
+        for (std::string& m : ev.messages) said.push_back(m);
+        ev.messages.clear();
+    }
+    CHECK(w.horse.dirt == 0.0f);
+    CHECK(w.horse.hunger < 0.1f);
+    CHECK(w.horse.greeted);
+    bool munched = false, leaned = false;
+    for (const std::string& m : said) {
+        munched = munched || m.find("munches") != std::string::npos;
+        leaned = leaned || m.find("leans into") != std::string::npos;
+    }
+    CHECK(munched && leaned);
     CHECK(w.cleared && w.repaired && w.kindled);
     CHECK(w.settler.done && w.settler.state == SettlerState::Seated);
     CHECK(evaluateBrief(w).met());
     CHECK(w.settler.briefMet);
     CHECK(w.hearth.lit && w.hearth.candleLit);
     CHECK(w.history.size() > 10);
-    CHECK(w.history.front().tick == 0 && w.history.back().tick == w.tick);
+    CHECK(w.history.front().tick == 0 && w.history.back().tick <= w.tick);
 
     std::printf("finished in %.1f minutes of play, %zu keyframes, %d matches\n",
                 static_cast<double>(w.tick) / kTickRate / 60.0, w.history.size(), w.hearth.matchesStruck);
@@ -47,7 +64,7 @@ int main(int argc, char** argv) {
     if (!error.empty()) std::fprintf(stderr, "replay: %s\n", error.c_str());
     std::printf("wrote %s\n", out.c_str());
 
-    const uint64_t pinned = 0xa4592a85ad51c921ULL;
+    const uint64_t pinned = 0x60963f4244cbe9f7ULL;
     std::printf("playthrough fingerprint: %016" PRIx64 "\n", fingerprint(w));
     CHECK(fingerprint(w) == pinned);
     TEST_MAIN_END();

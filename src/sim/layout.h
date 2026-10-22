@@ -60,6 +60,9 @@ constexpr float kWalkSpeed = 2.6f;    // m/s
 constexpr float kSprintSpeed = 4.6f;  // m/s
 constexpr float kReach = 2.2f;        // how far the player can work or pick things up
 
+// The mare stands in her stall facing out, toward the cabin.
+constexpr Vec2 kHorse{7.6f, 9.6f};
+
 // Everything the player cannot walk through, on the ground plane: the log
 // walls (with the door gap), the chimney breast, and the yard's fixtures.
 const std::vector<Box2>& solids();

@@ -20,6 +20,7 @@ const std::vector<Box2>& solids() {
         b.push_back({6.0f, 11.0f, 9.2f, 11.2f});
         b.push_back({6.0f, 7.4f, 6.2f, 11.2f});
         b.push_back({9.0f, 7.4f, 9.2f, 11.2f});
+        b.push_back({kHorse.x - 0.35f, kHorse.z - 0.95f, kHorse.x + 0.35f, kHorse.z + 1.0f});  // the mare
         return b;
     }();
     return boxes;

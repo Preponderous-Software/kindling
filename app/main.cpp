@@ -243,7 +243,8 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         const bool held = static_cast<int>(w.tool) == t;
         belt += (held ? "[" : " ") + std::to_string(t) + " " + toolName(static_cast<Tool>(t)) + (held ? "]" : " ") + " ";
     }
-    text(texts, centred(cx, 12, belt), static_cast<float>(height) - 36, 12, kWhite, belt, storage);
+    const float beltSize = std::min(12.0f, static_cast<float>(width - 40) / static_cast<float>(belt.size()));
+    text(texts, centred(cx, beltSize, belt), static_cast<float>(height) - 36, beltSize, kWhite, belt, storage);
     if (w.carry == Carry::Debris)
         {
         const std::string line = "Carrying: E to put down (outside to haul out)";
