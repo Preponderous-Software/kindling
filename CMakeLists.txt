@@ -30,12 +30,14 @@ endfunction()
 # builds and tests in seconds. Never fuse multiply-adds: the rules must give
 # bit-identical results on every compiler.
 add_library(kindling_sim STATIC
+  src/sim/autopilot.cpp
   src/sim/brief.cpp
   src/sim/grime.cpp
   src/sim/items.cpp
   src/sim/layout.cpp
   src/sim/progress.cpp
   src/sim/rules.cpp
+  src/sim/settler.cpp
   src/sim/target.cpp
   src/sim/world.cpp)
 target_include_directories(kindling_sim PUBLIC src)
@@ -55,14 +57,22 @@ target_include_directories(kindling_geometry PUBLIC src)
 target_link_libraries(kindling_geometry PUBLIC kindling_sim)
 kindling_warnings(kindling_geometry)
 
+# The restoration as a usd-replay/1 replay, written by usd-recorder's vendored,
+# dependency-free header (third_party/usd_recorder). No OpenUSD needed.
+add_library(kindling_record STATIC src/record/replay.cpp)
+target_include_directories(kindling_record PUBLIC src)
+target_include_directories(kindling_record SYSTEM PRIVATE third_party)
+target_link_libraries(kindling_record PUBLIC kindling_sim)
+kindling_warnings(kindling_record)
+
 if(KINDLING_BUILD_TESTS)
   enable_testing()
-  foreach(t movement determinism targets geometry clean repair_furnish kindle)
+  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough)
     add_executable(test_${t} tests/test_${t}.cpp)
-    target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry)
+    target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record)
     target_include_directories(test_${t} PRIVATE tests)
     kindling_warnings(test_${t})
-    add_test(NAME ${t} COMMAND test_${t})
+    add_test(NAME ${t} COMMAND test_${t} "${CMAKE_CURRENT_BINARY_DIR}")
   endforeach()
 endif()
 
@@ -87,6 +97,6 @@ if(KINDLING_WITH_STRATA)
   kindling_warnings(kindling_bridge)
 
   add_executable(kindling app/main.cpp)
-  target_link_libraries(kindling PRIVATE kindling_bridge)
+  target_link_libraries(kindling PRIVATE kindling_bridge kindling_record)
   kindling_warnings(kindling)
 endif()

@@ -15,8 +15,19 @@ planks, patch the roof with shingles, pry the boards off the window, mend the ro
 the table right), and furnish it from the wagon against Ada's brief, and kindle the hearth: split log rounds on the
 chopping block, stack the wood, shovel out the old ash, lay kindling and a log, and hold a match
 to it until it catches. The day runs from late morning on 11 November into the first frost; the
-fire, a candle and a carried lantern light the night. Ada herself arrives in the next milestone;
+fire, a candle and a carried lantern light the night. Then Ada Lark walks up from her wagon, looks
+round, tells you what she thinks of what you made for her, and sits down by the fire, and the
+whole restoration plays back as a timelapse. Saves and the horse come in the last milestones;
 see [MVP.md](MVP.md).
+
+![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from a cold grey morning to the hearth lit at night with Ada by the fire](docs/images/reveal.gif)
+
+*The reveal at the end of a restoration, as the game plays it: here the autopilot's playthrough,
+recorded and rendered headless by the game itself (`--headless --autopilot --reveal-frames`).*
+
+| The ruin, at nine in the morning | Ada's home, at a quarter to eleven at night |
+|---|---|
+| ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored: the fire lit, a braided rug, curtains, a sampler on the wall, and Ada in the rocking chair](docs/images/game-m5-home.jpg) |
 
 ![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg)
 
@@ -46,6 +57,7 @@ simulation and its tests, with no engine.
 | E | pick up or put down (debris put down outdoors is hauled out; furnishings go where they belong; E at the wagon puts a thing back) |
 | R | turn what you carry |
 | L | light or put out your lantern |
+| T | play the restoration back again, once Ada is home |
 | F1 | show or hide the help |
 | F12 | screenshot |
 | Esc | free the mouse (Esc again quits) |
@@ -55,7 +67,10 @@ simulation and its tests, with no engine.
 | ![First person, broom in hand: an arc of floorboards swept clean through the dust, broken boards still lying about](docs/images/game-m2-swept.jpg) | ![The window with two of its boards pried off and daylight coming in](docs/images/game-m3-window.jpg) |
 
 `kindling --headless --tour --frames DIR` walks a scripted path into the cabin, sweeps and scrubs a
-little, without a window, and writes a screenshot at each stop; CI runs it on every change.
+little, without a window, and writes a screenshot at each stop. `kindling --autopilot` hands the
+controls to an autopilot that plays the whole restoration (add `--speed N` to watch it fast);
+`kindling --headless --autopilot --frames DIR --reveal-frames DIR --replay run.usda` does it
+without a window, writing frames, the reveal and the replay. CI runs both.
 
 ## The idea
 

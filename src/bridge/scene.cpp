@@ -36,6 +36,8 @@ Scene::~Scene() {
     for (Held& h : debris_) drop(h);
     for (Held& h : items_) drop(h);
     if (flames_) engine_.removeMesh(flames_);
+    if (settler_) engine_.removeMesh(settler_);
+    if (homesteader_) engine_.removeMesh(homesteader_);
     if (candleFlame_) engine_.removeMesh(candleFlame_);
     for (uint32_t t : grimeTextures_)
         if (t) engine_.destroyTexture(t);
@@ -67,6 +69,13 @@ void Scene::uploadGrime(const World& w, Surface s, const TexelRect& r) {
     uint32_t& tex = grimeTextures_[static_cast<size_t>(s)];
     if (!tex) tex = engine_.createTextureRgba8(d.width, d.height, scratch_.data(), STRATA_TEXTURE_CLAMP_U | STRATA_TEXTURE_CLAMP_V);
     else engine_.updateTextureRgba8(tex, r.x, r.y, r.w, r.h, scratch_.data());
+}
+
+void Scene::reloadGrime(const World& w) {
+    for (int s = 0; s < kSurfaceCount; ++s) {
+        const SurfaceDef& d = surfaceDef(static_cast<Surface>(s));
+        uploadGrime(w, static_cast<Surface>(s), {0, 0, d.width, d.height});
+    }
 }
 
 void Scene::updateGrime(const World& w, const std::array<TexelRect, kSurfaceCount>& changed) {
@@ -241,6 +250,16 @@ void Scene::animate(const World& w, double seconds) {
     if (candle && w.hearth.candleLit) placeAt(model, candle->pos + Vec3{0, 0.23f, 0}, 1, flicker(seconds, 1.7f), 1);
     else placeAt(model, {0, kHidden, 0}, 1, 1, 1);
     engine_.setMeshTransform(candleFlame_, model);
+
+    if (!settler_) settler_ = upload(buildSettler());
+    if (!homesteader_) homesteader_ = upload(buildHomesteader());
+    const Settler& s = w.settler;
+    if (s.state == SettlerState::Away) placeAt(model, {0, kHidden, 0}, 1, 1, 1);
+    else figureTransform(s.x, s.z, s.yaw, s.state == SettlerState::Seated, model);
+    engine_.setMeshTransform(settler_, model);
+    if (showPlayer_) figureTransform(w.player.x, w.player.z, w.player.yaw, false, model);
+    else placeAt(model, {0, kHidden, 0}, 1, 1, 1);
+    engine_.setMeshTransform(homesteader_, model);
 }
 
 void Scene::lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const {

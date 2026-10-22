@@ -51,7 +51,8 @@ Progress progress(const World& w) {
     else if (!w.repaired) p.step = Step::Repair;
     else if (p.furnished < kFurnishGoal) p.step = Step::Furnish;
     else if (!w.kindled) p.step = Step::Kindle;
-    else p.step = Step::Welcome;
+    else if (!w.settler.done) p.step = Step::Welcome;
+    else p.step = Step::Done;
     return p;
 }
 

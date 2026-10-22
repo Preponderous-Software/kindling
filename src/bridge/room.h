@@ -53,6 +53,13 @@ MeshData buildFlames();
 // A candle flame, built around its base.
 MeshData buildCandleFlame();
 
+// People, built standing around their feet: Ada (a plum dress, a shawl, her
+// hair up), and the player as seen in the reveal (work clothes and a hat).
+MeshData buildSettler();
+MeshData buildHomesteader();
+// Model matrix for a figure at (x, z) facing yaw, lowered when seated.
+void figureTransform(float x, float z, float yaw, bool seated, float out[16]);
+
 // One material or furnishing, built around its origin; place it with itemTransform.
 MeshData buildItem(const Item& item, int32_t index);
 void itemTransform(const Item& item, float out[16]);

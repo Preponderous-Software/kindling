@@ -454,6 +454,41 @@ MeshData buildCandleFlame() {
     return m;
 }
 
+MeshData buildSettler() {
+    MeshData m;
+    const Rgb dress{0.32f, 0.12f, 0.30f}, shawl{0.62f, 0.52f, 0.36f}, skin{0.78f, 0.56f, 0.44f}, hair{0.18f, 0.10f, 0.06f};
+    m.cone({0, 0, 0}, 0.3f, 1.05f, dress, dress, 14);           // skirt
+    m.rod({0, 0.85f, 0}, {0, 1.32f, 0}, 0.15f, dress, 12);       // bodice
+    m.ellipsoid({0, 1.25f, 0}, {0.21f, 0.1f, 0.17f}, shawl, 12, 6);
+    m.rod({0, 1.32f, 0}, {0, 1.4f, 0}, 0.05f, skin, 8);           // neck
+    m.ellipsoid({0, 1.5f, 0}, {0.1f, 0.12f, 0.11f}, skin, 12, 8);
+    m.ellipsoid({0, 1.56f, 0.06f}, {0.09f, 0.08f, 0.07f}, hair, 10, 6);  // her hair, put up behind
+    m.ellipsoid({0, 1.6f, 0.11f}, {0.05f, 0.05f, 0.05f}, hair, 8, 5);
+    for (float side : {-1.0f, 1.0f})
+        m.rod({side * 0.17f, 1.25f, 0}, {side * 0.2f, 0.9f, -0.05f}, 0.045f, shawl, 8);  // arms
+    return m;
+}
+
+MeshData buildHomesteader() {
+    MeshData m;
+    const Rgb trousers{0.20f, 0.18f, 0.16f}, coat{0.36f, 0.24f, 0.14f}, skin{0.76f, 0.55f, 0.42f}, hat{0.16f, 0.12f, 0.08f};
+    for (float side : {-1.0f, 1.0f}) m.rod({side * 0.1f, 0, 0}, {side * 0.1f, 0.85f, 0}, 0.07f, trousers, 8);
+    m.rod({0, 0.8f, 0}, {0, 1.4f, 0}, 0.19f, coat, 12);
+    for (float side : {-1.0f, 1.0f}) m.rod({side * 0.22f, 1.35f, 0}, {side * 0.25f, 0.85f, -0.05f}, 0.055f, coat, 8);
+    m.ellipsoid({0, 1.55f, 0}, {0.1f, 0.12f, 0.11f}, skin, 12, 8);
+    m.rod({0, 1.62f, 0}, {0, 1.64f, 0}, 0.2f, hat, 14);   // brim
+    m.rod({0, 1.64f, 0}, {0, 1.76f, 0}, 0.11f, hat, 12);  // crown
+    return m;
+}
+
+void figureTransform(float x, float z, float yaw, bool seated, float out[16]) {
+    // Yaw as the player's: 0 faces -z, positive turns toward +x.
+    const float c = std::cos(-yaw), s = std::sin(-yaw);
+    const float y = seated ? -0.42f : 0.0f;
+    const float m[16] = {c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, x, y, z, 1};
+    for (int i = 0; i < 16; ++i) out[i] = m[i];
+}
+
 MeshData buildPart(Part part, const World& w) {
     MeshData m;
     switch (part) {

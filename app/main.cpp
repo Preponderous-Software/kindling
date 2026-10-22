@@ -1,13 +1,15 @@
 // kindling: the game on the Strata engine.
 //
-//   kindling [--seed N] [--width W --height H]
+//   kindling [--seed N] [--width W --height H] [--autopilot [--speed N]] [--replay PATH]
 //   kindling --headless --tour --frames DIR [--width W --height H]
+//   kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR] [--replay PATH]
 //
 // Controls: mouse to look, W A S D to walk, Shift to hurry, 1-8 to take a tool
 // (` for bare hands), hold the left button to work, E to pick up or put down,
 // R to turn what you carry, L for the lantern, F1 for help, Esc to free the
 // mouse (Esc again quits). --tour plays a short
 // scripted visit and, headless, writes a screenshot at each stop to DIR.
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
@@ -17,7 +19,10 @@
 #include <vector>
 
 #include "bridge/scene.h"
+#include "record/replay.h"
+#include "sim/autopilot.h"
 #include "sim/brief.h"
+#include "sim/settler.h"
 #include "sim/layout.h"
 #include "sim/progress.h"
 #include "sim/rules.h"
@@ -29,7 +34,7 @@ namespace L = kindling::layout;
 namespace {
 
 // SDL3 scancodes (USB HID usage ids), which Strata reports as-is.
-constexpr int kA = 4, kD = 7, kE = 8, kL = 15, kR = 21, kS = 22, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58,
+constexpr int kA = 4, kD = 7, kE = 8, kL = 15, kR = 21, kS = 22, kT = 23, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58,
               kF12 = 69, kLShift = 225, kRShift = 229;
 constexpr int kMaxScancode = 512;
 constexpr float kMouseSensitivity = 0.0025f;  // radians per pixel
@@ -39,7 +44,12 @@ struct Args {
     uint64_t seed = 1881;
     bool headless = false;
     bool tour = false;
+    bool autopilot = false;
+    int speed = 1;             // autopilot ticks per frame in a window
     std::string framesDir;
+    int frameEvery = 300;      // headless autopilot: ticks between frames
+    std::string revealFramesDir;
+    std::string replayPath = "kindling-restoration.usda";
     int width = 1280, height = 720;
 };
 
@@ -57,6 +67,11 @@ bool parseArgs(int argc, char** argv, Args& a) {
         else if (s == "--headless") a.headless = true;
         else if (s == "--tour") a.tour = true;
         else if (s == "--frames") a.framesDir = next("--frames");
+        else if (s == "--autopilot") a.autopilot = true;
+        else if (s == "--speed") a.speed = std::max(1, std::atoi(next("--speed")));
+        else if (s == "--frame-every") a.frameEvery = std::max(1, std::atoi(next("--frame-every")));
+        else if (s == "--reveal-frames") a.revealFramesDir = next("--reveal-frames");
+        else if (s == "--replay") a.replayPath = next("--replay");
         else if (s == "--width") a.width = std::atoi(next("--width"));
         else if (s == "--height") a.height = std::atoi(next("--height"));
         else if (s == "--help" || s == "-h") return false;
@@ -65,16 +80,18 @@ bool parseArgs(int argc, char** argv, Args& a) {
             return false;
         }
     }
-    if (a.headless && !a.tour) {
-        std::fprintf(stderr, "kindling: --headless needs --tour (there is no one to play)\n");
+    if (a.headless && !a.tour && !a.autopilot) {
+        std::fprintf(stderr, "kindling: --headless needs --tour or --autopilot (there is no one to play)\n");
         return false;
     }
     return true;
 }
 
 void usage() {
-    std::puts("usage: kindling [--seed N] [--width W --height H]\n"
-              "       kindling --headless --tour --frames DIR [--width W --height H]");
+    std::puts("usage: kindling [--seed N] [--width W --height H] [--autopilot [--speed N]] [--replay PATH]\n"
+              "       kindling --headless --tour --frames DIR [--width W --height H]\n"
+              "       kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR]\n"
+              "                [--replay PATH]");
 }
 
 void setLighting(strata::Engine& engine) {
@@ -195,8 +212,12 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
             row(p.furnished >= kFurnishGoal, "Bring in furnishings (" + std::to_string(p.furnished) + " of " +
                                                  std::to_string(kFurnishGoal) + ")");
         } else {
-            text(texts, 20, y, 16, kDim, "Ada is on her way. Her welcome comes in the next milestone.", storage);
-            y += 24;
+            row(w.settler.state != SettlerState::Away, "Ada arrives");
+            row(w.settler.state == SettlerState::Seated, "She settles by the fire");
+            if (p.step == Step::Done) {
+                text(texts, 20, y, 16, kDim, "T plays back your restoration.", storage);
+                y += 24;
+            }
         }
         y += 8;
         const Brief b = evaluateBrief(w);
@@ -227,9 +248,15 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         const std::string line = std::string("Carrying ") + itemName(it.kind) +
-                                 (isMaterial(it.kind) ? ": aim where it goes and hold the left button"
-                                                      : ": E to put it down, R to turn it, E at the wagon to put it back");
+                                 (isMaterial(it.kind) ? ": hold the left button where it goes"
+                                                      : ": E to put down, R to turn");
         text(texts, centred(cx, 14, line), static_cast<float>(height) - 64, 14, kEmber, line, storage);
+    }
+
+    const std::string speech = settlerSpeech(w);
+    if (!speech.empty()) {
+        const std::string line = "Ada: \"" + speech + "\"";
+        text(texts, cx - 4.5f * static_cast<float>(line.size()), static_cast<float>(height) - 110, 18, kWhite, line, storage);
     }
 
     float my = cy + 90;
@@ -380,10 +407,139 @@ int runTour(strata::Engine& engine, const Args& args) {
     return 0;
 }
 
+// ---- the reveal: the restoration played back from its keyframes
+
+constexpr double kRevealSeconds = 32.0;
+
+class Reveal {
+public:
+    bool active() const { return active_; }
+    void start(double now) {
+        active_ = true;
+        started_ = now;
+        index_ = static_cast<size_t>(-1);
+    }
+    // Draws the reveal at `now`; false once it has finished (the scene is then
+    // back on the real world).
+    bool frame(strata::Engine& engine, bridge::Scene& scene, const World& w, double now) {
+        if (!active_ || w.history.empty()) return false;
+        const double t = (now - started_) / kRevealSeconds;
+        if (t < 0) return false;  // not started yet
+        if (t >= 1.0) {
+            finish(scene, w);
+            return false;
+        }
+        const size_t n = w.history.size();
+        const size_t i = std::min(n - 1, static_cast<size_t>(t * static_cast<double>(n)));
+        if (i != index_) {
+            index_ = i;
+            ghost_ = fromKeyframe(w, w.history[i]);
+            scene.showPlayer(true);
+            scene.sync(ghost_);
+            scene.reloadGrime(ghost_);
+        }
+        int32_t width = 0, height = 0;
+        engine.drawableSize(width, height);
+        const float aspect = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;
+        // A slow drift across the room from the door's corner toward the hearth.
+        const float k = static_cast<float>(t);
+        const float eye[3] = {3.1f - 0.6f * k, 2.1f - 0.25f * k, 3.7f - 0.5f * k};
+        const float target[3] = {-1.0f + 0.3f * k, 0.8f, -1.9f};
+        const float up[3] = {0, 1, 0};
+        engine.setCamera(strata::cameraLookAt(eye, target, up, 62.0f, aspect, 0.05f, 400.0f));
+        scene.animate(ghost_, now);
+        std::vector<StrataPointLight> lights;
+        scene.lights(ghost_, now, setSky(engine, ghost_), lights);
+        engine.setPointLights(lights.data(), lights.size());
+        StrataFrameDesc fd{};
+        fd.clear_flags = STRATA_CLEAR_COLOR | STRATA_CLEAR_DEPTH | STRATA_CLEAR_SKY;
+        engine.beginFrame(fd);
+        std::vector<StrataText> texts;
+        std::vector<std::string> storage;
+        storage.reserve(4);
+        text(texts, 30, 30, 22, kEmber, "Ada's cabin, from ruin to home", storage);
+        text(texts, 30, 62, 16, kWhite,
+             clockText(ghost_) + "   " + stepName(static_cast<Step>(w.history[index_].step)), storage);
+        text(texts, 30, static_cast<float>(height) - 40, 14, kDim, "Esc to skip", storage);
+        for (size_t j = 0; j < texts.size(); ++j) texts[j].utf8 = storage[j].c_str();
+        engine.submitText(texts.data(), texts.size());
+        engine.endFrame();
+        return true;
+    }
+    void finish(bridge::Scene& scene, const World& w) {
+        active_ = false;
+        scene.showPlayer(false);
+        scene.sync(w);
+        scene.reloadGrime(w);
+    }
+
+private:
+    bool active_ = false;
+    double started_ = 0;
+    size_t index_ = 0;
+    World ghost_;
+};
+
+void writeReplayFile(const World& w, const std::string& path) {
+    std::string error;
+    if (writeReplay(w, path, &error)) std::printf("kindling: wrote the restoration replay to %s\n", path.c_str());
+    else std::fprintf(stderr, "kindling: could not write %s: %s\n", path.c_str(), error.c_str());
+}
+
+// The autopilot plays the whole restoration headless, writing a first-person
+// frame every N ticks, then the reveal's frames, then the replay.
+int runHeadlessAutopilot(strata::Engine& engine, const Args& args) {
+    World w = newWorld(args.seed);
+    bridge::Scene scene(engine);
+    scene.sync(w);
+    Autopilot pilot;
+    std::vector<Message> none;
+    const int64_t limit = 60LL * 60 * kTickRate;
+    int shot = 0;
+    Step last = progress(w).step;
+    while (progress(w).step != Step::Done && w.tick < limit) {
+        const Input in = pilot.next(w);
+        TickEvents ev;
+        tick(w, in, &ev);
+        scene.updateGrime(w, ev.grime);
+        const Step now = progress(w).step;
+        if (now != last) {
+            std::printf("%7.1f s  %-8s %s\n", static_cast<double>(w.tick) / kTickRate, stepName(now), pilot.activity().c_str());
+            last = now;
+        }
+        if (!args.framesDir.empty() && w.tick % args.frameEvery == 0) {
+            const Aim aim = aimFor(scene, w);
+            render(engine, scene, w, aim, false, none, static_cast<double>(w.tick) / kTickRate);
+            char name[64];
+            std::snprintf(name, sizeof name, "/frame-%05d.png", shot++);
+            engine.saveScreenshotPng(args.framesDir + name);
+        }
+    }
+    const bool done = progress(w).step == Step::Done;
+    std::printf("%s after %.1f minutes of play; %zu keyframes; fingerprint %016llx\n",
+                done ? "Done" : "NOT done", static_cast<double>(w.tick) / kTickRate / 60.0, w.history.size(),
+                static_cast<unsigned long long>(fingerprint(w)));
+    if (!args.revealFramesDir.empty()) {
+        Reveal reveal;
+        reveal.start(0);
+        int frame = 0;
+        for (double t = 0; reveal.frame(engine, scene, w, t); t += 1.0 / 12.0) {
+            char name[64];
+            std::snprintf(name, sizeof name, "/reveal-%04d.png", frame++);
+            engine.saveScreenshotPng(args.revealFramesDir + name);
+        }
+        std::printf("wrote %d reveal frames\n", frame);
+    }
+    if (!args.replayPath.empty()) writeReplayFile(w, args.replayPath);
+    return done ? 0 : 1;
+}
+
 int runGame(strata::Engine& engine, const Args& args) {
     World w = newWorld(args.seed);
     bridge::Scene scene(engine);
     scene.sync(w);
+    Autopilot pilot;
+    Reveal reveal;
     bool keys[kMaxScancode] = {};
     bool captured = false, help = true, running = true, mouseDown = false;
     bool interactPressed = false, lanternPressed = false;
@@ -392,6 +548,7 @@ int runGame(strata::Engine& engine, const Args& args) {
     Aim aim;
     std::vector<Message> messages;
     double clock = 0;
+    bool revealed = false;
 
     auto capture = [&](bool on) {
         try {
@@ -414,6 +571,10 @@ int runGame(strata::Engine& engine, const Args& args) {
                 case STRATA_EVENT_KEY_DOWN:
                     if (e.scancode >= 0 && e.scancode < kMaxScancode) keys[e.scancode] = true;
                     if (e.repeat) break;
+                    if (reveal.active()) {
+                        if (e.scancode == kEscape) reveal.finish(scene, w);
+                        break;
+                    }
                     if (e.scancode == kEscape) {
                         if (captured) capture(false);
                         else running = false;
@@ -422,6 +583,7 @@ int runGame(strata::Engine& engine, const Args& args) {
                     else if (e.scancode == kE) interactPressed = true;
                     else if (e.scancode == kR) rotatePressed += 1;
                     else if (e.scancode == kL) lanternPressed = true;
+                    else if (e.scancode == kT && progress(w).step == Step::Done) reveal.start(clock);
                     else if (e.scancode == kGrave) toolPressed = 0;
                     else if (e.scancode >= k1 && e.scancode < k1 + kToolCount - 1) toolPressed = e.scancode - k1 + 1;
                     break;
@@ -447,33 +609,57 @@ int runGame(strata::Engine& engine, const Args& args) {
         }
 
         const auto now = Clock::now();
-        pending += std::chrono::duration<double>(now - last).count();
+        const double dt = std::chrono::duration<double>(now - last).count();
         last = now;
+        if (reveal.active()) {
+            clock += dt;
+            if (reveal.frame(engine, scene, w, clock)) {
+                engine.present();
+                continue;
+            }
+        }
+        pending += dt;
         if (pending > 0.25) pending = 0.25;  // after a stall, do not try to catch up
         while (pending >= kTickSeconds) {
             pending -= kTickSeconds;
             clock += kTickSeconds;
-            Input in;
-            in.forward = (keys[kW] ? 1.0f : 0.0f) - (keys[kS] ? 1.0f : 0.0f);
-            in.strafe = (keys[kD] ? 1.0f : 0.0f) - (keys[kA] ? 1.0f : 0.0f);
-            in.sprint = keys[kLShift] || keys[kRShift];
-            in.yaw = yaw;
-            in.pitch = pitch;
-            in.use = mouseDown && captured;
-            in.interact = interactPressed;
-            in.selectTool = toolPressed;
-            in.rotate = rotatePressed;
-            in.toggleLantern = lanternPressed;
-            lanternPressed = false;
-            interactPressed = false;
-            toolPressed = -1;
-            rotatePressed = 0;
-            aim = aimFor(scene, w);
-            in.aim = aim;
-            TickEvents ev;
-            tick(w, in, &ev);
-            scene.updateGrime(w, ev.grime);
-            for (std::string& m : ev.messages) messages.push_back({std::move(m), clock + 6.0});
+            for (int k = 0; k < (args.autopilot ? args.speed : 1); ++k) {
+                Input in;
+                if (args.autopilot) {
+                    in = pilot.next(w);
+                } else {
+                    in.forward = (keys[kW] ? 1.0f : 0.0f) - (keys[kS] ? 1.0f : 0.0f);
+                    in.strafe = (keys[kD] ? 1.0f : 0.0f) - (keys[kA] ? 1.0f : 0.0f);
+                    in.sprint = keys[kLShift] || keys[kRShift];
+                    in.yaw = yaw;
+                    in.pitch = pitch;
+                    in.use = mouseDown && captured;
+                    in.interact = interactPressed;
+                    in.selectTool = toolPressed;
+                    in.rotate = rotatePressed;
+                    in.toggleLantern = lanternPressed;
+                    aim = aimFor(scene, w);
+                    in.aim = aim;
+                }
+                lanternPressed = interactPressed = false;
+                toolPressed = -1;
+                rotatePressed = 0;
+                TickEvents ev;
+                tick(w, in, &ev);
+                if (args.autopilot) {
+                    aim = in.aim;
+                    yaw = w.player.yaw;
+                    pitch = w.player.pitch;
+                }
+                scene.updateGrime(w, ev.grime);
+                for (std::string& m : ev.messages) messages.push_back({std::move(m), clock + 6.0});
+            }
+            // Once Ada has settled, the reveal plays (once by itself; T plays it again).
+            if (!revealed && progress(w).step == Step::Done) {
+                revealed = true;
+                writeReplayFile(w, args.replayPath);
+                reveal.start(clock + 3.0);
+            }
         }
         while (!messages.empty() && messages.front().until < clock) messages.erase(messages.begin());
         if (messages.size() > 3) messages.erase(messages.begin(), messages.end() - 3);
@@ -499,7 +685,9 @@ int main(int argc, char** argv) {
         desc.title = "Kindling";
         auto engine = strata::Engine::create(desc);
         setLighting(*engine);
-        return args.tour ? runTour(*engine, args) : runGame(*engine, args);
+        if (args.tour) return runTour(*engine, args);
+        if (args.headless) return runHeadlessAutopilot(*engine, args);
+        return runGame(*engine, args);
     } catch (const strata::Error& e) {
         std::fprintf(stderr, "kindling: %s\n", e.what());
         return 1;

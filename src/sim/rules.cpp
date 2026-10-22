@@ -6,6 +6,7 @@
 #include "sim/brief.h"
 #include "sim/layout.h"
 #include "sim/progress.h"
+#include "sim/settler.h"
 
 namespace kindling {
 
@@ -522,6 +523,7 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         d.yaw = w.player.yaw + 1.2f;
     }
     burn(w, ev);
+    updateSettler(w, ev);
     if (w.carry == Carry::Item) {
         Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         it.yaw += kRotateStep * static_cast<float>(in.rotate);
@@ -542,8 +544,10 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         if (after == Step::Furnish) say(ev, "Sound again. Now make it a home: bring things in from the wagon.");
         if (after == Step::Kindle) say(ev, "It's starting to look like Ada's place. Time to light the hearth.");
         if (after == Step::Welcome) say(ev, "The cabin is warm. Ada's wagon is coming up the trail.");
+        if (after == Step::Done) say(ev, "Ada is home. (T plays back your restoration.)");
     }
     ++w.tick;
+    if (after != before || w.tick % kKeyframeEveryTicks == 0) w.history.push_back(snapshot(w));
     if (!frostBefore && frosted(w)) say(ev, "The first frost is settling over the valley.");
 }
 

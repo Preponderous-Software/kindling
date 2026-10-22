@@ -2,9 +2,10 @@
 
 Kindling is a C++17 game on [Strata](https://github.com/Preponderous-Software/strata). This document
 describes how it is built, and how it is meant to be built where the code does not exist yet.
-Implemented so far (MVP milestones M1 to M4): the simulation core's world, movement and collision,
-grime, tools, debris, repairs, furnishings, Ada's brief, firewood, the hearth, the game clock and the
-step checklist (`src/sim/`), the room as tagged meshes
+Implemented so far (MVP milestones M1 to M5): the simulation core's world, movement and collision,
+grime, tools, debris, repairs, furnishings, Ada's brief, firewood, the hearth, the game clock, Ada's
+arrival, the reveal's keyframes, the step checklist and an autopilot that plays the whole MVP
+(`src/sim/`), the replay export (`src/record/`), the room as tagged meshes
 (`src/bridge/room.*`), the scene, grime textures and mesh picking on Strata (`src/bridge/scene.*`),
 and the first-person app (`app/main.cpp`). The other sections are still a plan.
 
@@ -155,11 +156,18 @@ layout:
 | Stats | step, debris left, floor holes, dusty cells, roof patched, items furnished, warmth |
 | State hash | the simulation's own fingerprint at every sample |
 
-The same file serves two uses:
+As implemented: the World keeps a history of keyframes, a snapshot of what can be seen (grime at
+half resolution, debris, repairs, furnishings, the hearth, Ada, the player) taken every ten seconds
+of play and at every step change, and saved with the game.
 
-1. **In game,** the reveal plays the recorded restoration back through the normal renderer.
-2. **Outside the game,** [usd-web](https://github.com/Preponderous-Software/usd-web) turns the
-   replay into a small web bundle (the prototype's 785 samples are 28 KB) that plays in a browser.
+1. **In game,** the reveal rebuilds a world from each keyframe in turn and draws it through the
+   normal renderer from a slow camera drift across the room, about thirty seconds from ruin to Ada
+   by the fire.
+2. **Outside the game,** the same keyframes are written as a `usd-replay/1` file with
+   usd-recorder's vendored writer (`third_party/usd_recorder`) when Ada is home, and
+   [usd-web](https://github.com/Preponderous-Software/usd-web) turns it into a small web bundle that
+   plays in a browser. The state hash per sample is a hash of the exported frame
+   (`export-frame FNV-1a 64`), which the contract allows.
 
 The restore prototype ([`prototypes/restore-replay`](prototypes/README.md)) writes such a replay
 for the hearth room. It validates against the contract and plays in usd-web.
@@ -193,5 +201,4 @@ kindling/
 
 - **Model format:** glTF loaded by Kindling, or USD through `modules/usd`.
 - **Settler and dialogue data format.**
-- **How the in-game reveal plays the replay:** directly from the replay file, or from the save's
-  history.
+- ~~How the in-game reveal plays the replay~~: from the save's history (decided in M5).
