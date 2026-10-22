@@ -1,0 +1,438 @@
+#include "bridge/room.h"
+
+#include <cmath>
+
+#include "sim/layout.h"
+#include "sim/rng.h"
+
+namespace kindling::bridge {
+
+namespace L = kindling::layout;
+
+namespace {
+
+// ---- palette (linear RGB): a cold, dusty ruin
+const Rgb kLog{0.26f, 0.16f, 0.09f};
+const Rgb kLogEnd{0.42f, 0.30f, 0.17f};
+const Rgb kPlank{0.22f, 0.14f, 0.08f};
+const Rgb kRotten{0.09f, 0.07f, 0.05f};
+const Rgb kNewPlank{0.46f, 0.31f, 0.17f};
+const Rgb kCrawl{0.03f, 0.025f, 0.02f};
+const Rgb kCeiling{0.16f, 0.10f, 0.06f};
+const Rgb kBeam{0.20f, 0.12f, 0.06f};
+const Rgb kShingle{0.20f, 0.17f, 0.15f};
+const Rgb kMortar{0.34f, 0.31f, 0.28f};
+const Rgb kSoot{0.05f, 0.04f, 0.035f};
+const Rgb kAsh{0.40f, 0.40f, 0.39f};
+const Rgb kHearthstone{0.28f, 0.27f, 0.25f};
+const Rgb kFrame{0.20f, 0.11f, 0.055f};
+const Rgb kWood{0.21f, 0.12f, 0.06f};
+const Rgb kBoard{0.30f, 0.26f, 0.20f};
+const Rgb kSnow{0.78f, 0.82f, 0.90f};
+const Rgb kGrass{0.20f, 0.22f, 0.10f};
+const Rgb kDirt{0.24f, 0.18f, 0.11f};
+const Rgb kPine{0.05f, 0.11f, 0.07f};
+const Rgb kCottonwood{0.62f, 0.44f, 0.10f};
+const Rgb kBark{0.18f, 0.13f, 0.09f};
+const Rgb kHay{0.62f, 0.50f, 0.22f};
+const Rgb kCanvas{0.70f, 0.66f, 0.55f};
+
+constexpr int kCourses = 10;
+float courseY(int k) { return 0.16f + k * 0.31f; }
+constexpr float kLogR = 0.17f;
+constexpr float kEaveY = 3.25f, kRidgeY = 4.6f;
+constexpr float kRoofX0 = -4.7f, kRoofX1 = 4.7f, kEaveZ0 = -3.7f, kEaveZ1 = 4.87f;
+constexpr float kRidgeZ = 0.585f;
+
+float backSlopeY(float z) { return kEaveY + (z - kEaveZ0) / (kRidgeZ - kEaveZ0) * (kRidgeY - kEaveY); }
+float frontSlopeY(float z) { return kRidgeY - (z - kRidgeZ) / (kEaveZ1 - kRidgeZ) * (kRidgeY - kEaveY); }
+
+// The roof hole's four sections (a 2 x 2 grid); section k is patched once
+// World::roofPatches > k.
+constexpr float kHoleXs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
+constexpr float kHoleZs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
+
+void walls(MeshData& m) {
+    for (int k = 0; k < kCourses; ++k) {
+        const float y = courseY(k);
+        const uint32_t key = static_cast<uint32_t>(k);
+        m.beginTag(TargetKind::Wall, 0);
+        m.logX(-4.25f, 4.25f, y, L::kInnerZ0 - kLogR, kLogR, vary(kLog, key * 4 + 0), kLogEnd);
+        m.endTag();
+        m.beginTag(TargetKind::Wall, 3);
+        if (y < L::kDoorTop) {
+            m.logX(-4.25f, L::kDoorX0, y, L::kInnerZ1 + kLogR, kLogR, vary(kLog, key * 4 + 1), kLogEnd);
+            m.logX(L::kDoorX1, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, vary(kLog, key * 4 + 1), kLogEnd);
+        } else {
+            m.logX(-4.25f, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, vary(kLog, key * 4 + 1), kLogEnd);
+        }
+        m.endTag();
+        m.beginTag(TargetKind::Wall, 2);
+        m.logZ(-3.3f, 4.47f, y, L::kInnerX1 + kLogR, kLogR, vary(kLog, key * 4 + 2), kLogEnd);
+        m.endTag();
+        m.beginTag(TargetKind::Wall, 1);
+        if (y > L::kWindowY0 - 0.05f && y < L::kWindowY1 + 0.05f) {
+            m.logZ(-3.3f, L::kWindowZ0, y, L::kInnerX0 - kLogR, kLogR, vary(kLog, key * 4 + 3), kLogEnd);
+            m.logZ(L::kWindowZ1, 4.47f, y, L::kInnerX0 - kLogR, kLogR, vary(kLog, key * 4 + 3), kLogEnd);
+        } else {
+            m.logZ(-3.3f, 4.47f, y, L::kInnerX0 - kLogR, kLogR, vary(kLog, key * 4 + 3), kLogEnd);
+        }
+        m.endTag();
+    }
+    // Door frame.
+    m.beginTag(TargetKind::Wall, 3);
+    m.box({L::kDoorX0 - 0.1f, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX0, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+    m.box({L::kDoorX1, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+    m.box({L::kDoorX0 - 0.1f, L::kDoorTop, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f},
+          kFrame);
+    m.endTag();
+    // Gables: the triangles between the side walls' top course and the roof.
+    for (float x : {L::kInnerX0 - kLogR, L::kInnerX1 + kLogR}) {
+        const Vec3 out{x < 0 ? -1.0f : 1.0f, 0, 0};
+        const uint32_t a = m.vertex({x, kEaveY, -3.3f}, kLog), b = m.vertex({x, kEaveY, 4.47f}, kLog);
+        const uint32_t c = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, kLog);
+        m.triangle(a, b, c, out);
+        const uint32_t a2 = m.vertex({x, kEaveY, -3.3f}, kLog), b2 = m.vertex({x, kEaveY, 4.47f}, kLog);
+        const uint32_t c2 = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, kLog);
+        m.triangle(a2, b2, c2, out * -1.0f);
+    }
+}
+
+void floor(MeshData& m, const World& w) {
+    for (int row = 0; row < L::kPlankRows; ++row) {
+        const float z0 = L::plankZ0(row) + 0.004f, z1 = L::plankZ0(row + 1) - 0.004f;
+        const Rgb c = vary(kPlank, static_cast<uint32_t>(row) * 7 + 1, 0.18f);
+        int span = -1;
+        for (int i = 0; i < static_cast<int>(L::kRottenSpans.size()); ++i)
+            if (L::kRottenSpans[i].row == row) span = i;
+        m.beginTag(TargetKind::Floor);
+        if (span < 0) {
+            m.box({L::kInnerX0, 0, z0}, {L::kInnerX1, L::kFloorY, z1}, c);
+            m.endTag();
+            continue;
+        }
+        const L::RottenSpan& s = L::kRottenSpans[span];
+        m.box({L::kInnerX0, 0, z0}, {s.x0, L::kFloorY, z1}, c);
+        m.box({s.x1, 0, z0}, {L::kInnerX1, L::kFloorY, z1}, c);
+        m.endTag();
+        m.beginTag(TargetKind::RottenPlank, span);
+        switch (w.planks[span]) {
+            case PlankState::Rotten:
+                // Sagging, with a hole broken through the middle.
+                m.box({s.x0, -0.01f, z0}, {s.x0 + 0.3f, L::kFloorY - 0.02f, z1}, kRotten);
+                m.box({s.x1 - 0.32f, -0.01f, z0}, {s.x1, L::kFloorY - 0.02f, z1}, kRotten);
+                m.box({s.x0, -0.27f, z0}, {s.x1, -0.25f, z1}, kCrawl);
+                break;
+            case PlankState::Removed: m.box({s.x0, -0.27f, z0}, {s.x1, -0.25f, z1}, kCrawl); break;
+            case PlankState::New: m.box({s.x0, 0, z0}, {s.x1, L::kFloorY, z1}, kNewPlank); break;
+        }
+        m.endTag();
+    }
+}
+
+void ceiling(MeshData& m, const World& w) {
+    const float y0 = L::kCeilingY, y1 = L::kCeilingY + 0.1f;
+    m.beginTag(TargetKind::Ceiling);
+    // Around the hole.
+    m.box({-4.1f, y0, -3.1f}, {L::kRoofHoleX0, y1, 4.3f}, kCeiling);
+    m.box({L::kRoofHoleX1, y0, -3.1f}, {4.1f, y1, 4.3f}, kCeiling);
+    m.box({L::kRoofHoleX0, y0, -3.1f}, {L::kRoofHoleX1, y1, L::kRoofHoleZ0}, kCeiling);
+    m.box({L::kRoofHoleX0, y0, L::kRoofHoleZ1}, {L::kRoofHoleX1, y1, 4.3f}, kCeiling);
+    for (int k = 0; k < 4; ++k) {
+        if (w.roofPatches <= k) continue;
+        const int i = k % 2, j = k / 2;
+        m.box({kHoleXs[i], y0, kHoleZs[j]}, {kHoleXs[i + 1], y1, kHoleZs[j + 1]}, vary(kCeiling, 90 + k, 0.2f));
+    }
+    // Beams across the room (the middle one broke where the roof came down).
+    for (float bx : {-2.4f, 2.4f}) m.box({bx - 0.13f, y0 - 0.22f, -3.1f}, {bx + 0.13f, y0, 4.3f}, kBeam);
+    m.box({-0.13f, y0 - 0.22f, -3.1f}, {0.13f, y0, L::kRoofHoleZ0 + 0.1f}, kBeam);
+    m.box({-0.13f, y0 - 0.22f, L::kRoofHoleZ1 + 0.15f}, {0.13f, y0, 4.3f}, kBeam);
+    m.endTag();
+}
+
+// One slab of roof between z0 and z1 on a slope, x0..x1.
+void roofPanel(MeshData& m, float x0, float x1, float z0, float z1, bool back, Rgb c) {
+    auto y = [back](float z) { return back ? backSlopeY(z) : frontSlopeY(z); };
+    const float t = 0.1f;
+    const Vec3 up = back ? Vec3{0, 1, -0.32f} : Vec3{0, 1, 0.32f};
+    m.quad({x0, y(z0), z0}, {x1, y(z0), z0}, {x1, y(z1), z1}, {x0, y(z1), z1}, c, up);
+    m.quad({x0, y(z0) - t, z0}, {x1, y(z0) - t, z0}, {x1, y(z1) - t, z1}, {x0, y(z1) - t, z1}, c, up * -1.0f);
+}
+
+void roof(MeshData& m, const World& w) {
+    // The back slope, cut into a grid whose middle four cells are the hole.
+    const float xs[5] = {kRoofX0, kHoleXs[0], kHoleXs[1], kHoleXs[2], kRoofX1};
+    const float zs[5] = {kEaveZ0, kHoleZs[0], kHoleZs[1], kHoleZs[2], kRidgeZ};
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j) {
+            const bool hole = i >= 1 && i <= 2 && j >= 1 && j <= 2;
+            const int section = (i - 1) + 2 * (j - 1);
+            if (hole && w.roofPatches <= section) continue;
+            roofPanel(m, xs[i], xs[i + 1], zs[j], zs[j + 1], true,
+                      hole ? vary(kShingle, 70 + section, 0.25f) : vary(kShingle, i * 5 + j));
+        }
+    roofPanel(m, kRoofX0, kRoofX1, kRidgeZ, kEaveZ1, false, kShingle);
+    m.box({kRoofX0, kRidgeY - 0.05f, kRidgeZ - 0.12f}, {kRoofX1, kRidgeY + 0.08f, kRidgeZ + 0.12f}, kBeam);
+}
+
+void chimney(MeshData& m) {
+    m.beginTag(TargetKind::HearthFace);
+    m.box({L::kBreastX0, 0, L::kBreastZ0}, {L::kFireboxX0, L::kCeilingY + 0.05f, L::kBreastFront}, kMortar);
+    m.box({L::kFireboxX1, 0, L::kBreastZ0}, {L::kBreastX1, L::kCeilingY + 0.05f, L::kBreastFront}, kMortar);
+    m.box({L::kFireboxX0, L::kFireboxTop, L::kBreastZ0}, {L::kFireboxX1, L::kCeilingY + 0.05f, L::kBreastFront},
+          kMortar);
+    // Stones proud of the mortar, in staggered courses, leaving the firebox open.
+    Rng rng(1881);
+    float y = 0.02f;
+    int row = 0;
+    while (y < L::kCeilingY) {
+        const float h = rng.uniform(0.17f, 0.27f);
+        float x = L::kBreastX0 + (row % 2 ? 0.12f : 0.0f) - 0.15f;
+        while (x < L::kBreastX1) {
+            const float wdt = rng.uniform(0.24f, 0.42f);
+            const float x0 = std::fmax(x + 0.025f, L::kBreastX0), x1 = std::fmin(x + wdt - 0.025f, L::kBreastX1);
+            const float y0 = y + 0.02f, y1 = std::fmin(y + h - 0.02f, L::kCeilingY);
+            const bool opening = x1 > L::kFireboxX0 - 0.02f && x0 < L::kFireboxX1 + 0.02f && y0 < L::kFireboxTop;
+            const float g = rng.uniform(0.30f, 0.50f), depth = rng.uniform(0.04f, 0.08f);
+            if (x1 - x0 > 0.06f && y1 - y0 > 0.05f && !opening)
+                m.box({x0, y0, L::kBreastFront - 0.01f}, {x1, y1, L::kBreastFront + depth},
+                      {g * 1.02f, g * 0.95f, g * 0.86f});
+            x += wdt;
+        }
+        y += h;
+        ++row;
+    }
+    for (int k = 0; k < 7; ++k) {  // arch over the opening
+        const float span = L::kFireboxX1 - L::kFireboxX0 + 0.1f;
+        const float x0 = L::kFireboxX0 - 0.05f + k * span / 7;
+        m.box({x0 + 0.015f, L::kFireboxTop - 0.02f, L::kBreastFront - 0.01f},
+              {x0 + span / 7 - 0.015f, L::kFireboxTop + 0.2f, L::kBreastFront + 0.09f}, vary({0.42f, 0.40f, 0.36f}, k));
+    }
+    m.box({-2.55f, 0, L::kBreastFront}, {0.95f, 0.13f, L::kHearthstoneZ1}, kHearthstone);
+    m.endTag();
+
+    m.beginTag(TargetKind::Firebox);
+    m.box({L::kFireboxX0, 0, L::kBreastZ0}, {L::kFireboxX1, L::kFireboxTop, -2.86f}, kSoot);
+    m.box({L::kFireboxX0, 0, L::kBreastZ0}, {L::kFireboxX1, 0.04f, L::kBreastFront}, kSoot);
+    m.box({-1.35f, 0.04f, -2.82f}, {-0.25f, 0.08f, -2.4f}, kAsh);  // the old ash bed
+    m.logX(-1.15f, -0.6f, 0.1f, -2.6f, 0.06f, {0.06f, 0.06f, 0.06f}, {0.18f, 0.18f, 0.18f});
+    m.endTag();
+
+    // The chimney stack above the roof.
+    m.box({-1.15f, kEaveY, -3.45f}, {-0.45f, 5.3f, -2.75f}, kMortar);
+}
+
+void mantel(MeshData& m) {
+    m.beginTag(TargetKind::HearthFace);
+    m.box({L::kMantelX0, L::kMantelY - 0.12f, L::kMantelZ0}, {L::kMantelX1, L::kMantelY, L::kMantelZ1}, kWood);
+    m.box({-2.5f, 1.08f, -2.4f}, {-2.38f, L::kMantelY - 0.12f, -2.12f}, kWood);
+    m.box({0.78f, 1.08f, -2.4f}, {0.9f, L::kMantelY - 0.12f, -2.12f}, kWood);
+    m.box({-0.82f, 2.4f, -2.36f}, {-0.78f, 2.46f, -2.3f}, {0.15f, 0.15f, 0.15f});  // an empty picture hook
+    m.endTag();
+}
+
+void window(MeshData& m) {
+    m.beginTag(TargetKind::Wall, 1);
+    m.box({-4.3f, 0.9f, -1.08f}, {-3.94f, 1.0f, 0.53f}, kFrame);  // sill
+    m.box({-4.3f, 2.1f, -1.08f}, {-3.98f, 2.2f, 0.53f}, kFrame);
+    m.box({-4.3f, 0.9f, -1.08f}, {-3.98f, 2.2f, -0.98f}, kFrame);
+    m.box({-4.3f, 0.9f, 0.43f}, {-3.98f, 2.2f, 0.53f}, kFrame);
+    m.box({-4.2f, 1.0f, -0.3f}, {-4.16f, 2.1f, -0.25f}, kFrame);  // muntins
+    m.box({-4.2f, 1.52f, -1.0f}, {-4.16f, 1.57f, 0.45f}, kFrame);
+    m.endTag();
+}
+
+void boards(MeshData& m, const World& w) {
+    const float ys[4][2] = {{1.04f, 1.24f}, {1.33f, 1.55f}, {1.66f, 1.84f}, {1.95f, 2.12f}};
+    for (int b = 0; b < 4; ++b) {
+        if (!w.windowBoards[b]) continue;
+        m.beginTag(TargetKind::WindowBoard, b);
+        m.box({-3.98f, ys[b][0], -1.25f}, {-3.92f, ys[b][1], 0.7f}, vary(kBoard, 30 + b, 0.15f));
+        m.endTag();
+    }
+}
+
+void chair(MeshData& m, const World& w) {
+    const float cx = 1.65f, cz = -1.15f;
+    const bool mended = w.chair == ChairState::Mended;
+    m.beginTag(TargetKind::Chair);
+    m.box({cx - 0.3f, 0.46f, cz - 0.27f}, {cx + 0.3f, 0.52f, cz + 0.27f}, kWood);
+    for (float lx : {cx - 0.26f, cx + 0.22f}) {
+        for (float lz : {cz - 0.24f, cz + 0.2f}) m.box({lx, 0.1f, lz}, {lx + 0.04f, 0.48f, lz + 0.04f}, kWood);
+        m.box({lx - 0.01f, 0.05f, cz - 0.5f}, {lx + 0.05f, 0.12f, cz + 0.5f}, kWood);  // rockers
+        m.box({lx, 0.48f, cz + 0.22f}, {lx + 0.04f, 1.3f, cz + 0.27f}, kWood);          // back posts
+        m.box({lx - 0.01f, 0.72f, cz - 0.26f}, {lx + 0.05f, 0.76f, cz + 0.27f}, kWood);  // arms
+    }
+    for (int k = 0; k < (mended ? 3 : 1); ++k)
+        m.box({cx - 0.24f, 0.8f + k * 0.17f, cz + 0.23f}, {cx + 0.24f, 0.86f + k * 0.17f, cz + 0.26f}, kWood);
+    if (mended) m.box({cx - 0.28f, 1.24f, cz + 0.22f}, {cx + 0.28f, 1.32f, cz + 0.28f}, kWood);
+    m.endTag();
+}
+
+void table(MeshData& m, const World& w) {
+    m.beginTag(TargetKind::Table);
+    if (w.table == TableState::Toppled) {
+        // On its side by the window: the top stands on edge, legs sticking out.
+        m.box({-3.62f, L::kFloorY, 1.05f}, {-3.56f, 0.66f, 2.15f}, kWood);
+        for (float lz : {1.12f, 2.02f})
+            for (float ly : {0.12f, 0.54f}) m.box({-3.56f, ly, lz}, {-2.86f, ly + 0.05f, lz + 0.05f}, kWood);
+    } else {
+        m.box({-3.8f, 0.7f, 0.9f}, {-3.2f, 0.75f, 2.0f}, kWood);
+        for (float lz : {0.95f, 1.9f})
+            for (float lx : {-3.75f, -3.3f}) m.box({lx, 0, lz}, {lx + 0.05f, 0.7f, lz + 0.05f}, kWood);
+    }
+    m.endTag();
+}
+
+void snow(MeshData& m, const World& w) {
+    if (w.snow <= 0) return;
+    const float s = w.snow;
+    m.beginTag(TargetKind::Snow);
+    m.ellipsoid({0.1f, L::kFloorY, -0.9f}, {0.45f + 0.35f * s, 0.05f + 0.12f * s, 0.35f + 0.3f * s}, kSnow);
+    if (s > 0.4f) m.ellipsoid({0.35f, L::kFloorY, -0.6f}, {0.45f * s, 0.1f * s, 0.4f * s}, kSnow);
+    m.endTag();
+}
+
+void pine(MeshData& m, float x, float z, float h) {
+    m.rod({x, 0, z}, {x, h * 0.15f, z}, h * 0.03f, kBark, 6);
+    for (int i = 0; i < 3; ++i) {
+        const float wdt = h * (0.42f - i * 0.1f), b = h * (0.1f + i * 0.24f);
+        m.cone({x, b, z}, wdt / 2, h * 0.42f, kPine, {0.07f, 0.14f, 0.09f}, 8);
+    }
+}
+
+void cottonwood(MeshData& m, float x, float z, float h) {
+    m.rod({x, 0, z}, {x, h * 0.6f, z}, h * 0.045f, kBark, 7);
+    m.ellipsoid({x, h * 0.78f, z}, {h * 0.32f, h * 0.26f, h * 0.32f}, kCottonwood, 10, 6);
+    m.ellipsoid({x + h * 0.18f, h * 0.66f, z + 0.1f}, {h * 0.2f, h * 0.17f, h * 0.2f}, vary(kCottonwood, 5), 8, 5);
+}
+
+void yard(MeshData& m) {
+    // The wagon: a bed on four wheels, a canvas cover over the back half.
+    m.beginTag(TargetKind::Wagon);
+    m.box({1.3f, 0.7f, 7.1f}, {3.7f, 0.82f, 9.3f}, kWood);
+    m.box({1.3f, 0.82f, 7.1f}, {1.38f, 1.2f, 9.3f}, kWood);
+    m.box({3.62f, 0.82f, 7.1f}, {3.7f, 1.2f, 9.3f}, kWood);
+    m.box({1.3f, 0.82f, 9.22f}, {3.7f, 1.2f, 9.3f}, kWood);
+    for (float wz : {7.4f, 9.0f})
+        for (float wx : {1.22f, 3.78f}) m.logX(wx - 0.06f, wx + 0.06f, 0.42f, wz, 0.42f, kWood, kBark, 14);
+    m.ellipsoid({2.5f, 1.2f, 8.7f}, {1.25f, 0.85f, 0.7f}, kCanvas, 12, 6);
+    m.rod({2.5f, 0.6f, 7.1f}, {2.5f, 0.45f, 5.6f}, 0.05f, kWood, 6);  // the tongue
+    m.endTag();
+
+    m.beginTag(TargetKind::ChoppingBlock);
+    m.rod({-1.8f, 0, 7.0f}, {-1.8f, 0.55f, 7.0f}, 0.33f, {0.36f, 0.26f, 0.16f}, 12);
+    m.endTag();
+
+    m.beginTag(TargetKind::LogPile);
+    for (int row = 0; row < 3; ++row)
+        for (int k = 0; k < 4 - row; ++k)
+            m.logZ(7.45f, 8.25f, 0.17f + row * 0.3f, -3.4f + k * 0.3f + row * 0.15f, 0.15f, vary(kBark, k + 9 * row),
+                   {0.55f, 0.40f, 0.24f}, 10);
+    m.endTag();
+
+    m.beginTag(TargetKind::HayBale);
+    m.box({5.0f, 0, 7.9f}, {5.8f, 0.55f, 8.6f}, kHay);
+    m.endTag();
+
+    m.beginTag(TargetKind::Stall);
+    for (float px : {6.1f, 7.6f, 9.1f}) m.box({px - 0.07f, 0, 11.03f}, {px + 0.07f, 1.4f, 11.17f}, kWood);
+    for (float pz : {7.5f, 9.25f, 11.1f}) {
+        m.box({6.03f, 0, pz - 0.07f}, {6.17f, 1.4f, pz + 0.07f}, kWood);
+        m.box({9.03f, 0, pz - 0.07f}, {9.17f, 1.4f, pz + 0.07f}, kWood);
+    }
+    for (float ry : {0.6f, 1.15f}) {
+        m.box({6.0f, ry, 11.05f}, {9.2f, ry + 0.1f, 11.15f}, kWood);
+        m.box({6.05f, ry, 7.4f}, {6.15f, ry + 0.1f, 11.2f}, kWood);
+        m.box({9.05f, ry, 7.4f}, {9.15f, ry + 0.1f, 11.2f}, kWood);
+    }
+    m.box({6.0f, 1.9f, 7.2f}, {9.2f, 2.0f, 11.3f}, kShingle);  // a lean-to roof
+    m.endTag();
+
+    // Trees: pines on the ridge behind, cottonwoods along the creek in front.
+    Rng rng(42);
+    for (int k = 0; k < 26; ++k) {
+        const float x = rng.uniform(-30, 30), z = rng.uniform(-30, -9), h = rng.uniform(5, 11);
+        pine(m, x, z, h);
+    }
+    for (int k = 0; k < 8; ++k) {
+        const float x = -24 + k * 6.5f + rng.uniform(-1.5f, 1.5f), z = rng.uniform(21, 25), h = rng.uniform(6, 10);
+        cottonwood(m, x, z, h);
+    }
+}
+
+void ground(MeshData& m) {
+    m.beginTag(TargetKind::Ground);
+    m.quad({-60, 0, -60}, {60, 0, -60}, {60, 0, 60}, {-60, 0, 60}, kGrass, {0, 1, 0});
+    // A worn path from the door to the wagon, just above the grass.
+    m.quad({2.0f, 0.005f, 4.4f}, {3.0f, 0.005f, 4.4f}, {3.4f, 0.005f, 7.0f}, {1.8f, 0.005f, 7.0f}, kDirt, {0, 1, 0});
+    m.endTag();
+}
+
+}  // namespace
+
+MeshData buildPart(Part part, const World& w) {
+    MeshData m;
+    switch (part) {
+        case Part::Walls: walls(m); break;
+        case Part::Floor: floor(m, w); break;
+        case Part::Ceiling: ceiling(m, w); break;
+        case Part::Roof: roof(m, w); break;
+        case Part::Chimney: chimney(m); break;
+        case Part::Mantel: mantel(m); break;
+        case Part::Window: window(m); break;
+        case Part::Boards: boards(m, w); break;
+        case Part::Chair: chair(m, w); break;
+        case Part::Table: table(m, w); break;
+        case Part::Snow: snow(m, w); break;
+        case Part::Yard: yard(m); break;
+        case Part::Ground: ground(m); break;
+        case Part::Count: break;
+    }
+    return m;
+}
+
+uint64_t partVersion(Part part, const World& w) {
+    switch (part) {
+        case Part::Floor:
+            return static_cast<uint64_t>(w.planks[0]) | static_cast<uint64_t>(w.planks[1]) << 4 |
+                   static_cast<uint64_t>(w.planks[2]) << 8;
+        case Part::Ceiling:
+        case Part::Roof: return static_cast<uint64_t>(w.roofPatches);
+        case Part::Boards: {
+            uint64_t v = 0;
+            for (int b = 0; b < 4; ++b) v |= static_cast<uint64_t>(w.windowBoards[b] != 0) << b;
+            return v;
+        }
+        case Part::Chair: return static_cast<uint64_t>(w.chair);
+        case Part::Table: return static_cast<uint64_t>(w.table);
+        case Part::Snow: return static_cast<uint64_t>(std::lround(w.snow * 20));
+        default: return 0;
+    }
+}
+
+MeshData buildDebris(const Debris& d, int32_t index) {
+    MeshData m;
+    m.beginTag(TargetKind::Debris, index);
+    switch (d.kind) {
+        case DebrisKind::Board: {
+            const float len = 0.5f + 0.05f * static_cast<float>(d.id % 8);
+            m.box({-len / 2, -0.025f, -0.06f}, {len / 2, 0.025f, 0.06f}, vary(kBoard, static_cast<uint32_t>(d.id), 0.2f));
+            break;
+        }
+        case DebrisKind::Shingle:
+            m.box({-0.15f, -0.012f, -0.08f}, {0.15f, 0.012f, 0.08f}, vary(kShingle, static_cast<uint32_t>(d.id), 0.2f));
+            break;
+        case DebrisKind::Rafter: m.rod({0, 0, 0}, {1.97f, 2.75f, 0}, 0.11f, kBeam, 10); break;
+    }
+    m.endTag();
+    return m;
+}
+
+void debrisTransform(const Debris& d, float out[16]) {
+    const float c = std::cos(d.yaw), s = std::sin(d.yaw);
+    const float m[16] = {c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, d.pos.x, d.pos.y, d.pos.z, 1};
+    for (int i = 0; i < 16; ++i) out[i] = m[i];
+}
+
+}  // namespace kindling::bridge
