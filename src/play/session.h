@@ -4,11 +4,13 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "bridge/scene.h"
 #include "play/hud.h"
+#include "playtest/probe.h"
 #include "sim/autopilot.h"
 #include "sim/world.h"
 #include "strata/strata.hpp"
@@ -27,6 +29,9 @@ struct SessionOptions {
     bool browser = false;
     // Called after every save written (the browser flushes it to IndexedDB).
     std::function<void()> afterSave;
+    // --playtest-out: where to write state.json and events.jsonl for an AI
+    // playtester (src/playtest/probe.h); empty = nothing is written.
+    std::string playtestOut;
 };
 
 class Session {
@@ -72,6 +77,7 @@ private:
     void capture(bool on);
     void onKeyDown(int scancode);
     void step();
+    void record(double dt);
 
     strata::Engine& engine_;
     SessionOptions options_;
@@ -82,6 +88,8 @@ private:
     std::vector<Message> messages_;
     static constexpr int kMaxScancode = 512;
     bool keys_[kMaxScancode] = {};
+    bool tapped_[kMaxScancode] = {};  // went down since the last tick
+    bool held(int scancode) const { return keys_[scancode] || tapped_[scancode]; }
     bool captured_ = false, help_ = true, running_ = true, mouseDown_ = false, touchUse_ = false;
     bool interactPressed_ = false, lanternPressed_ = false;
     int32_t toolPressed_ = -1, rotatePressed_ = 0;
@@ -91,6 +99,12 @@ private:
     double clock_ = 0, lastSave_ = 0, pending_ = 0;
     bool revealed_ = false;
     bool compact_ = false;
+    // The playtest probe, when asked for.
+    std::unique_ptr<playtest::Recorder> recorder_;
+    std::vector<std::string> fresh_;  // messages since the recorder last ran
+    int savesWritten_ = 0;
+    double fpsSeconds_ = 0;
+    int fpsFrames_ = 0, fps_ = 0;
 };
 
 }  // namespace kindling::play

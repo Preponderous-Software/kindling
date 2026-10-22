@@ -108,11 +108,32 @@ jobs:
         run: |
           mkdir -p frames reveal
           ./build/kindling --headless --autopilot --frames frames --frame-every 1500 --reveal-frames reveal \
-            --replay restoration.usda --width 640 --height 360
+            --replay restoration.usda --width 640 --height 360 --playtest-out probe
           test -s restoration.usda
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # --playtest-out (src/playtest/probe.h): the probe's core fields and one
+      # objective_completed event per restoration step, as the playtester
+      # probe contract asks.
+      - name: The playtest probe's output
+        run: |
+          python - <<'PY'
+          import json
+          events = [json.loads(line) for line in open("probe/events.jsonl", encoding="utf-8") if line.strip()]
+          assert all({"type", "tick", "wallTimeMs"} <= set(e) for e in events), "an event lacks type, tick or wallTimeMs"
+          assert events[0]["type"] == "world" and events[0]["how"] == "created", events[0]
+          done = [e["title"] for e in events if e["type"] == "objective_completed"]
+          assert done == ["Survey", "Clear", "Repair", "Furnish", "Kindle", "Welcome"], done
+          ticks = [e["tick"] for e in events]
+          assert ticks == sorted(ticks), "ticks went backwards"
+          state = json.load(open("probe/state.json", encoding="utf-8"))
+          for key in ("wallTimeMs", "version", "screen", "world", "tick", "seed", "player", "nearest"):
+              assert key in state, key
+          assert {"x", "z", "yawDeg"} <= set(state["player"]), state["player"]
+          print(f"{len(events)} events, steps {done}; state.json at tick {state['tick']}")
+          PY
+
       - name: The restoration's replay conforms to usd-replay/1
         run: |
           git clone --quiet https://github.com/Preponderous-Software/usd-recorder "$RUNNER_TEMP/usd-recorder"

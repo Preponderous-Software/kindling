@@ -220,7 +220,7 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     }
 
     if (help != Help::Hidden) {
-        std::vector<const char*> lines = {"Mouse      look",       "W A S D    walk",          "Shift      hurry",
+        std::vector<const char*> lines = {"Mouse / arrows  look",       "W A S D    walk",          "Shift      hurry",
                                           "1-9        take a tool", "Left mouse work with it", "E          pick up / put down",
                                           "R          turn what you carry", "L          lantern",
                                           "F5 / F9    save / load the last save"};

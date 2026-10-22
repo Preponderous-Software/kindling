@@ -1,7 +1,9 @@
 #include "play/session.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
+#include <iterator>
 #include <cstdio>
 
 #include "save/save.h"
@@ -14,9 +16,14 @@ namespace {
 
 // SDL3 scancodes (USB HID usage ids), which Strata reports as-is.
 constexpr int kA = 4, kD = 7, kE = 8, kL = 15, kR = 21, kS = 22, kT = 23, kW = 26, k1 = 30, kEscape = 41, kGrave = 53,
-              kF1 = 58, kF5 = 62, kF9 = 66, kF12 = 69, kLShift = 225, kRShift = 229;
+              kF1 = 58, kF5 = 62, kF9 = 66, kF12 = 69, kRight = 79, kLeft = 80, kDown = 81, kUp = 82,
+              kLShift = 225, kRShift = 229;
 constexpr double kAutosaveSeconds = 120.0;
 constexpr float kMouseSensitivity = 0.0025f;  // radians per pixel
+// The arrow keys look around too (for a player without a mouse, and for
+// playtesting agents): radians a second of game time, turning and up/down.
+constexpr float kKeyTurnRate = 1.5707963f;
+constexpr float kKeyPitchRate = 1.0f;
 
 }  // namespace
 
@@ -33,6 +40,14 @@ Session::Session(strata::Engine& engine, const SessionOptions& options)
     pitch_ = w_.player.pitch;
     revealed_ = progress(w_).step == Step::Done;
     capture(true);
+    if (!options_.playtestOut.empty()) {
+        recorder_ = std::make_unique<playtest::Recorder>(options_.playtestOut, [] {
+            return static_cast<int64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                            std::chrono::system_clock::now().time_since_epoch())
+                                            .count());
+        });
+        recorder_->worldStarted(w_, w_.tick > 0 ? "loaded" : "created");
+    }
 }
 
 std::string Session::lastMessage() const { return messages_.empty() ? std::string() : messages_.back().text; }
@@ -46,6 +61,7 @@ bool Session::save(const char* note) {
         std::fprintf(stderr, "kindling: could not save: %s\n", why.c_str());
     }
     lastSave_ = clock_;
+    if (ok) ++savesWritten_;
     if (ok && options_.afterSave) options_.afterSave();
     return ok;
 }
@@ -61,6 +77,7 @@ void Session::load() {
         scene_.sync(w_);
         scene_.reloadGrime(w_);
         revealed_ = progress(w_).step == Step::Done;
+        if (recorder_) recorder_->worldStarted(w_, "loaded");
     }
 }
 
@@ -74,6 +91,7 @@ void Session::restart() {
     revealed_ = false;
     pilot_ = Autopilot();
     messages_.push_back({"A new start: the cabin as you found it.", clock_ + 6.0});
+    if (recorder_) recorder_->worldStarted(w_, "created");
 }
 
 void Session::capture(bool on) {
@@ -136,7 +154,7 @@ void Session::handle(const StrataEvent& e) {
     switch (e.type) {
         case STRATA_EVENT_QUIT: running_ = false; break;
         case STRATA_EVENT_KEY_DOWN:
-            if (e.scancode >= 0 && e.scancode < kMaxScancode) keys_[e.scancode] = true;
+            if (e.scancode >= 0 && e.scancode < kMaxScancode) keys_[e.scancode] = tapped_[e.scancode] = true;
             if (!e.repeat) onKeyDown(e.scancode);
             break;
         case STRATA_EVENT_KEY_UP:
@@ -169,9 +187,14 @@ void Session::step() {
         if (options_.autopilot) {
             in = pilot_.next(w_);
         } else {
-            in.forward = clampf((keys_[kW] ? 1.0f : 0.0f) - (keys_[kS] ? 1.0f : 0.0f) + stickForward_, -1.0f, 1.0f);
-            in.strafe = clampf((keys_[kD] ? 1.0f : 0.0f) - (keys_[kA] ? 1.0f : 0.0f) + stickStrafe_, -1.0f, 1.0f);
-            in.sprint = keys_[kLShift] || keys_[kRShift] ||
+            if (captured_ || options_.browser) {
+                yaw_ += kKeyTurnRate * kTickSeconds * ((held(kRight) ? 1.0f : 0.0f) - (held(kLeft) ? 1.0f : 0.0f));
+                pitch_ = clampf(pitch_ + kKeyPitchRate * kTickSeconds * ((held(kUp) ? 1.0f : 0.0f) - (held(kDown) ? 1.0f : 0.0f)),
+                                -1.45f, 1.45f);
+            }
+            in.forward = clampf((held(kW) ? 1.0f : 0.0f) - (held(kS) ? 1.0f : 0.0f) + stickForward_, -1.0f, 1.0f);
+            in.strafe = clampf((held(kD) ? 1.0f : 0.0f) - (held(kA) ? 1.0f : 0.0f) + stickStrafe_, -1.0f, 1.0f);
+            in.sprint = held(kLShift) || held(kRShift) ||
                         std::sqrt(stickForward_ * stickForward_ + stickStrafe_ * stickStrafe_) > 0.95f;
             in.yaw = yaw_;
             in.pitch = pitch_;
@@ -183,6 +206,8 @@ void Session::step() {
             aim_ = aimFor(scene_, w_);
             in.aim = aim_;
         }
+        // A key pressed and released between two frames still counts for one tick.
+        std::fill(std::begin(tapped_), std::end(tapped_), false);
         lanternPressed_ = interactPressed_ = false;
         toolPressed_ = -1;
         rotatePressed_ = 0;
@@ -194,7 +219,10 @@ void Session::step() {
             pitch_ = w_.player.pitch;
         }
         scene_.updateGrime(w_, ev.grime);
-        for (std::string& m : ev.messages) messages_.push_back({std::move(m), clock_ + 6.0});
+        for (std::string& m : ev.messages) {
+            if (recorder_) fresh_.push_back(m);
+            messages_.push_back({std::move(m), clock_ + 6.0});
+        }
     }
     // Once Ada has settled, the reveal plays (once by itself; T plays it again).
     if (!revealed_ && progress(w_).step == Step::Done) {
@@ -204,7 +232,35 @@ void Session::step() {
     }
 }
 
+void Session::record(double dt) {
+    if (!recorder_) return;
+    fpsSeconds_ += dt;
+    ++fpsFrames_;
+    if (fpsSeconds_ >= 1.0) {
+        fps_ = static_cast<int>(fpsFrames_ / fpsSeconds_ + 0.5);
+        fpsSeconds_ = 0;
+        fpsFrames_ = 0;
+    }
+    playtest::HostView v;
+    v.screen = reveal_.active() ? "REVEAL" : "WORLD";
+    v.fps = fps_;
+    v.mouseCaptured = captured_;
+    v.help = help_;
+    v.clock = clockText(w_);
+    const AimText at = aimText(w_, aim_);
+    v.aim = at.name;
+    v.aimHint = at.hint;
+    v.aimInReach = at.inReach;
+    for (const HudRow& row : checklist(w_)) v.checklist.emplace_back(row.done, row.text);
+    v.carrying = carryLine(w_);
+    for (const Message& m : messages_)
+        if (m.until == 0 && std::find(fresh_.begin(), fresh_.end(), m.text) == fresh_.end()) fresh_.push_back(m.text);
+    recorder_->update(w_, v, fresh_, savesWritten_);
+    fresh_.clear();
+}
+
 void Session::frame(double dt) {
+    record(dt);
     if (reveal_.active()) {
         clock_ += dt;
         if (reveal_.frame(engine_, scene_, w_, clock_)) return;

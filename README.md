@@ -58,7 +58,7 @@ simulation and its tests, with no engine.
 
 | Input | Action |
 |---|---|
-| Mouse | look |
+| Mouse (or the arrow keys) | look |
 | W A S D | walk |
 | Shift | hurry |
 | 1 to 9 | take a tool: broom, scrub brush, shovel, saw, pry bar, hammer, axe, matches, curry comb (\` for bare hands) |
@@ -80,7 +80,9 @@ simulation and its tests, with no engine.
 little, without a window, and writes a screenshot at each stop. `kindling --autopilot` hands the
 controls to an autopilot that plays the whole restoration (add `--speed N` to watch it fast);
 `kindling --headless --autopilot --frames DIR --reveal-frames DIR --replay run.usda` does it
-without a window, writing frames, the reveal and the replay. CI runs both.
+without a window, writing frames, the reveal and the replay. CI runs both. `--playtest-out DIR`
+writes what the player sees to `DIR/state.json` and `DIR/events.jsonl` for AI playtesting agents
+([ARCHITECTURE.md](ARCHITECTURE.md#playtesting-by-agents)).
 
 ## The idea
 

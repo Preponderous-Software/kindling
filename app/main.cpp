@@ -1,8 +1,13 @@
 // kindling: the game on the Strata engine.
 //
 //   kindling [--slot DIR] [--new] [--seed N] [--width W --height H] [--autopilot [--speed N]] [--replay PATH]
+//            [--playtest-out DIR]
 //   kindling --headless --tour --frames DIR [--width W --height H]
 //   kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR] [--replay PATH]
+//            [--playtest-out DIR]
+//
+// --playtest-out DIR writes state.json and events.jsonl for AI playtesters
+// (src/playtest/probe.h).
 //
 // Controls: mouse to look, W A S D to walk, Shift to hurry, 1-8 to take a tool
 // (` for bare hands), hold the left button to work, E to pick up or put down,
@@ -15,12 +20,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "bridge/scene.h"
 #include "play/hud.h"
 #include "play/session.h"
+#include "playtest/probe.h"
 #include "save/save.h"
 #include "sim/autopilot.h"
 #include "sim/progress.h"
@@ -47,8 +54,14 @@ struct Args {
     std::string replayPath;    // default: in the save slot
     std::string slot;          // default: defaultSlot()
     bool fresh = false;        // start a new game even if there is a save
+    std::string playtestOut;   // --playtest-out: the probe's directory
     int width = 1280, height = 720;
 };
+
+int64_t wallClockMs() {
+    return static_cast<int64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+}
 
 bool parseArgs(int argc, char** argv, Args& a) {
     for (int i = 1; i < argc; ++i) {
@@ -71,6 +84,7 @@ bool parseArgs(int argc, char** argv, Args& a) {
         else if (s == "--replay") a.replayPath = next("--replay");
         else if (s == "--slot") a.slot = next("--slot");
         else if (s == "--new") a.fresh = true;
+        else if (s == "--playtest-out") a.playtestOut = next("--playtest-out");
         else if (s == "--width") a.width = std::atoi(next("--width"));
         else if (s == "--height") a.height = std::atoi(next("--height"));
         else if (s == "--help" || s == "-h") return false;
@@ -88,10 +102,10 @@ bool parseArgs(int argc, char** argv, Args& a) {
 
 void usage() {
     std::puts("usage: kindling [--slot DIR] [--new] [--seed N] [--width W --height H] [--autopilot [--speed N]]\n"
-              "                [--replay PATH]\n"
+              "                [--replay PATH] [--playtest-out DIR]\n"
               "       kindling --headless --tour --frames DIR [--width W --height H]\n"
               "       kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR]\n"
-              "                [--replay PATH]");
+              "                [--replay PATH] [--playtest-out DIR]");
 }
 
 // ---- the tour: a scripted visit for screenshots and CI smoke runs
@@ -180,11 +194,22 @@ int runHeadlessAutopilot(strata::Engine& engine, const Args& args) {
     const int64_t limit = 60LL * 60 * kTickRate;
     int shot = 0;
     Step last = progress(w).step;
+    std::unique_ptr<playtest::Recorder> recorder;
+    if (!args.playtestOut.empty()) {
+        recorder = std::make_unique<playtest::Recorder>(args.playtestOut, wallClockMs);
+        recorder->worldStarted(w, "created");
+    }
     while (progress(w).step != Step::Done && w.tick < limit) {
         const Input in = pilot.next(w);
         TickEvents ev;
         tick(w, in, &ev);
         scene.updateGrime(w, ev.grime);
+        if (recorder) {
+            playtest::HostView view;
+            view.clock = play::clockText(w);
+            for (const play::HudRow& row : play::checklist(w)) view.checklist.emplace_back(row.done, row.text);
+            recorder->update(w, view, ev.messages, 0);
+        }
         const Step now = progress(w).step;
         if (now != last) {
             std::printf("%7.1f s  %-8s %s\n", static_cast<double>(w.tick) / kTickRate, stepName(now), pilot.activity().c_str());
@@ -236,6 +261,7 @@ int runGame(strata::Engine& engine, const Args& args) {
     o.fresh = args.fresh;
     o.autopilot = args.autopilot;
     o.speed = args.speed;
+    o.playtestOut = args.playtestOut;
     play::Session session(engine, o);
     using Clock = std::chrono::steady_clock;
     auto last = Clock::now();
