@@ -8,9 +8,10 @@ a small C++ engine.
 
 *Concept key art (a mood sketch drawn in code, not in-game art).*
 
-**Status: MVP milestone M1.** You can walk the ruined cabin and its yard in first person, and the
-survey names every kind of damage you look at. The restoration itself (cleaning, repairs,
-furnishing, the hearth) arrives milestone by milestone; see [MVP.md](MVP.md).
+**Status: MVP milestone M2.** You can walk the ruined cabin and its yard in first person, survey
+the damage, and clear the place out: sweep and scrub the grime away patch by patch, haul the
+debris out of the door, saw the fallen rafter into pieces, and shovel out the snow. Repairs,
+furnishing and the hearth arrive milestone by milestone; see [MVP.md](MVP.md).
 
 ![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg)
 
@@ -35,12 +36,17 @@ simulation and its tests, with no engine.
 | Mouse | look |
 | W A S D | walk |
 | Shift | hurry |
+| 1 to 4 | take a tool: broom, scrub brush, shovel, saw (\` for bare hands) |
+| Left mouse (hold) | work with the tool on what the crosshair is on |
+| E | pick up or put down (put debris down outdoors to haul it out) |
 | F1 | show or hide the help |
 | F12 | screenshot |
 | Esc | free the mouse (Esc again quits) |
 
-`kindling --headless --tour --frames DIR` walks a scripted path into the cabin without a window
-and writes a screenshot at each stop; CI runs it on every change.
+![First person, broom in hand: an arc of floorboards swept clean through the dust, broken boards still lying about](docs/images/game-m2-swept.jpg)
+
+`kindling --headless --tour --frames DIR` walks a scripted path into the cabin, sweeps and scrubs a
+little, without a window, and writes a screenshot at each stop; CI runs it on every change.
 
 ## The idea
 

@@ -233,12 +233,15 @@ const TourStop kTour[] = {
     {40, 1, -0.75f, -0.1f, Tool::None, false, "03-hearth"},
     {20, 0, -1.6f, 0.05f, Tool::None, false, "04-window"},
     {20, 0, -0.9f, 0.95f, Tool::None, false, "05-roof-hole"},
-    // Sweep a strip of floor, then look at it.
-    {20, 0, -2.2f, -0.75f, Tool::Broom, false, nullptr},
-    {70, 0, -0.6f, -0.75f, Tool::Broom, true, "06-swept-strip"},
-    // Scrub a band of the back wall beside the chimney.
-    {25, 0, 0.55f, -0.05f, Tool::ScrubBrush, false, nullptr},
-    {60, 0, 0.95f, 0.1f, Tool::ScrubBrush, true, "07-scrubbed-wall"},
+    // Sweep an arc of floor beside the player, then look at it.
+    {20, 0, 1.6f, -0.95f, Tool::Broom, false, nullptr},
+    {70, 0, 2.9f, -0.95f, Tool::Broom, true, nullptr},
+    {15, 0, 2.2f, -0.7f, Tool::Broom, false, "06-swept-strip"},
+    // Walk to the right-hand wall and scrub a stripe of it, then step back.
+    {25, 1, 1.5708f, 0.0f, Tool::None, false, nullptr},
+    {30, 0, 1.5708f, -0.35f, Tool::ScrubBrush, true, nullptr},
+    {45, 0, 1.5708f, 0.45f, Tool::ScrubBrush, true, nullptr},
+    {20, -1, 1.5708f, 0.05f, Tool::ScrubBrush, false, "07-scrubbed-wall"},
 };
 
 int runTour(strata::Engine& engine, const Args& args) {

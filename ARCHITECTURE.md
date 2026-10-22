@@ -2,10 +2,10 @@
 
 Kindling is a C++17 game on [Strata](https://github.com/Preponderous-Software/strata). This document
 describes how it is built, and how it is meant to be built where the code does not exist yet.
-Implemented so far (MVP milestone M1): the simulation core's world, movement and collision
-(`src/sim/`), the room as tagged meshes (`src/bridge/room.*`), the scene and mesh picking on Strata
-(`src/bridge/scene.*`), and the first-person app (`app/main.cpp`). The other sections are still a
-plan.
+Implemented so far (MVP milestones M1 and M2): the simulation core's world, movement and collision,
+grime, tools, debris and the step checklist (`src/sim/`), the room as tagged meshes
+(`src/bridge/room.*`), the scene, grime textures and mesh picking on Strata (`src/bridge/scene.*`),
+and the first-person app (`app/main.cpp`). The other sections are still a plan.
 
 ## Layers
 
@@ -62,7 +62,10 @@ hearth, doors) and **items** (debris, furniture, decorations). Each fixture has:
 - a **condition** state machine, for example plank `Rotten → Removed → New → Weathered`, window
   `Boarded → Open → Glazed → Curtained`;
 - **surface layers** that hold grime and paint as low-resolution masks, cleaned or painted a patch
-  at a time;
+  at a time (implemented for grime: `src/sim/grime.*` keeps a grid of 0..255 values for the floor,
+  each wall and the chimney face, 8 to 12 texels a metre; a tool cleans a disc round the aim point;
+  the renderer shows each grid as a texture multiplying the surface's colour and re-uploads only
+  the rectangle a tick changed, with `strata_update_texture_rgba8`);
 - a list of **tasks** that move it forward, each with a tool, a duration and an effect.
 
 The six steps of the core loop are views over this model, not separate systems: "Clear" is
