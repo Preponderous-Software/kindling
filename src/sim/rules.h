@@ -27,6 +27,7 @@ struct Input {
     bool interact = false;     // pick up, put down, set right: pressed this tick
     int32_t selectTool = -1;   // -1 keeps the tool in hand; otherwise a Tool value
     int32_t rotate = 0;        // turn what is carried, in 15-degree steps
+    bool toggleLantern = false;
 };
 
 // What a tick changed that the app needs to show: grime texels to re-upload,

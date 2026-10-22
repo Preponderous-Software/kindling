@@ -57,7 +57,7 @@ kindling_warnings(kindling_geometry)
 
 if(KINDLING_BUILD_TESTS)
   enable_testing()
-  foreach(t movement determinism targets geometry clean repair_furnish)
+  foreach(t movement determinism targets geometry clean repair_furnish kindle)
     add_executable(test_${t} tests/test_${t}.cpp)
     target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry)
     target_include_directories(test_${t} PRIVATE tests)

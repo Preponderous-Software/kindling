@@ -36,6 +36,9 @@ enum class TargetKind : int32_t {
     HayBale,
     Stall,
     Item,         // index: into World::items
+    SplitWood,    // split logs lying by the chopping block
+    Kindling,     // kindling by the chopping block
+    Woodpile,     // the stack of split logs inside, left of the hearth
 };
 
 struct Aim {

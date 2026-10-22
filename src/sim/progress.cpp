@@ -39,12 +39,19 @@ Progress progress(const World& w) {
                     p.debrisLeft == 0;
     for (const Item& it : w.items) p.furnished += !isMaterial(it.kind) && it.place == ItemPlace::Placed ? 1 : 0;
 
+    p.ashOut = w.hearth.ash <= 0;
+    p.kindlingLaid = w.hearth.kindlingLaid || w.hearth.lit;
+    p.logsLaid = w.hearth.logsLaid > 0 || w.hearth.lit;
+    p.woodStacked = w.wood.woodpile >= kWoodpileGoal;
+    p.burning = w.hearth.lit && w.hearth.fire >= kBurningFire;
+
     // Steps are reached in order: later work done early counts when its step comes.
     if (!p.surveyed) p.step = Step::Survey;
     else if (!w.cleared) p.step = Step::Clear;
     else if (!w.repaired) p.step = Step::Repair;
     else if (p.furnished < kFurnishGoal) p.step = Step::Furnish;
-    else p.step = Step::Kindle;
+    else if (!w.kindled) p.step = Step::Kindle;
+    else p.step = Step::Welcome;
     return p;
 }
 

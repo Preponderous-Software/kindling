@@ -23,6 +23,10 @@ constexpr float kSawSeconds = 4.0f;
 constexpr float kPryPlankSeconds = 2.5f, kPryBoardSeconds = 2.0f;
 constexpr float kLayPlankSeconds = 2.0f, kPatchSeconds = 2.5f, kMendSeconds = 3.0f;
 constexpr float kRotateStep = 0.2617994f;  // 15 degrees
+constexpr float kSplitSeconds = 1.5f, kAshPerSecond = 0.3f, kShieldSeconds = 4.0f, kCandleSeconds = 1.0f;
+constexpr float kFuelPerLog = 240.0f;      // game minutes a split log burns
+constexpr float kFireGrowthPerSecond = 0.035f;
+constexpr int32_t kWoodpileMax = 14, kLogsOnAndirons = 3;
 
 // Pushes a circle out of one box, if it overlaps it.
 void pushOut(float& x, float& z, float r, const Box2& b) {
@@ -127,8 +131,74 @@ void putDownItem(World& w, const Input& in, TickEvents* ev) {
     w.carryIndex = -1;
 }
 
+void carryWood(World& w, Wood k) {
+    w.carry = Carry::Firewood;
+    w.carryIndex = static_cast<int32_t>(k);
+}
+
+// Putting firewood where it goes: the block, the woodpile, the hearth.
+void putDownWood(World& w, const Input& in, TickEvents* ev) {
+    const Wood k = static_cast<Wood>(w.carryIndex);
+    const TargetKind at = inReach(w, in.aim) ? in.aim.kind : TargetKind::None;
+    Hearth& h = w.hearth;
+    bool done = false;
+    if (k == Wood::Round && at == TargetKind::ChoppingBlock && !w.wood.roundOnBlock) {
+        w.wood.roundOnBlock = true;
+        done = true;
+    } else if (k == Wood::Round && at == TargetKind::LogPile) {
+        ++w.wood.rounds;
+        done = true;
+    } else if (k == Wood::Split && at == TargetKind::Woodpile) {
+        if (w.wood.woodpile >= kWoodpileMax) {
+            say(ev, "The woodpile is full.");
+            return;
+        }
+        ++w.wood.woodpile;
+        done = true;
+    } else if (k == Wood::Split && at == TargetKind::SplitWood) {
+        ++w.wood.splitByBlock;
+        done = true;
+    } else if (k == Wood::Kindling && at == TargetKind::Kindling) {
+        ++w.wood.kindlingByBlock;
+        done = true;
+    } else if (at == TargetKind::Firebox) {
+        if (h.ash > 0) {
+            say(ev, "Shovel the old ash out first (3).");
+            return;
+        }
+        if (k == Wood::Kindling && !h.kindlingLaid && !h.lit) {
+            h.kindlingLaid = true;
+            say(ev, "Kindling laid. Now a split log or two on the andirons.");
+            done = true;
+        } else if (k == Wood::Split && h.lit) {
+            h.fuelMinutes += kFuelPerLog;
+            say(ev, "Another log on the fire.");
+            done = true;
+        } else if (k == Wood::Split && h.logsLaid < kLogsOnAndirons) {
+            ++h.logsLaid;
+            say(ev, h.kindlingLaid ? "Laid. Strike a match (8) and hold it till it catches." : "Laid. It needs kindling under it.");
+            done = true;
+        } else if (k == Wood::Round) {
+            say(ev, "Split it first, on the chopping block.");
+            return;
+        }
+    }
+    if (!done) {
+        say(ev, k == Wood::Round ? "Set it on the chopping block (E) and split it with the axe (7)."
+                                 : k == Wood::Split ? "Stack it on the woodpile by the hearth, or lay it in the hearth (E)."
+                                                    : "Lay it in the hearth (E).");
+        return;
+    }
+    w.carry = Carry::Nothing;
+    w.carryIndex = -1;
+}
+
 // Pressing interact: pick something up, or put down what is carried.
 void interact(World& w, const Input& in, TickEvents* ev) {
+    if (w.carry == Carry::Firewood) {
+        putDownWood(w, in, ev);
+        return;
+    }
     if (w.carry == Carry::Item) {
         putDownItem(w, in, ev);
         return;
@@ -172,6 +242,35 @@ void interact(World& w, const Input& in, TickEvents* ev) {
     if (in.aim.kind == TargetKind::Table && w.table == TableState::Toppled && inReach(w, in.aim)) {
         w.table = TableState::Upright;
         say(ev, "You set the table back on its legs.");
+        return;
+    }
+    if (!inReach(w, in.aim)) return;
+    switch (in.aim.kind) {
+        case TargetKind::LogPile:
+            if (w.wood.rounds > 0) {
+                --w.wood.rounds;
+                carryWood(w, Wood::Round);
+            }
+            break;
+        case TargetKind::SplitWood:
+            if (w.wood.splitByBlock > 0) {
+                --w.wood.splitByBlock;
+                carryWood(w, Wood::Split);
+            }
+            break;
+        case TargetKind::Kindling:
+            if (w.wood.kindlingByBlock > 0) {
+                --w.wood.kindlingByBlock;
+                carryWood(w, Wood::Kindling);
+            }
+            break;
+        case TargetKind::Woodpile:
+            if (w.wood.woodpile > 0) {
+                --w.wood.woodpile;
+                carryWood(w, Wood::Split);
+            }
+            break;
+        default: break;
     }
 }
 
@@ -218,6 +317,11 @@ void work(World& w, const Input& in, TickEvents* ev) {
     const bool sameJob = aim.kind == w.workKind && aim.index == w.workIndex;
     const bool carryingMaterial = w.carry == Carry::Item && isMaterial(w.items[static_cast<size_t>(w.carryIndex)].kind);
     if (!in.use || (w.carry != Carry::Nothing && !carryingMaterial) || !inReach(w, aim)) {
+        // Letting go of a struck match before the kindling catches puts it out.
+        if (w.tool == Tool::Matches && w.workKind == TargetKind::Firebox && w.workSeconds > 0.2f && !w.hearth.lit) {
+            ++w.hearth.matchesStruck;
+            say(ev, "The match goes out. Hold it to the kindling until it catches.");
+        }
         w.workKind = TargetKind::None;
         w.workIndex = -1;
         w.workSeconds = 0;
@@ -265,6 +369,13 @@ void work(World& w, const Input& in, TickEvents* ev) {
                 clean(w, Surface::HearthFace, aim.point, kBrushRadius, kBrushStrength, ev);
             break;
         case Tool::Shovel:
+            if (aim.kind == TargetKind::Firebox && w.hearth.ash > 0) {
+                w.hearth.ash -= kAshPerSecond * kTickSeconds;
+                if (w.hearth.ash <= 0) {
+                    w.hearth.ash = 0;
+                    say(ev, "The firebox is clean.");
+                }
+            }
             if (aim.kind == TargetKind::Snow && w.snow > 0) {
                 w.snow -= kShovelPerSecond * kTickSeconds;
                 if (w.snow <= 0) {
@@ -300,6 +411,49 @@ void work(World& w, const Input& in, TickEvents* ev) {
                 w.workSeconds = 0;
             }
             break;
+        case Tool::Axe:
+            if (aim.kind == TargetKind::ChoppingBlock && w.wood.roundOnBlock && w.workSeconds >= kSplitSeconds) {
+                w.wood.roundOnBlock = false;
+                w.wood.splitByBlock += 2;
+                w.wood.kindlingByBlock += 1;
+                say(ev, "Split clean in two, with kindling from the splinters.");
+                w.workSeconds = 0;
+            }
+            break;
+        case Tool::Matches: {
+            Hearth& h = w.hearth;
+            if (aim.kind == TargetKind::Firebox && !h.lit) {
+                if (h.ash > 0 || !h.kindlingLaid || h.logsLaid == 0) {
+                    if (w.workSeconds <= kTickSeconds)
+                        say(ev, h.ash > 0 ? "Shovel the old ash out first (3)."
+                                          : !h.kindlingLaid ? "Lay kindling first: split a round at the chopping block."
+                                                            : "Lay a split log on the andirons first.");
+                    w.workSeconds = 0;
+                    w.workKind = TargetKind::None;
+                } else if (w.workSeconds >= kShieldSeconds) {
+                    h.lit = true;
+                    h.fire = 0.05f;
+                    h.fuelMinutes = kFuelPerLog * static_cast<float>(h.logsLaid);
+                    h.logsLaid = 0;
+                    h.kindlingLaid = false;
+                    ++h.matchesStruck;
+                    say(ev, "It catches.");
+                    w.workSeconds = 0;
+                    w.workKind = TargetKind::None;
+                }
+            }
+            if (aim.kind == TargetKind::Item && aim.index >= 0 && static_cast<size_t>(aim.index) < w.items.size()) {
+                const Item& it = w.items[static_cast<size_t>(aim.index)];
+                if (it.kind == ItemKind::Candle && it.place == ItemPlace::Placed && !h.candleLit &&
+                    w.workSeconds >= kCandleSeconds) {
+                    h.candleLit = true;
+                    ++h.matchesStruck;
+                    say(ev, "The candle takes the flame.");
+                    w.workSeconds = 0;
+                }
+            }
+            break;
+        }
         case Tool::Hammer:
             if (aim.kind == TargetKind::Chair && w.chair == ChairState::Broken && w.workSeconds >= kMendSeconds) {
                 w.chair = ChairState::Mended;
@@ -335,8 +489,27 @@ Vec3 carryPosition(const Player& p) {
     return {p.x + f.x * 0.75f + right.x * 0.35f, L::kEyeHeight - 0.6f, p.z + f.z * 0.75f + right.z * 0.35f};
 }
 
+// The fire grows toward what its fuel can feed, and dies down as it runs out.
+void burn(World& w, TickEvents* ev) {
+    Hearth& h = w.hearth;
+    if (!h.lit) return;
+    h.fuelMinutes -= kGameMinutesPerSecond * kTickSeconds;
+    if (h.fuelMinutes < 0) h.fuelMinutes = 0;
+    const float target = h.fuelMinutes >= 30 ? 1.0f : h.fuelMinutes / 30.0f;
+    const float step = kFireGrowthPerSecond * kTickSeconds;
+    if (h.fire < target) h.fire = h.fire + step > target ? target : h.fire + step;
+    else if (h.fire > target) h.fire = h.fire - step * 2 < target ? target : h.fire - step * 2;
+    if (h.fuelMinutes <= 0 && h.fire <= 0.01f) {
+        h.lit = false;
+        h.fire = 0;
+        say(ev, "The fire has burned down to coals. Lay more wood and kindling.");
+    }
+}
+
 void tick(World& w, const Input& in, TickEvents* ev) {
     const Step before = progress(w).step;
+    const bool frostBefore = frosted(w);
+    if (in.toggleLantern) w.lantern = !w.lantern;
 
     if (in.selectTool >= 0 && in.selectTool < kToolCount) w.tool = static_cast<Tool>(in.selectTool);
     move(w, in);
@@ -348,6 +521,7 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         d.pos = carryPosition(w.player);
         d.yaw = w.player.yaw + 1.2f;
     }
+    burn(w, ev);
     if (w.carry == Carry::Item) {
         Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         it.yaw += kRotateStep * static_cast<float>(in.rotate);
@@ -360,14 +534,17 @@ void tick(World& w, const Input& in, TickEvents* ev) {
     const Progress now = progress(w);
     if (now.surveyed && now.cleared && !w.cleared) w.cleared = true;
     if (w.cleared && now.repairedNow && !w.repaired) w.repaired = true;
+    if (w.repaired && now.furnished >= kFurnishGoal && now.burning && now.woodStacked && !w.kindled) w.kindled = true;
     const Step after = progress(w).step;
     if (after != before) {
         if (after == Step::Clear) say(ev, "You've seen the worst of it. Time to clear the place out.");
         if (after == Step::Repair) say(ev, "Cleared. Now for the repairs.");
         if (after == Step::Furnish) say(ev, "Sound again. Now make it a home: bring things in from the wagon.");
         if (after == Step::Kindle) say(ev, "It's starting to look like Ada's place. Time to light the hearth.");
+        if (after == Step::Welcome) say(ev, "The cabin is warm. Ada's wagon is coming up the trail.");
     }
     ++w.tick;
+    if (!frostBefore && frosted(w)) say(ev, "The first frost is settling over the valley.");
 }
 
 }  // namespace kindling
