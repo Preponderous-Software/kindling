@@ -116,7 +116,13 @@ Grime newGrime(uint64_t seed) {
                     // Walls: dust, worst low down and in the corners.
                     grime = 110 + 70 * n + 50 * std::max(0.0f, 1.0f - p.y / 1.2f) + rng.uniform(-10, 10);
                 }
-                t[static_cast<size_t>(j * d.width + i)] = static_cast<uint8_t>(std::clamp(grime, 60.0f, 255.0f));
+                // Hidden behind or under the chimney: never seen, never counted against the player.
+                const bool underChimney = s == static_cast<int>(Surface::Floor) && p.x > -2.55f && p.x < 0.95f &&
+                                          p.z < L::kHearthstoneZ1;
+                const bool behindChimney = s == static_cast<int>(Surface::BackWall) && p.x > L::kBreastX0 &&
+                                           p.x < L::kBreastX1;
+                t[static_cast<size_t>(j * d.width + i)] =
+                    underChimney || behindChimney ? 0 : static_cast<uint8_t>(std::clamp(grime, 60.0f, 255.0f));
             }
     }
     return g;
