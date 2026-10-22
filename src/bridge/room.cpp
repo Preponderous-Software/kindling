@@ -481,6 +481,70 @@ MeshData buildHomesteader() {
     return m;
 }
 
+namespace {
+
+Rgb coat(float dirt) {
+    const Rgb clean{0.32f, 0.15f, 0.07f}, dusty{0.40f, 0.33f, 0.25f};
+    return {clean.r + (dusty.r - clean.r) * dirt, clean.g + (dusty.g - clean.g) * dirt, clean.b + (dusty.b - clean.b) * dirt};
+}
+
+}  // namespace
+
+MeshData buildHorseBody(float dirt) {
+    MeshData m;
+    m.beginTag(TargetKind::Horse);
+    const Rgb c = coat(dirt), hoof{0.08f, 0.07f, 0.06f};
+    m.ellipsoid({0, 1.25f, 0}, {0.32f, 0.36f, 0.85f}, c, 16, 10);
+    for (float sx : {-0.2f, 0.2f})
+        for (float sz : {-0.55f, 0.55f}) {
+            m.rod({sx, 1.05f, sz}, {sx, 0.12f, sz}, 0.065f, c, 8);
+            m.rod({sx, 0.12f, sz}, {sx, 0, sz}, 0.08f, hoof, 8);
+        }
+    m.endTag();
+    return m;
+}
+
+MeshData buildHorseHead(float dirt) {
+    MeshData m;
+    m.beginTag(TargetKind::Horse);
+    const Rgb c = coat(dirt), mane{0.10f, 0.06f, 0.04f}, blaze{0.85f, 0.82f, 0.76f};
+    const Vec3 p = kHorseHeadPivot;
+    m.rod(Vec3{0, 1.45f, -0.7f} - p, Vec3{0, 1.95f, -1.05f} - p, 0.14f, c, 10);           // neck
+    m.ellipsoid(Vec3{0, 1.88f, -1.28f} - p, {0.11f, 0.13f, 0.3f}, c, 12, 8);               // head
+    m.box(Vec3{-0.02f, 1.98f, -1.55f} - p, Vec3{0.02f, 2.0f, -1.2f} - p, blaze);           // a white blaze
+    m.box(Vec3{-0.03f, 1.6f, -0.95f} - p, Vec3{0.03f, 2.1f, -0.65f} - p, mane);            // mane
+    for (float sx : {-0.06f, 0.06f}) m.cone(Vec3{sx, 2.0f, -1.08f} - p, 0.035f, 0.12f, c, c, 6);  // ears
+    m.endTag();
+    return m;
+}
+
+MeshData buildHorseTail() {
+    MeshData m;
+    m.beginTag(TargetKind::Horse);
+    m.rod({0, 0, 0}, Vec3{0, 0.7f, 1.12f} - kHorseTailPivot, 0.06f, {0.10f, 0.06f, 0.04f}, 8);
+    m.endTag();
+    return m;
+}
+
+void horsePartTransform(Vec3 pivot, float yaw, float pitch, float roll, float out[16]) {
+    // M = T(stall) * T(pivot) * Ry(yaw) * Rx(pitch) * Rz(roll), the mare facing -z.
+    const float cy = std::cos(yaw), sy = std::sin(yaw), cp = std::cos(pitch), sp = std::sin(pitch);
+    const float cr = std::cos(roll), sr = std::sin(roll);
+    // Rx * Rz
+    const float a[9] = {cr, cp * sr, sp * sr, -sr, cp * cr, sp * cr, 0, -sp, cp};  // columns
+    // Ry * (Rx * Rz): Ry columns {cy,0,-sy},{0,1,0},{sy,0,cy}
+    float r[9];
+    for (int col = 0; col < 3; ++col) {
+        const float x = a[col * 3], y = a[col * 3 + 1], z = a[col * 3 + 2];
+        r[col * 3] = cy * x + sy * z;
+        r[col * 3 + 1] = y;
+        r[col * 3 + 2] = -sy * x + cy * z;
+    }
+    const Vec3 t{layout::kHorse.x + pivot.x, pivot.y, layout::kHorse.z + pivot.z};
+    const float m[16] = {r[0], r[1], r[2], 0, r[3], r[4], r[5], 0, r[6], r[7], r[8], 0, t.x, t.y, t.z, 1};
+    for (int i = 0; i < 16; ++i) out[i] = m[i];
+}
+
 void figureTransform(float x, float z, float yaw, bool seated, float out[16]) {
     // Yaw as the player's: 0 faces -z, positive turns toward +x.
     const float c = std::cos(-yaw), s = std::sin(-yaw);
@@ -658,7 +722,8 @@ MeshData buildItem(const Item& item, int32_t index) {
 
 void itemTransform(const Item& item, float out[16]) {
     // Big things ride folded or rolled while carried, so they do not fill the view.
-    const bool big = item.kind == ItemKind::Rug || item.kind == ItemKind::Curtains || item.kind == ItemKind::Sampler;
+    const bool big = item.kind == ItemKind::Rug || item.kind == ItemKind::Curtains || item.kind == ItemKind::Sampler ||
+                     item.kind == ItemKind::Quilt;
     const float k = item.place == ItemPlace::Carried && big ? 0.3f : 1.0f;
     const float c = std::cos(item.yaw) * k, s = std::sin(item.yaw) * k;
     const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, item.pos.x, item.pos.y, item.pos.z, 1};

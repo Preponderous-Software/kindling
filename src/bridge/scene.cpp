@@ -37,6 +37,9 @@ Scene::~Scene() {
     for (Held& h : items_) drop(h);
     if (flames_) engine_.removeMesh(flames_);
     if (settler_) engine_.removeMesh(settler_);
+    drop(horseBody_);
+    drop(horseHead_);
+    drop(horseTail_);
     if (homesteader_) engine_.removeMesh(homesteader_);
     if (candleFlame_) engine_.removeMesh(candleFlame_);
     for (uint32_t t : grimeTextures_)
@@ -81,6 +84,13 @@ void Scene::reloadGrime(const World& w) {
 void Scene::updateGrime(const World& w, const std::array<TexelRect, kSurfaceCount>& changed) {
     for (int s = 0; s < kSurfaceCount; ++s)
         if (changed[static_cast<size_t>(s)].w) uploadGrime(w, static_cast<Surface>(s), changed[static_cast<size_t>(s)]);
+}
+
+void Scene::keep(Held& h, const MeshData& m) {
+    drop(h);
+    h.id = upload(m);
+    h.tags = m.tags;
+    if (h.id) byId_[h.id] = &h;
 }
 
 void Scene::drop(Held& h) {
@@ -260,6 +270,35 @@ void Scene::animate(const World& w, double seconds) {
     if (showPlayer_) figureTransform(w.player.x, w.player.z, w.player.yaw, false, model);
     else placeAt(model, {0, kHidden, 0}, 1, 1, 1);
     engine_.setMeshTransform(homesteader_, model);
+
+    // The mare: her coat follows how clean she is; her head turns to you when
+    // you are near and drops to her hay while she eats; her tail swishes, more
+    // when she is content; she leans into the brush.
+    const Horse& h = w.horse;
+    const int coatLevel = static_cast<int>(h.dirt * 10.0f + 0.5f);
+    if (coatLevel != horseCoat_) {
+        keep(horseBody_, buildHorseBody(static_cast<float>(coatLevel) / 10.0f));
+        keep(horseHead_, buildHorseHead(static_cast<float>(coatLevel) / 10.0f));
+        if (!horseTail_.id) keep(horseTail_, buildHorseTail());
+        horseCoat_ = coatLevel;
+    }
+    const float dx = w.player.x - L::kHorse.x, dz = w.player.z - L::kHorse.z;
+    const bool near = dx * dx + dz * dz < 36.0f;
+    // The head's yaw toward the player, relative to her facing -z.
+    const float toPlayer = near ? clampf(-std::atan2(dx, -dz), -0.7f, 0.7f) : 0.0f;
+    const double t = seconds;
+    const float headYaw = h.eatingSeconds > 0 ? 0.0f : toPlayer + 0.05f * static_cast<float>(std::sin(t * 0.7));
+    const float headPitch = h.eatingSeconds > 0 ? -0.75f + 0.05f * static_cast<float>(std::sin(t * 6.0))
+                                                : 0.03f * static_cast<float>(std::sin(t * 0.9));
+    const float content = (1.0f - h.hunger) * (1.0f - h.dirt);
+    const float swish = (0.15f + 0.35f * content) * static_cast<float>(std::sin(t * (1.5 + 2.5 * content)));
+    const float lean = h.brushedSeconds > 0 ? 0.06f : 0.0f;
+    horsePartTransform({0, 0, 0}, 0, 0, lean, model);
+    engine_.setMeshTransform(horseBody_.id, model);
+    horsePartTransform(kHorseHeadPivot, headYaw, headPitch, lean, model);
+    engine_.setMeshTransform(horseHead_.id, model);
+    horsePartTransform(kHorseTailPivot, swish, 0, 0, model);
+    engine_.setMeshTransform(horseTail_.id, model);
 }
 
 void Scene::lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const {
@@ -269,7 +308,7 @@ void Scene::lights(const World& w, double seconds, float daylight, std::vector<S
         // a shaft under each open section of the roof, and the window once it
         // is unboarded. None casts shadows; they stand in for bounced light.
         const Vec3 sky{0.75f, 0.82f, 1.0f};
-        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 0.35f * daylight, 0});
+        out.push_back({{1.5f, 2.2f, 2.6f}, 8.0f, {sky.x, sky.y, sky.z}, 0.5f * daylight, 0});
         const float xs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
         const float zs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
         for (int k = 0; k < 4; ++k)

@@ -8,17 +8,16 @@ a small C++ engine.
 
 *Concept key art (a mood sketch drawn in code, not in-game art).*
 
-**Status: MVP milestone M3.** You can walk the ruined cabin and its yard in first person, survey
+**Status: the MVP is complete.** You can walk the ruined cabin and its yard in first person, survey
 the damage, clear the place out (sweep and scrub the grime away patch by patch, haul the debris
 out, saw the fallen rafter, shovel out the snow), repair it (pry up rotten boards and lay new
-planks, patch the roof with shingles, pry the boards off the window, mend the rocking chair, set
-the table right), and furnish it from the wagon against Ada's brief, and kindle the hearth: split log rounds on the
-chopping block, stack the wood, shovel out the old ash, lay kindling and a log, and hold a match
-to it until it catches. The day runs from late morning on 11 November into the first frost; the
-fire, a candle and a carried lantern light the night. Then Ada Lark walks up from her wagon, looks
-round, tells you what she thinks of what you made for her, and sits down by the fire, and the
-whole restoration plays back as a timelapse. The game saves as you go and continues where you
-left off. The horse comes in the last milestone; see [MVP.md](MVP.md).
+planks, patch the roof, pry the boards off the window, mend the rocking chair, set the table right),
+furnish it from the wagon against Ada's brief, and kindle the hearth (split the firewood, shovel
+out the ash, lay the fire and hold a match to it until it catches). The day runs from late morning
+on 11 November into the first frost. Then Ada Lark walks up from her wagon, tells you what she
+thinks of what you made for her, and sits down by the fire, and the whole restoration plays back
+as a timelapse. Your mare waits in her stall to be fed and brushed. The game saves as you go. What
+comes after the MVP is in [CONCEPT.md](CONCEPT.md).
 
 ![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from a cold grey morning to the hearth lit at night with Ada by the fire](docs/images/reveal.gif)
 
@@ -29,7 +28,9 @@ recorded and rendered headless by the game itself (`--headless --autopilot --rev
 |---|---|
 | ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored: the fire lit, a braided rug, curtains, a sampler on the wall, and Ada in the rocking chair](docs/images/game-m5-home.jpg) |
 
-![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg)
+| Surveying the ruin | The mare, fed and brushed, on the night of the first frost |
+|---|---|
+| ![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall at night, the yard white with frost, Ada's brief all met in the corner](docs/images/game-m7-mare.jpg) |
 
 ## Play it
 
@@ -43,6 +44,10 @@ cmake --build build --config Release
 ctest --test-dir build -C Release
 ```
 
+On Windows, [`tools/play-kindling.bat`](tools/play-kindling.bat) does all of this: it installs
+CMake and the C++ build tools with winget if they are missing, clones or updates Kindling, builds
+it, and plays, saving in `%USERPROFILE%\kindling-save`.
+
 On Linux, SDL3 needs the X11 development packages (`libx11-dev libxext-dev libxcursor-dev libxi-dev
 libxfixes-dev libxrandr-dev libxss-dev`). `cmake -DKINDLING_WITH_STRATA=OFF` builds only the
 simulation and its tests, with no engine.
@@ -52,7 +57,7 @@ simulation and its tests, with no engine.
 | Mouse | look |
 | W A S D | walk |
 | Shift | hurry |
-| 1 to 8 | take a tool: broom, scrub brush, shovel, saw, pry bar, hammer, axe, matches (\` for bare hands) |
+| 1 to 9 | take a tool: broom, scrub brush, shovel, saw, pry bar, hammer, axe, matches, curry comb (\` for bare hands) |
 | Left mouse (hold) | work with the tool on what the crosshair is on; with a plank or shingles in hand, work them in |
 | E | pick up or put down (debris put down outdoors is hauled out; furnishings go where they belong; E at the wagon puts a thing back) |
 | R | turn what you carry |

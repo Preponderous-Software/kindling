@@ -39,6 +39,7 @@ enum class TargetKind : int32_t {
     SplitWood,    // split logs lying by the chopping block
     Kindling,     // kindling by the chopping block
     Woodpile,     // the stack of split logs inside, left of the hearth
+    Horse,
 };
 
 struct Aim {

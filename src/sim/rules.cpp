@@ -28,6 +28,8 @@ constexpr float kSplitSeconds = 1.5f, kAshPerSecond = 0.3f, kShieldSeconds = 4.0
 constexpr float kFuelPerLog = 240.0f;      // game minutes a split log burns
 constexpr float kFireGrowthPerSecond = 0.035f;
 constexpr int32_t kWoodpileMax = 14, kLogsOnAndirons = 3;
+constexpr float kBrushPerSecond = 0.07f, kEatingSeconds = 12.0f, kHungerPerGameMinute = 1.0f / 360.0f;
+constexpr float kGreetDistance = 3.5f;
 
 // Pushes a circle out of one box, if it overlaps it.
 void pushOut(float& x, float& z, float r, const Box2& b) {
@@ -196,6 +198,20 @@ void putDownWood(World& w, const Input& in, TickEvents* ev) {
 
 // Pressing interact: pick something up, or put down what is carried.
 void interact(World& w, const Input& in, TickEvents* ev) {
+    if (w.carry == Carry::Hay) {
+        const TargetKind at = inReach(w, in.aim) ? in.aim.kind : TargetKind::None;
+        if (at == TargetKind::Horse) {
+            w.horse.hunger = 0;
+            w.horse.eatingSeconds = kEatingSeconds;
+            say(ev, "She buries her nose in the hay and munches.");
+        } else if (at != TargetKind::HayBale) {
+            say(ev, "Give it to the mare (E), or put it back on the bale.");
+            return;
+        }
+        w.carry = Carry::Nothing;
+        w.carryIndex = -1;
+        return;
+    }
     if (w.carry == Carry::Firewood) {
         putDownWood(w, in, ev);
         return;
@@ -247,6 +263,10 @@ void interact(World& w, const Input& in, TickEvents* ev) {
     }
     if (!inReach(w, in.aim)) return;
     switch (in.aim.kind) {
+        case TargetKind::HayBale:
+            w.carry = Carry::Hay;
+            w.carryIndex = 0;
+            break;
         case TargetKind::LogPile:
             if (w.wood.rounds > 0) {
                 --w.wood.rounds;
@@ -412,6 +432,17 @@ void work(World& w, const Input& in, TickEvents* ev) {
                 w.workSeconds = 0;
             }
             break;
+        case Tool::CurryComb:
+            if (aim.kind == TargetKind::Horse && w.horse.dirt > 0) {
+                if (w.horse.brushedSeconds <= 0 && w.horse.dirt > 0.75f) say(ev, "She leans into the brush.");
+                w.horse.brushedSeconds = 1.5f;
+                w.horse.dirt -= kBrushPerSecond * kTickSeconds;
+                if (w.horse.dirt <= 0) {
+                    w.horse.dirt = 0;
+                    say(ev, "Her coat gleams.");
+                }
+            }
+            break;
         case Tool::Axe:
             if (aim.kind == TargetKind::ChoppingBlock && w.wood.roundOnBlock && w.workSeconds >= kSplitSeconds) {
                 w.wood.roundOnBlock = false;
@@ -524,6 +555,16 @@ void tick(World& w, const Input& in, TickEvents* ev) {
     }
     burn(w, ev);
     updateSettler(w, ev);
+    // The mare: she gets hungry slowly, finishes her hay, and greets you.
+    Horse& h = w.horse;
+    h.hunger = std::fmin(1.0f, h.hunger + kHungerPerGameMinute * kGameMinutesPerSecond * kTickSeconds);
+    h.eatingSeconds = std::fmax(0.0f, h.eatingSeconds - kTickSeconds);
+    h.brushedSeconds = std::fmax(0.0f, h.brushedSeconds - kTickSeconds);
+    const float hx = w.player.x - L::kHorse.x, hz = w.player.z - L::kHorse.z;
+    if (!h.greeted && hx * hx + hz * hz < kGreetDistance * kGreetDistance) {
+        h.greeted = true;
+        say(ev, h.hunger > 0.5f ? "The mare nickers at you, hopefully. She's hungry." : "The mare nickers at you.");
+    }
     if (w.carry == Carry::Item) {
         Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         it.yaw += kRotateStep * static_cast<float>(in.rotate);

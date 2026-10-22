@@ -199,6 +199,11 @@ struct Fields {
         v(w.wood.kindlingByBlock);
         v(w.wood.woodpile);
         v(w.lantern);
+        v(w.horse.dirt);
+        v(w.horse.hunger);
+        v(w.horse.eatingSeconds);
+        v(w.horse.brushedSeconds);
+        v(w.horse.greeted);
         settler(w.settler);
         list(w.history, [this](Keyframe& k) { keyframe(k); });
         v(w.cleared);
@@ -224,6 +229,8 @@ bool plausible(const World& w, std::string* error) {
     if (w.carry == Carry::Item && (w.carryIndex < 0 || static_cast<size_t>(w.carryIndex) >= w.items.size()))
         return fail("carrying an item that does not exist");
     if (w.carry == Carry::Firewood && (w.carryIndex < 0 || w.carryIndex > 2)) return fail("carrying unknown firewood");
+    if (static_cast<int>(w.carry) < 0 || static_cast<int>(w.carry) > static_cast<int>(Carry::Hay))
+        return fail("carrying something unknown");
     if (w.items.size() != newItems().size()) return fail("the wagon's load has the wrong number of things");
     if (static_cast<int>(w.tool) < 0 || static_cast<int>(w.tool) >= kToolCount) return fail("an unknown tool");
     return true;

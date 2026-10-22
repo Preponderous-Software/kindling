@@ -57,13 +57,24 @@ enum class Tool : int32_t {
     Hammer,      // mends the chair
     Axe,         // splits log rounds on the chopping block
     Matches,     // lights the hearth and the candle
+    CurryComb,   // brushes the mare
     Count
 };
 constexpr int kToolCount = static_cast<int>(Tool::Count);
 const char* toolName(Tool t);
 
 // What the player's hands are full of, if anything.
-enum class Carry : int32_t { Nothing = 0, Debris = 1, Item = 2, Firewood = 3 };
+enum class Carry : int32_t { Nothing = 0, Debris = 1, Item = 2, Firewood = 3, Hay = 4 };
+
+// The mare in the stall. She is never in danger: hungry or dusty only changes
+// how she greets you.
+struct Horse {
+    float dirt = 0.8f;          // 0 gleaming .. 1 caked from the trail
+    float hunger = 0.7f;        // 0 just fed .. 1 hungry
+    float eatingSeconds = 0;    // munching hay, head down, after being fed
+    float brushedSeconds = 0;   // the last few seconds of brushing, for leaning into it
+    bool greeted = false;       // she has nickered at you
+};
 
 // Firewood in its forms; carried as Carry::Firewood with the kind in carryIndex.
 enum class Wood : int32_t { Round = 0, Split = 1, Kindling = 2 };
@@ -164,6 +175,7 @@ struct World {
     Hearth hearth;
     Firewood wood;
     bool lantern = false;  // carrying a lit lantern (for the dark)
+    Horse horse;
 
     Settler settler;
     std::vector<Keyframe> history;

@@ -85,6 +85,7 @@ const char* toolName(Tool t) {
         case Tool::Hammer: return "Hammer";
         case Tool::Axe: return "Axe";
         case Tool::Matches: return "Matches";
+        case Tool::CurryComb: return "Curry comb";
         case Tool::Count: break;
     }
     return "";
@@ -238,6 +239,11 @@ uint64_t fingerprint(const World& w) {
     f.add(w.wood.kindlingByBlock);
     f.add(w.wood.woodpile);
     f.add(w.lantern);
+    f.add(w.horse.dirt);
+    f.add(w.horse.hunger);
+    f.add(w.horse.eatingSeconds);
+    f.add(w.horse.brushedSeconds);
+    f.add(w.horse.greeted);
     const Settler& st = w.settler;
     f.add(st.state);
     f.add(st.x);

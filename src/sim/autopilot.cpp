@@ -129,6 +129,12 @@ const Vec2 kKindlingStand{-2.3f, 5.8f};
 const Vec3 kWoodpilePoint{-3.1f, 0.3f, -2.4f};
 const Vec2 kWoodpileStand{-3.0f, -1.5f};
 const Vec2 kHaulStand{2.5f, 5.8f};
+const Vec3 kHayPoint{5.4f, 0.4f, 8.25f};
+const Vec2 kHayStand{5.4f, 7.4f};
+const Vec3 kHorseHeadPoint{L::kHorse.x, 1.5f, L::kHorse.z - 1.0f};
+const Vec2 kHorseFrontStand{L::kHorse.x, L::kHorse.z - 1.75f};
+const Vec3 kHorseSidePoint{L::kHorse.x - 0.32f, 1.2f, L::kHorse.z};
+const Vec2 kHorseSideStand{6.65f, L::kHorse.z};
 
 }  // namespace
 
@@ -179,6 +185,8 @@ Autopilot::Goal Autopilot::choose(const World& w) {
             return go({2.5f, 6.55f}, TargetKind::Wagon, -1, wagon, Tool::None, false, true, "putting something back for later");
         return go(pl.stand, pl.kind, pl.index, pl.point, Tool::None, false, true, "placing a furnishing");
     }
+    if (w.carry == Carry::Hay)
+        return go(kHorseFrontStand, TargetKind::Horse, -1, kHorseHeadPoint, Tool::None, false, true, "feeding the mare");
     if (w.carry == Carry::Firewood) {
         const Wood k = static_cast<Wood>(w.carryIndex);
         const Hearth& h = w.hearth;
@@ -355,8 +363,14 @@ Autopilot::Goal Autopilot::choose(const World& w) {
             return go({-2.6f, 1.2f}, TargetKind::None, -1, {-0.8f, 0.6f, -2.4f}, Tool::None, false, false, "watching the fire catch");
         }
         case Step::Welcome:
-        case Step::Done:
             return go({-2.8f, 2.6f}, TargetKind::None, -1, {w.settler.x, 1.3f, w.settler.z}, Tool::None, false, false, "welcoming Ada");
+        case Step::Done:
+            // Ada is home: see to the mare.
+            if (w.horse.hunger > 0.3f && w.horse.eatingSeconds <= 0)
+                return go(kHayStand, TargetKind::HayBale, -1, kHayPoint, Tool::None, false, true, "fetching hay");
+            if (w.horse.dirt > 0)
+                return go(kHorseSideStand, TargetKind::Horse, -1, kHorseSidePoint, Tool::CurryComb, true, false, "brushing the mare");
+            return go({6.3f, 6.5f}, TargetKind::Horse, -1, kHorseSidePoint, Tool::None, false, false, "with the mare");
     }
     return g;
 }
@@ -375,9 +389,17 @@ Input Autopilot::steer(const World& w, const Goal& g) {
         const float nearDoor = std::fabs(w.player.x - 2.5f) < 0.35f && std::fabs(w.player.z - 4.3f) < 1.0f ? 1.0f : 0.0f;
         to = nearDoor > 0 ? theirs : mine;
     }
+    // Into and out of the stall by its open side.
+    auto inStall = [](float x, float z) { return x > 6.2f && x < 9.0f && z > 7.4f && z < 11.0f; };
+    const Vec2 stallMouth{7.6f, 6.9f};
+    if (inStall(to.x, to.z) != inStall(w.player.x, w.player.z)) {
+        // Lined up with the opening, walk straight on; otherwise go round to it first.
+        const bool lined = std::fabs(w.player.x - stallMouth.x) < 0.5f && std::fabs(to.x - stallMouth.x) < 0.5f;
+        if (!lined) to = stallMouth;
+    }
     const float dx = to.x - w.player.x, dz = to.z - w.player.z;
     const float dist = std::sqrt(dx * dx + dz * dz);
-    const bool arrived = here == there && dist <= kArrive;
+    const bool arrived = here == there && dist <= kArrive && to.x == g.x && to.z == g.z;
 
     if (!arrived) {
         in.yaw = detAtan2(dx, -dz);

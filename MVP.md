@@ -57,7 +57,7 @@ Each milestone ends in something that can be run or looked at.
 | **M4 Kindle** (done) | The fire ritual, firelight, a flickering flame and the candle | The kindle check above; a headless golden image of the lit room |
 | **M5 Welcome and reveal** (done) | The settler's arrival and the timelapse of the player's own restoration | The welcome check above; the recorded replay validates |
 | **M6 Saves** (done) | Save and continue at any step, through Strata's save core | Save and quit at each step, reload, and the room is identical (same state fingerprint) |
-| **M7 Horse** | The stall, brushing and feeding | The horse reacts to brushing and to being fed |
+| **M7 Horse** (done) | The stall, brushing and feeding | The horse reacts to brushing and to being fed |
 
 M2 is the riskiest: it is the one that needs new engine work, and the whole restoration feeling
 depends on it.

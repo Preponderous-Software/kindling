@@ -2,12 +2,16 @@
 
 Kindling is a C++17 game on [Strata](https://github.com/Preponderous-Software/strata). This document
 describes how it is built, and how it is meant to be built where the code does not exist yet.
-Implemented so far (MVP milestones M1 to M5): the simulation core's world, movement and collision,
+Implemented (all of the MVP, milestones M1 to M7): the simulation core's world, movement and collision,
 grime, tools, debris, repairs, furnishings, Ada's brief, firewood, the hearth, the game clock, Ada's
-arrival, the reveal's keyframes, the step checklist and an autopilot that plays the whole MVP
-(`src/sim/`), the replay export (`src/record/`), the room as tagged meshes
+arrival, the mare, the reveal's keyframes, the step checklist and an autopilot that plays the whole MVP
+(`src/sim/`), the replay export (`src/record/`), saves (`src/save/`), the room as tagged meshes
 (`src/bridge/room.*`), the scene, grime textures and mesh picking on Strata (`src/bridge/scene.*`),
-and the first-person app (`app/main.cpp`). The other sections are still a plan.
+and the first-person app (`app/main.cpp`). Still plans: USD prefabs and data-driven content
+(Content), model loading, the browser build, and the planned folder layout's `src/play/` split
+(input and UI live in `app/main.cpp` for now). The simulation core is described as designed; where
+the MVP simplified it (one cabin, fixed fixtures rather than generic task lists), the code is the
+reference.
 
 ## Layers
 
@@ -99,7 +103,10 @@ The **render bridge** turns game state into Strata calls each frame:
   sun's height: one through the door, one under each open section of the roof hole, and one at
   the window once its boards are off, standing in for bounced light.
 - Flames and embers are unlit meshes.
-- Creatures are rigid parts with per-mesh transforms, animated procedurally (no skeletons).
+- Creatures are rigid parts with per-mesh transforms, animated procedurally (no skeletons). The
+  mare is three: her body, her head and neck (turning toward the player when near, dropping to eat
+  after she is fed), and her tail (swishing faster the more content she is); she leans into the
+  brush. Her coat is rebuilt as she comes clean.
 
 The hearth prototype ([`prototypes/hearth-scene`](prototypes/README.md)) shows the lighting model
 working: moonlight and a cold bounce in the ruin; a shadow-casting hearth light, a fill light and a

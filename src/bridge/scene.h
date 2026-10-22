@@ -61,6 +61,7 @@ private:
     uint32_t upload(const MeshData& m, uint32_t texture = 0);
     void uploadGrime(const World& w, Surface s, const TexelRect& r);
     void drop(Held& h);
+    void keep(Held& h, const MeshData& m);
 
     strata::Engine& engine_;
     std::array<Held, static_cast<size_t>(Part::Count)> parts_{};
@@ -68,6 +69,8 @@ private:
     std::vector<Held> items_;   // one per World::items entry
     uint32_t flames_ = 0, candleFlame_ = 0;  // unlit meshes, not pickable
     uint32_t settler_ = 0, homesteader_ = 0;  // figures, not pickable
+    Held horseBody_, horseHead_, horseTail_;  // the mare, pickable
+    int horseCoat_ = -1;                       // the dirt level her meshes were built with (tenths)
     bool showPlayer_ = false;
     std::unordered_map<uint32_t, const Held*> byId_;
     std::array<uint32_t, kSurfaceCount> grimeTextures_{};
