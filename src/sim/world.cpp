@@ -1,5 +1,6 @@
 #include "sim/world.h"
 
+#include <algorithm>
 #include <cstring>
 
 #include "sim/layout.h"
@@ -46,6 +47,7 @@ World newWorld(uint64_t seed) {
     w.windowBoards.fill(1);
     w.grime = newGrime(seed);
     w.items = newItems();
+    w.history.push_back(snapshot(w));
     return w;
 }
 
@@ -85,6 +87,70 @@ const char* toolName(Tool t) {
         case Tool::Count: break;
     }
     return "";
+}
+
+Keyframe snapshot(const World& w) {
+    Keyframe k;
+    k.tick = w.tick;
+    k.playerX = w.player.x;
+    k.playerZ = w.player.z;
+    k.playerYaw = w.player.yaw;
+    for (int s = 0; s < kSurfaceCount; ++s) {
+        const SurfaceDef& d = surfaceDef(static_cast<Surface>(s));
+        const int hw = (d.width + 1) / 2, hh = (d.height + 1) / 2;
+        std::vector<uint8_t>& out = k.grime[static_cast<size_t>(s)];
+        out.resize(static_cast<size_t>(hw * hh));
+        for (int j = 0; j < hh; ++j)
+            for (int i = 0; i < hw; ++i)
+                out[static_cast<size_t>(j * hw + i)] = w.grime.at(static_cast<Surface>(s), std::min(2 * i, d.width - 1),
+                                                                  std::min(2 * j, d.height - 1));
+    }
+    k.debris = w.debris;
+    k.planks = w.planks;
+    k.windowBoards = w.windowBoards;
+    k.roofPatched = w.roofPatched;
+    k.chair = w.chair;
+    k.table = w.table;
+    k.snow = w.snow;
+    k.items = w.items;
+    k.hearth = w.hearth;
+    k.woodpile = w.wood.woodpile;
+    k.settler = w.settler;
+    return k;
+}
+
+World fromKeyframe(const World& base, const Keyframe& k) {
+    World w = base;
+    w.tick = k.tick;
+    w.player.x = k.playerX;
+    w.player.z = k.playerZ;
+    w.player.yaw = k.playerYaw;
+    w.carry = Carry::Nothing;
+    w.carryIndex = -1;
+    for (int s = 0; s < kSurfaceCount; ++s) {
+        const SurfaceDef& d = surfaceDef(static_cast<Surface>(s));
+        const int hw = (d.width + 1) / 2;
+        const std::vector<uint8_t>& in = k.grime[static_cast<size_t>(s)];
+        std::vector<uint8_t>& out = w.grime.texels[static_cast<size_t>(s)];
+        out.resize(static_cast<size_t>(d.width * d.height));
+        for (int j = 0; j < d.height; ++j)
+            for (int i = 0; i < d.width; ++i) out[static_cast<size_t>(j * d.width + i)] = in[static_cast<size_t>((j / 2) * hw + i / 2)];
+    }
+    w.debris = k.debris;
+    w.planks = k.planks;
+    w.windowBoards = k.windowBoards;
+    w.roofPatched = k.roofPatched;
+    w.chair = k.chair;
+    w.table = k.table;
+    w.snow = k.snow;
+    w.items = k.items;
+    for (Item& it : w.items)
+        if (it.place == ItemPlace::Carried) it.place = ItemPlace::Wagon;  // the reveal shows nothing in mid-air
+    w.hearth = k.hearth;
+    w.wood.woodpile = k.woodpile;
+    w.settler = k.settler;
+    w.history.clear();
+    return w;
 }
 
 namespace {
@@ -164,6 +230,26 @@ uint64_t fingerprint(const World& w) {
     f.add(w.wood.kindlingByBlock);
     f.add(w.wood.woodpile);
     f.add(w.lantern);
+    const Settler& st = w.settler;
+    f.add(st.state);
+    f.add(st.x);
+    f.add(st.z);
+    f.add(st.yaw);
+    f.add(st.waypoint);
+    f.add(st.line);
+    f.add(st.lineSeconds);
+    f.add(st.briefMet);
+    f.add(st.done);
+    f.add(static_cast<uint64_t>(w.history.size()));
+    for (const Keyframe& k : w.history) {
+        f.add(k.tick);
+        f.add(k.playerX);
+        f.add(k.playerZ);
+        for (const std::vector<uint8_t>& g : k.grime) f.bytes(g.data(), g.size());
+        f.add(static_cast<uint64_t>(k.debris.size()));
+        f.add(k.roofPatched);
+        f.add(k.hearth.fire);
+    }
     f.add(w.cleared);
     f.add(w.repaired);
     f.add(w.kindled);

@@ -99,6 +99,41 @@ constexpr uint32_t kSurveyBoardedWindow = 1u << 4;
 constexpr uint32_t kSurveyAll =
     kSurveyGrime | kSurveyDebris | kSurveyRottenPlank | kSurveyRoofHole | kSurveyBoardedWindow;
 
+// Ada Lark, the settler this cabin is being made ready for.
+enum class SettlerState : int32_t { Away = 0, Arriving = 1, LookingAround = 2, ToChair = 3, Seated = 4 };
+
+struct Settler {
+    SettlerState state = SettlerState::Away;
+    float x = 2.5f, z = 10.5f;  // starts at the wagon
+    float yaw = 0;
+    int32_t waypoint = 0;       // along her walk in
+    int32_t line = -1;          // the line she is saying, or -1
+    float lineSeconds = 0;      // how long it has been showing
+    bool briefMet = false;      // what she found, fixed when she arrives
+    bool done = false;          // every line said, sitting by the fire
+};
+
+// A snapshot of the cabin taken while the player works, for the reveal: just
+// what can be seen, at a coarser grime resolution than the game's.
+struct Keyframe {
+    int64_t tick = 0;
+    float playerX = 0, playerZ = 0, playerYaw = 0;
+    std::array<std::vector<uint8_t>, kSurfaceCount> grime;  // each surface at half resolution
+    std::vector<Debris> debris;
+    std::array<PlankState, 3> planks{};
+    std::array<int32_t, 4> windowBoards{};
+    uint32_t roofPatched = 0;
+    ChairState chair = ChairState::Broken;
+    TableState table = TableState::Toppled;
+    float snow = 0;
+    std::vector<Item> items;
+    Hearth hearth;
+    int32_t woodpile = 0;
+    Settler settler;
+};
+
+constexpr int kKeyframeEveryTicks = 10 * kTickRate;  // and at every step change
+
 struct World {
     int64_t tick = 0;
     uint64_t seed = 0;
@@ -128,6 +163,9 @@ struct World {
     Firewood wood;
     bool lantern = false;  // carrying a lit lantern (for the dark)
 
+    Settler settler;
+    std::vector<Keyframe> history;
+
     // Steps once finished stay finished, even if the player makes a new mess.
     bool cleared = false;
     bool repaired = false;
@@ -152,5 +190,10 @@ World newWorld(uint64_t seed);
 // 64-bit FNV-1a over every saved field in a fixed order. Two worlds with the
 // same fingerprint are the same world.
 uint64_t fingerprint(const World& w);
+
+// A snapshot of what can be seen now, and a world that looks like a snapshot
+// (for the reveal: built on a copy of `base`, grime scaled back up).
+Keyframe snapshot(const World& w);
+World fromKeyframe(const World& base, const Keyframe& k);
 
 }  // namespace kindling

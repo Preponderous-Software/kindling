@@ -53,6 +53,21 @@ inline float detSin(float x) {
 }
 inline float detCos(float x) { return detSin(x + kPi / 2); }
 
+// atan2 from + - * / only (see detSin), accurate to about 1e-5 radians.
+inline float detAtan2(float y, float x) {
+    if (x == 0 && y == 0) return 0;
+    const float ax = x < 0 ? -x : x, ay = y < 0 ? -y : y;
+    const bool swap = ay > ax;
+    const float t = swap ? ax / ay : ay / ax;  // 0..1
+    const float t2 = t * t;
+    // Minimax polynomial for atan on [0, 1].
+    float a = t * (0.99997726f + t2 * (-0.33262347f + t2 * (0.19354346f + t2 * (-0.11643287f + t2 * (0.05265332f +
+                                                                                                  t2 * -0.01172120f)))));
+    if (swap) a = kPi / 2 - a;
+    if (x < 0) a = kPi - a;
+    return y < 0 ? -a : a;
+}
+
 // The direction the player looks: yaw 0 faces -z (toward the hearth), positive yaw turns right.
 inline Vec3 lookDirection(float yaw, float pitch) {
     const float cp = detCos(pitch);
