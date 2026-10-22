@@ -55,7 +55,7 @@ Each milestone ends in something that can be run or looked at.
 | **M2 Clean** (done) | Surfaces that hold grime and change as they are cleaned (needs a Strata addition, see [ARCHITECTURE.md](ARCHITECTURE.md#engine-additions)) | Sweeping a patch of floor visibly cleans exactly that patch, and it stays clean after save and load |
 | **M3 Repair and furnish** (done) | Plank, roof, window and chair repairs; placing and moving furniture | The repair and furnish checks in the table above |
 | **M4 Kindle** (done) | The fire ritual, firelight, a flickering flame and the candle | The kindle check above; a headless golden image of the lit room |
-| **M5 Welcome and reveal** | The settler's arrival and the timelapse of the player's own restoration | The welcome check above; the recorded replay validates |
+| **M5 Welcome and reveal** (done) | The settler's arrival and the timelapse of the player's own restoration | The welcome check above; the recorded replay validates |
 | **M6 Saves** | Save and continue at any step, through Strata's save core | Save and quit at each step, reload, and the room is identical (same state fingerprint) |
 | **M7 Horse** | The stall, brushing and feeding | The horse reacts to brushing and to being fed |
 

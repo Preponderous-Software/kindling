@@ -97,6 +97,6 @@ if(KINDLING_WITH_STRATA)
   kindling_warnings(kindling_bridge)
 
   add_executable(kindling app/main.cpp)
-  target_link_libraries(kindling PRIVATE kindling_bridge)
+  target_link_libraries(kindling PRIVATE kindling_bridge kindling_record)
   kindling_warnings(kindling)
 endif()

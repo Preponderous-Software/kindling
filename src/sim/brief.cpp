@@ -30,7 +30,7 @@ Brief evaluateBrief(const World& w) {
     for (int32_t board : w.windowBoards) windowOpen = windowOpen && board == 0;
 
     b.points[0] = {"A big table, in the window's light", w.table == TableState::Upright && windowOpen};
-    b.points[1] = {"No dark corners: a candle, and curtains to frame the light",
+    b.points[1] = {"No dark corners: a candle, and curtains",
                    placed(w, ItemKind::Candle) && placed(w, ItemKind::Curtains)};
     b.points[2] = {"Somewhere to sit and sew, with a quilt to hand",
                    w.chair == ChairState::Mended && placed(w, ItemKind::Quilt)};

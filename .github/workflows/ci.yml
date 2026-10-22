@@ -81,7 +81,7 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
   game-linux:
-    name: Game (Linux, headless tour)
+    name: Game (Linux, headless tour and autopilot)
     runs-on: ubuntu-24.04
     env:
       LIBGL_ALWAYS_SOFTWARE: "1"
@@ -104,10 +104,31 @@ jobs:
           mkdir -p tour
           ./build/kindling --headless --tour --frames tour
           test "$(ls tour/*.png | wc -l)" -ge 6
+      - name: Autopilot plays the whole restoration
+        run: |
+          mkdir -p frames reveal
+          ./build/kindling --headless --autopilot --frames frames --frame-every 1500 --reveal-frames reveal \
+            --replay restoration.usda --width 640 --height 360
+          test -s restoration.usda
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: The restoration's replay conforms to usd-replay/1
+        run: |
+          git clone --quiet https://github.com/Preponderous-Software/usd-recorder "$RUNNER_TEMP/usd-recorder"
+          git -C "$RUNNER_TEMP/usd-recorder" checkout --quiet "$USD_RECORDER_REF"
+          python -m pip install --quiet numpy usd-core "$RUNNER_TEMP/usd-recorder"
+          usd-recorder replay validate restoration.usda
       - uses: actions/upload-artifact@v4
         with:
           name: tour-linux
-          path: tour/
+          path: |
+            tour/
+            frames/
+            reveal/reveal-0000.png
+            reveal/reveal-0100.png
+            reveal/reveal-0200.png
+            reveal/reveal-0300.png
 
   game-windows:
     name: Game (Windows, MSVC)

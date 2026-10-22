@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "sim/layout.h"
+#include "sim/progress.h"
 #include "sim/rng.h"
 
 namespace kindling {
@@ -92,6 +93,8 @@ const char* toolName(Tool t) {
 Keyframe snapshot(const World& w) {
     Keyframe k;
     k.tick = w.tick;
+    k.step = static_cast<int32_t>(progress(w).step);
+    k.lantern = w.lantern;
     k.playerX = w.player.x;
     k.playerZ = w.player.z;
     k.playerYaw = w.player.yaw;
@@ -149,6 +152,11 @@ World fromKeyframe(const World& base, const Keyframe& k) {
     w.hearth = k.hearth;
     w.wood.woodpile = k.woodpile;
     w.settler = k.settler;
+    w.lantern = k.lantern;
+    // Steps as they were then (the latches feed progress()).
+    w.cleared = k.step > static_cast<int32_t>(Step::Clear);
+    w.repaired = k.step > static_cast<int32_t>(Step::Repair);
+    w.kindled = k.step > static_cast<int32_t>(Step::Kindle);
     w.history.clear();
     return w;
 }
@@ -243,6 +251,8 @@ uint64_t fingerprint(const World& w) {
     f.add(static_cast<uint64_t>(w.history.size()));
     for (const Keyframe& k : w.history) {
         f.add(k.tick);
+        f.add(k.step);
+        f.add(k.lantern);
         f.add(k.playerX);
         f.add(k.playerZ);
         for (const std::vector<uint8_t>& g : k.grime) f.bytes(g.data(), g.size());

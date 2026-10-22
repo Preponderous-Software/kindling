@@ -117,6 +117,7 @@ struct Settler {
 // what can be seen, at a coarser grime resolution than the game's.
 struct Keyframe {
     int64_t tick = 0;
+    int32_t step = 0;  // the Step the player was on (sim/progress.h)
     float playerX = 0, playerZ = 0, playerYaw = 0;
     std::array<std::vector<uint8_t>, kSurfaceCount> grime;  // each surface at half resolution
     std::vector<Debris> debris;
@@ -130,6 +131,7 @@ struct Keyframe {
     Hearth hearth;
     int32_t woodpile = 0;
     Settler settler;
+    bool lantern = false;
 };
 
 constexpr int kKeyframeEveryTicks = 10 * kTickRate;  // and at every step change

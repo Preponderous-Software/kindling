@@ -418,6 +418,13 @@ Input Autopilot::steer(const World& w, const Goal& g) {
     return in;
 }
 
-Input Autopilot::next(const World& w) { return steer(w, choose(w)); }
+Input Autopilot::next(const World& w) {
+    Input in = steer(w, choose(w));
+    // Carry the lantern after dark, as a player would.
+    const double t = timeOfDay(w);
+    const bool dark = t > 17.0 / 24.0 || t < 7.0 / 24.0;
+    in.toggleLantern = dark != w.lantern;
+    return in;
+}
 
 }  // namespace kindling

@@ -482,7 +482,8 @@ MeshData buildHomesteader() {
 }
 
 void figureTransform(float x, float z, float yaw, bool seated, float out[16]) {
-    const float c = std::cos(yaw), s = std::sin(yaw);
+    // Yaw as the player's: 0 faces -z, positive turns toward +x.
+    const float c = std::cos(-yaw), s = std::sin(-yaw);
     const float y = seated ? -0.42f : 0.0f;
     const float m[16] = {c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, x, y, z, 1};
     for (int i = 0; i < 16; ++i) out[i] = m[i];

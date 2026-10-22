@@ -248,8 +248,8 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         const std::string line = std::string("Carrying ") + itemName(it.kind) +
-                                 (isMaterial(it.kind) ? ": aim where it goes and hold the left button"
-                                                      : ": E to put it down, R to turn it, E at the wagon to put it back");
+                                 (isMaterial(it.kind) ? ": hold the left button where it goes"
+                                                      : ": E to put down, R to turn");
         text(texts, centred(cx, 14, line), static_cast<float>(height) - 64, 14, kEmber, line, storage);
     }
 
@@ -449,9 +449,8 @@ public:
         engine.setCamera(strata::cameraLookAt(eye, target, up, 62.0f, aspect, 0.05f, 400.0f));
         scene.animate(ghost_, now);
         std::vector<StrataPointLight> lights;
-        scene.lights(ghost_, now, lights);
+        scene.lights(ghost_, now, setSky(engine, ghost_), lights);
         engine.setPointLights(lights.data(), lights.size());
-        setSky(engine, ghost_);
         StrataFrameDesc fd{};
         fd.clear_flags = STRATA_CLEAR_COLOR | STRATA_CLEAR_DEPTH | STRATA_CLEAR_SKY;
         engine.beginFrame(fd);
@@ -459,7 +458,8 @@ public:
         std::vector<std::string> storage;
         storage.reserve(4);
         text(texts, 30, 30, 22, kEmber, "Ada's cabin, from ruin to home", storage);
-        text(texts, 30, 62, 16, kWhite, clockText(ghost_) + "   " + stepName(progress(ghost_).step), storage);
+        text(texts, 30, 62, 16, kWhite,
+             clockText(ghost_) + "   " + stepName(static_cast<Step>(w.history[index_].step)), storage);
         text(texts, 30, static_cast<float>(height) - 40, 14, kDim, "Esc to skip", storage);
         for (size_t j = 0; j < texts.size(); ++j) texts[j].utf8 = storage[j].c_str();
         engine.submitText(texts.data(), texts.size());

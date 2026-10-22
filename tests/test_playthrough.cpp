@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     if (!error.empty()) std::fprintf(stderr, "replay: %s\n", error.c_str());
     std::printf("wrote %s\n", out.c_str());
 
-    const uint64_t pinned = 0xa5d50cfe6efe8202ULL;
+    const uint64_t pinned = 0xa4592a85ad51c921ULL;
     std::printf("playthrough fingerprint: %016" PRIx64 "\n", fingerprint(w));
     CHECK(fingerprint(w) == pinned);
     TEST_MAIN_END();
