@@ -297,6 +297,14 @@ const TourStop kTour[] = {
     {30, 0, 1.5708f, -0.35f, Tool::ScrubBrush, true, nullptr},
     {45, 0, 1.5708f, 0.45f, Tool::ScrubBrush, true, nullptr},
     {20, -1, 1.5708f, 0.05f, Tool::ScrubBrush, false, "07-scrubbed-wall"},
+    // Across to the window, and pry two boards off it with the pry bar.
+    {12, 0, -1.29f, 0.0f, Tool::PryBar, false, nullptr},
+    {57, 1, -1.29f, 0.0f, Tool::PryBar, false, nullptr},
+    {10, 0, -1.5708f, 0.18f, Tool::PryBar, false, nullptr},
+    {68, 0, -1.5708f, 0.18f, Tool::PryBar, true, nullptr},
+    {10, 0, -1.5708f, -0.25f, Tool::PryBar, false, nullptr},
+    {68, 0, -1.5708f, -0.25f, Tool::PryBar, true, nullptr},
+    {12, -1, -1.5708f, 0.05f, Tool::PryBar, false, "08-window-light"},
 };
 
 int runTour(strata::Engine& engine, const Args& args) {
@@ -329,8 +337,8 @@ int runTour(strata::Engine& engine, const Args& args) {
         render(engine, scene, w, aim, false, none);
         engine.present();
         const Description d = describe(w, aim);
-        std::printf("%s: player (%.2f, %.2f) aim %s\n", stop.name, w.player.x, w.player.z,
-                    d.name.empty() ? "-" : d.name.c_str());
+        std::printf("%s: player (%.2f, %.2f) aim %s [kind %d index %d dist %.2f]\n", stop.name, w.player.x, w.player.z,
+                    d.name.empty() ? "-" : d.name.c_str(), static_cast<int>(aim.kind), aim.index, aim.distance);
         if (!args.framesDir.empty()) engine.saveScreenshotPng(args.framesDir + "/" + stop.name + ".png");
     }
     const Progress p = progress(w);
