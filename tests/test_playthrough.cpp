@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "check.h"
+#include "record/replay.h"
 #include "sim/autopilot.h"
 #include "sim/brief.h"
 #include "sim/progress.h"
@@ -13,7 +14,7 @@
 
 using namespace kindling;
 
-int main() {
+int main(int argc, char** argv) {
     World w = newWorld(1881);
     Autopilot pilot;
     Step last = Step::Survey;
@@ -39,6 +40,13 @@ int main() {
 
     std::printf("finished in %.1f minutes of play, %zu keyframes, %d matches\n",
                 static_cast<double>(w.tick) / kTickRate / 60.0, w.history.size(), w.hearth.matchesStruck);
+    // The replay of the playthrough; CI validates it with usd-recorder.
+    const std::string out = std::string(argc > 1 ? argv[1] : ".") + "/playthrough.usda";
+    std::string error;
+    CHECK(writeReplay(w, out, &error));
+    if (!error.empty()) std::fprintf(stderr, "replay: %s\n", error.c_str());
+    std::printf("wrote %s\n", out.c_str());
+
     const uint64_t pinned = 0xa5d50cfe6efe8202ULL;
     std::printf("playthrough fingerprint: %016" PRIx64 "\n", fingerprint(w));
     CHECK(fingerprint(w) == pinned);
