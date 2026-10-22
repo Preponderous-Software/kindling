@@ -1,6 +1,6 @@
 // kindling: the game on the Strata engine.
 //
-//   kindling [--seed N] [--width W --height H] [--autopilot [--speed N]] [--replay PATH]
+//   kindling [--slot DIR] [--new] [--seed N] [--width W --height H] [--autopilot [--speed N]] [--replay PATH]
 //   kindling --headless --tour --frames DIR [--width W --height H]
 //   kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR] [--replay PATH]
 //
@@ -20,6 +20,7 @@
 
 #include "bridge/scene.h"
 #include "record/replay.h"
+#include "save/save.h"
 #include "sim/autopilot.h"
 #include "sim/brief.h"
 #include "sim/settler.h"
@@ -34,6 +35,8 @@ namespace L = kindling::layout;
 namespace {
 
 // SDL3 scancodes (USB HID usage ids), which Strata reports as-is.
+constexpr int kF5 = 62, kF9 = 66;
+constexpr double kAutosaveSeconds = 120.0;
 constexpr int kA = 4, kD = 7, kE = 8, kL = 15, kR = 21, kS = 22, kT = 23, kW = 26, k1 = 30, kEscape = 41, kGrave = 53, kF1 = 58,
               kF12 = 69, kLShift = 225, kRShift = 229;
 constexpr int kMaxScancode = 512;
@@ -49,7 +52,9 @@ struct Args {
     std::string framesDir;
     int frameEvery = 300;      // headless autopilot: ticks between frames
     std::string revealFramesDir;
-    std::string replayPath = "kindling-restoration.usda";
+    std::string replayPath;    // default: in the save slot
+    std::string slot;          // default: defaultSlot()
+    bool fresh = false;        // start a new game even if there is a save
     int width = 1280, height = 720;
 };
 
@@ -72,6 +77,8 @@ bool parseArgs(int argc, char** argv, Args& a) {
         else if (s == "--frame-every") a.frameEvery = std::max(1, std::atoi(next("--frame-every")));
         else if (s == "--reveal-frames") a.revealFramesDir = next("--reveal-frames");
         else if (s == "--replay") a.replayPath = next("--replay");
+        else if (s == "--slot") a.slot = next("--slot");
+        else if (s == "--new") a.fresh = true;
         else if (s == "--width") a.width = std::atoi(next("--width"));
         else if (s == "--height") a.height = std::atoi(next("--height"));
         else if (s == "--help" || s == "-h") return false;
@@ -88,7 +95,8 @@ bool parseArgs(int argc, char** argv, Args& a) {
 }
 
 void usage() {
-    std::puts("usage: kindling [--seed N] [--width W --height H] [--autopilot [--speed N]] [--replay PATH]\n"
+    std::puts("usage: kindling [--slot DIR] [--new] [--seed N] [--width W --height H] [--autopilot [--speed N]]\n"
+              "                [--replay PATH]\n"
               "       kindling --headless --tour --frames DIR [--width W --height H]\n"
               "       kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR]\n"
               "                [--replay PATH]");
@@ -269,8 +277,9 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         const char* lines[] = {"Mouse      look",       "W A S D    walk",          "Shift      hurry",
                                "1-6        take a tool", "Left mouse work with it", "E          pick up / put down",
                                "R          turn what you carry", "L          lantern",
+                               "F5 / F9    save / load the last save",
                                "Esc        free the mouse / quit", "F1  hide help   F12  screenshot"};
-        float hy = static_cast<float>(height) - 24 * 10 - 80;
+        float hy = static_cast<float>(height) - 24 * 11 - 80;
         for (const char* l : lines) {
             text(texts, 20, hy, 16, kDim, l, storage);
             hy += 24;
@@ -535,7 +544,20 @@ int runHeadlessAutopilot(strata::Engine& engine, const Args& args) {
 }
 
 int runGame(strata::Engine& engine, const Args& args) {
+    const std::string slot = args.slot.empty() ? defaultSlot() : args.slot;
+    const std::string replayPath = args.replayPath.empty() ? slot + "/kindling-restoration.usda" : args.replayPath;
     World w = newWorld(args.seed);
+    std::vector<Message> messages;
+    if (!args.fresh) {
+        const LoadResult r = loadSave(slot, w);
+        if (r.ok || r.message != "No save to load.") messages.push_back({r.message, 8.0});
+        if (!r.ok) w = newWorld(args.seed);
+    }
+    auto save = [&](const char* note) {
+        std::string why;
+        if (writeSave(slot, w, &why)) messages.push_back({note, 0});
+        else messages.push_back({"Could not save: " + why, 0});
+    };
     bridge::Scene scene(engine);
     scene.sync(w);
     Autopilot pilot;
@@ -544,11 +566,10 @@ int runGame(strata::Engine& engine, const Args& args) {
     bool captured = false, help = true, running = true, mouseDown = false;
     bool interactPressed = false, lanternPressed = false;
     int32_t toolPressed = -1, rotatePressed = 0;
-    float yaw = w.player.yaw, pitch = 0;
+    float yaw = w.player.yaw, pitch = w.player.pitch;
     Aim aim;
-    std::vector<Message> messages;
-    double clock = 0;
-    bool revealed = false;
+    double clock = 0, lastSave = 0;
+    bool revealed = progress(w).step == Step::Done;
 
     auto capture = [&](bool on) {
         try {
@@ -584,6 +605,21 @@ int runGame(strata::Engine& engine, const Args& args) {
                     else if (e.scancode == kR) rotatePressed += 1;
                     else if (e.scancode == kL) lanternPressed = true;
                     else if (e.scancode == kT && progress(w).step == Step::Done) reveal.start(clock);
+                    else if (e.scancode == kF5) {
+                        save("Saved.");
+                        lastSave = clock;
+                    } else if (e.scancode == kF9) {
+                        World loaded;
+                        const LoadResult r = loadSave(slot, loaded);
+                        messages.push_back({r.message, clock + 6.0});
+                        if (r.ok) {
+                            w = std::move(loaded);
+                            yaw = w.player.yaw;
+                            pitch = w.player.pitch;
+                            scene.sync(w);
+                            scene.reloadGrime(w);
+                        }
+                    }
                     else if (e.scancode == kGrave) toolPressed = 0;
                     else if (e.scancode >= k1 && e.scancode < k1 + kToolCount - 1) toolPressed = e.scancode - k1 + 1;
                     break;
@@ -657,15 +693,23 @@ int runGame(strata::Engine& engine, const Args& args) {
             // Once Ada has settled, the reveal plays (once by itself; T plays it again).
             if (!revealed && progress(w).step == Step::Done) {
                 revealed = true;
-                writeReplayFile(w, args.replayPath);
+                writeReplayFile(w, replayPath);
                 reveal.start(clock + 3.0);
             }
         }
+        if (clock - lastSave >= kAutosaveSeconds) {
+            save("Autosaved.");
+            lastSave = clock;
+        }
+        for (Message& m : messages)
+            if (m.until == 0) m.until = clock + 3.0;
         while (!messages.empty() && messages.front().until < clock) messages.erase(messages.begin());
         if (messages.size() > 3) messages.erase(messages.begin(), messages.end() - 3);
         render(engine, scene, w, aim, help, messages, clock);
         engine.present();
     }
+    std::string why;
+    if (!writeSave(slot, w, &why)) std::fprintf(stderr, "kindling: could not save on quit: %s\n", why.c_str());
     return 0;
 }
 
