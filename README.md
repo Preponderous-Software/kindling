@@ -8,8 +8,39 @@ a small C++ engine.
 
 *Concept key art (a mood sketch drawn in code, not in-game art).*
 
-**Status: concept.** There is no playable game yet. This repository holds the design documents and
-two small prototypes that show the core idea working on the real engine and file formats.
+**Status: MVP milestone M1.** You can walk the ruined cabin and its yard in first person, and the
+survey names every kind of damage you look at. The restoration itself (cleaning, repairs,
+furnishing, the hearth) arrives milestone by milestone; see [MVP.md](MVP.md).
+
+![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg)
+
+## Play it
+
+Kindling builds with CMake and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
+built along with it (at the commit `KINDLING_STRATA_REF` in `CMakeLists.txt` pins).
+
+```sh
+cmake -S . -B build
+cmake --build build --config Release
+./build/kindling            # Windows: build\Release\kindling.exe
+ctest --test-dir build -C Release
+```
+
+On Linux, SDL3 needs the X11 development packages (`libx11-dev libxext-dev libxcursor-dev libxi-dev
+libxfixes-dev libxrandr-dev libxss-dev`). `cmake -DKINDLING_WITH_STRATA=OFF` builds only the
+simulation and its tests, with no engine.
+
+| Input | Action |
+|---|---|
+| Mouse | look |
+| W A S D | walk |
+| Shift | hurry |
+| F1 | show or hide the help |
+| F12 | screenshot |
+| Esc | free the mouse (Esc again quits) |
+
+`kindling --headless --tour --frames DIR` walks a scripted path into the cabin without a window
+and writes a screenshot at each stop; CI runs it on every change.
 
 ## The idea
 
