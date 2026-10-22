@@ -12,16 +12,16 @@ namespace L = kindling::layout;
 namespace {
 
 // ---- palette (linear RGB): a cold, dusty ruin
-const Rgb kLog{0.26f, 0.16f, 0.09f};
+const Rgb kLog{0.33f, 0.20f, 0.10f};
 const Rgb kLogEnd{0.42f, 0.30f, 0.17f};
-const Rgb kPlank{0.22f, 0.14f, 0.08f};
+const Rgb kPlank{0.31f, 0.19f, 0.10f};
 const Rgb kRotten{0.09f, 0.07f, 0.05f};
 const Rgb kNewPlank{0.46f, 0.31f, 0.17f};
 const Rgb kCrawl{0.03f, 0.025f, 0.02f};
 const Rgb kCeiling{0.16f, 0.10f, 0.06f};
 const Rgb kBeam{0.20f, 0.12f, 0.06f};
 const Rgb kShingle{0.20f, 0.17f, 0.15f};
-const Rgb kMortar{0.34f, 0.31f, 0.28f};
+const Rgb kMortar{0.44f, 0.41f, 0.37f};
 const Rgb kSoot{0.05f, 0.04f, 0.035f};
 const Rgb kAsh{0.40f, 0.40f, 0.39f};
 const Rgb kHearthstone{0.28f, 0.27f, 0.25f};
@@ -52,50 +52,48 @@ float frontSlopeY(float z) { return kRidgeY - (z - kRidgeZ) / (kEaveZ1 - kRidgeZ
 constexpr float kHoleXs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
 constexpr float kHoleZs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
 
-void walls(MeshData& m) {
+// One log wall: 0 back, 1 left (with the window), 2 right, 3 front (with the door).
+void wall(MeshData& m, int index) {
+    m.beginTag(TargetKind::Wall, index);
     for (int k = 0; k < kCourses; ++k) {
         const float y = courseY(k);
-        const uint32_t key = static_cast<uint32_t>(k);
-        m.beginTag(TargetKind::Wall, 0);
-        m.logX(-4.25f, 4.25f, y, L::kInnerZ0 - kLogR, kLogR, vary(kLog, key * 4 + 0), kLogEnd);
-        m.endTag();
-        m.beginTag(TargetKind::Wall, 3);
-        if (y < L::kDoorTop) {
-            m.logX(-4.25f, L::kDoorX0, y, L::kInnerZ1 + kLogR, kLogR, vary(kLog, key * 4 + 1), kLogEnd);
-            m.logX(L::kDoorX1, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, vary(kLog, key * 4 + 1), kLogEnd);
-        } else {
-            m.logX(-4.25f, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, vary(kLog, key * 4 + 1), kLogEnd);
+        const Rgb c = vary(kLog, static_cast<uint32_t>(k * 4 + index));
+        switch (index) {
+            case 0: m.logX(-4.25f, 4.25f, y, L::kInnerZ0 - kLogR, kLogR, c, kLogEnd); break;
+            case 3:
+                if (y < L::kDoorTop) {
+                    m.logX(-4.25f, L::kDoorX0, y, L::kInnerZ1 + kLogR, kLogR, c, kLogEnd);
+                    m.logX(L::kDoorX1, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, c, kLogEnd);
+                } else {
+                    m.logX(-4.25f, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, c, kLogEnd);
+                }
+                break;
+            case 2: m.logZ(-3.3f, 4.47f, y, L::kInnerX1 + kLogR, kLogR, c, kLogEnd); break;
+            default:
+                if (y > L::kWindowY0 - 0.05f && y < L::kWindowY1 + 0.05f) {
+                    m.logZ(-3.3f, L::kWindowZ0, y, L::kInnerX0 - kLogR, kLogR, c, kLogEnd);
+                    m.logZ(L::kWindowZ1, 4.47f, y, L::kInnerX0 - kLogR, kLogR, c, kLogEnd);
+                } else {
+                    m.logZ(-3.3f, 4.47f, y, L::kInnerX0 - kLogR, kLogR, c, kLogEnd);
+                }
         }
-        m.endTag();
-        m.beginTag(TargetKind::Wall, 2);
-        m.logZ(-3.3f, 4.47f, y, L::kInnerX1 + kLogR, kLogR, vary(kLog, key * 4 + 2), kLogEnd);
-        m.endTag();
-        m.beginTag(TargetKind::Wall, 1);
-        if (y > L::kWindowY0 - 0.05f && y < L::kWindowY1 + 0.05f) {
-            m.logZ(-3.3f, L::kWindowZ0, y, L::kInnerX0 - kLogR, kLogR, vary(kLog, key * 4 + 3), kLogEnd);
-            m.logZ(L::kWindowZ1, 4.47f, y, L::kInnerX0 - kLogR, kLogR, vary(kLog, key * 4 + 3), kLogEnd);
-        } else {
-            m.logZ(-3.3f, 4.47f, y, L::kInnerX0 - kLogR, kLogR, vary(kLog, key * 4 + 3), kLogEnd);
-        }
-        m.endTag();
     }
-    // Door frame.
-    m.beginTag(TargetKind::Wall, 3);
-    m.box({L::kDoorX0 - 0.1f, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX0, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
-    m.box({L::kDoorX1, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
-    m.box({L::kDoorX0 - 0.1f, L::kDoorTop, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f},
-          kFrame);
+    if (index == 3) {  // the door frame
+        m.box({L::kDoorX0 - 0.1f, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX0, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+        m.box({L::kDoorX1, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+        m.box({L::kDoorX0 - 0.1f, L::kDoorTop, L::kInnerZ1 - 0.02f},
+              {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+    }
+    if (index == 1 || index == 2) {
+        // The gable: the triangle between the top course and the roof, both faces.
+        const float x = index == 1 ? L::kInnerX0 - kLogR : L::kInnerX1 + kLogR;
+        for (float side : {1.0f, -1.0f}) {
+            const uint32_t a = m.vertex({x, kEaveY, -3.3f}, kLog), b = m.vertex({x, kEaveY, 4.47f}, kLog);
+            const uint32_t c = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, kLog);
+            m.triangle(a, b, c, {side, 0, 0});
+        }
+    }
     m.endTag();
-    // Gables: the triangles between the side walls' top course and the roof.
-    for (float x : {L::kInnerX0 - kLogR, L::kInnerX1 + kLogR}) {
-        const Vec3 out{x < 0 ? -1.0f : 1.0f, 0, 0};
-        const uint32_t a = m.vertex({x, kEaveY, -3.3f}, kLog), b = m.vertex({x, kEaveY, 4.47f}, kLog);
-        const uint32_t c = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, kLog);
-        m.triangle(a, b, c, out);
-        const uint32_t a2 = m.vertex({x, kEaveY, -3.3f}, kLog), b2 = m.vertex({x, kEaveY, 4.47f}, kLog);
-        const uint32_t c2 = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, kLog);
-        m.triangle(a2, b2, c2, out * -1.0f);
-    }
 }
 
 void floor(MeshData& m, const World& w) {
@@ -374,7 +372,10 @@ void ground(MeshData& m) {
 MeshData buildPart(Part part, const World& w) {
     MeshData m;
     switch (part) {
-        case Part::Walls: walls(m); break;
+        case Part::WallBack: wall(m, 0); break;
+        case Part::WallLeft: wall(m, 1); break;
+        case Part::WallRight: wall(m, 2); break;
+        case Part::WallFront: wall(m, 3); break;
         case Part::Floor: floor(m, w); break;
         case Part::Ceiling: ceiling(m, w); break;
         case Part::Roof: roof(m, w); break;
@@ -389,7 +390,33 @@ MeshData buildPart(Part part, const World& w) {
         case Part::Ground: ground(m); break;
         case Part::Count: break;
     }
+    Surface surface;
+    if (partSurface(part, surface)) {
+        // Planar uvs onto the grime surface, clamped so the parts of a mesh off
+        // the surface (log ends, the gable) take its edge texels.
+        const SurfaceDef& d = surfaceDef(surface);
+        m.uvs.resize(m.vertexCount() * 2);
+        for (uint32_t i = 0; i < m.vertexCount(); ++i) {
+            const Vec3 p{m.positions[3 * i], m.positions[3 * i + 1], m.positions[3 * i + 2]};
+            const Vec3 r = p - d.origin;
+            m.uvs[2 * i] = std::fmin(1.0f, std::fmax(0.0f, dot(r, d.u) / d.uLength));
+            m.uvs[2 * i + 1] = std::fmin(1.0f, std::fmax(0.0f, dot(r, d.v) / d.vLength));
+        }
+        m.wantUv = true;
+    }
     return m;
+}
+
+bool partSurface(Part part, Surface& out) {
+    switch (part) {
+        case Part::Floor: out = Surface::Floor; return true;
+        case Part::WallBack: out = Surface::BackWall; return true;
+        case Part::WallLeft: out = Surface::LeftWall; return true;
+        case Part::WallRight: out = Surface::RightWall; return true;
+        case Part::WallFront: out = Surface::FrontWall; return true;
+        case Part::Chimney: out = Surface::HearthFace; return true;
+        default: return false;
+    }
 }
 
 uint64_t partVersion(Part part, const World& w) {
@@ -424,6 +451,7 @@ MeshData buildDebris(const Debris& d, int32_t index) {
             m.box({-0.15f, -0.012f, -0.08f}, {0.15f, 0.012f, 0.08f}, vary(kShingle, static_cast<uint32_t>(d.id), 0.2f));
             break;
         case DebrisKind::Rafter: m.rod({0, 0, 0}, {1.97f, 2.75f, 0}, 0.11f, kBeam, 10); break;
+        case DebrisKind::RafterPiece: m.rod({-0.37f, 0, 0}, {0.37f, 0, 0}, 0.11f, kBeam, 10); break;
     }
     m.endTag();
     return m;

@@ -24,6 +24,9 @@ public:
     // Rebuilds whatever changed since the last call (everything on the first).
     void sync(const World& w);
 
+    // Re-uploads the grime texels a tick changed.
+    void updateGrime(const World& w, const std::array<TexelRect, kSurfaceCount>& changed);
+
     // What the crosshair ray from `eye` along `dir` (unit) meets first, out to
     // maxDistance. Uses Strata's mesh picking plus boxes for the roof hole.
     Aim pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const;
@@ -38,13 +41,16 @@ private:
         std::vector<TriTag> tags;
     };
 
-    uint32_t upload(const MeshData& m);
+    uint32_t upload(const MeshData& m, uint32_t texture = 0);
+    void uploadGrime(const World& w, Surface s, const TexelRect& r);
     void drop(Held& h);
 
     strata::Engine& engine_;
     std::array<Held, static_cast<size_t>(Part::Count)> parts_{};
     std::vector<Held> debris_;  // one per World::debris entry
     std::unordered_map<uint32_t, const Held*> byId_;
+    std::array<uint32_t, kSurfaceCount> grimeTextures_{};
+    std::vector<uint8_t> scratch_;
 };
 
 }  // namespace kindling::bridge

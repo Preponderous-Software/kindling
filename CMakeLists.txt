@@ -30,7 +30,9 @@ endfunction()
 # builds and tests in seconds. Never fuse multiply-adds: the rules must give
 # bit-identical results on every compiler.
 add_library(kindling_sim STATIC
+  src/sim/grime.cpp
   src/sim/layout.cpp
+  src/sim/progress.cpp
   src/sim/rules.cpp
   src/sim/target.cpp
   src/sim/world.cpp)
@@ -53,7 +55,7 @@ kindling_warnings(kindling_geometry)
 
 if(KINDLING_BUILD_TESTS)
   enable_testing()
-  foreach(t movement determinism targets geometry)
+  foreach(t movement determinism targets geometry clean)
     add_executable(test_${t} tests/test_${t}.cpp)
     target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry)
     target_include_directories(test_${t} PRIVATE tests)
