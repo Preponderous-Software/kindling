@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  USD_RECORDER_REF: 1aae66d  # the usd-recorder commit the restore prototype was written against
+
+jobs:
+  test:
+    name: Prototypes and docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Hearth scene generator is deterministic
+        working-directory: prototypes/hearth-scene
+        run: |
+          for mode in after before; do
+            arg=$([ "$mode" = before ] && echo before || true)
+            python gen_hearth.py $arg > a.scene
+            python gen_hearth.py $arg > b.scene
+            cmp a.scene b.scene
+            grep -q '^camera ' a.scene
+            echo "$mode: $(wc -l < a.scene) lines"
+          done
+
+      - name: Fetch usd-recorder
+        run: |
+          git clone --quiet https://github.com/Preponderous-Software/usd-recorder "$RUNNER_TEMP/usd-recorder"
+          git -C "$RUNNER_TEMP/usd-recorder" checkout --quiet "$USD_RECORDER_REF"
+
+      - name: Build and run the restore prototype twice
+        working-directory: prototypes/restore-replay
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -I "$RUNNER_TEMP/usd-recorder/cpp/include" restore.cpp -o restore
+          ./restore a.usda
+          ./restore b.usda
+          cmp a.usda b.usda
+
+      - name: Replay conforms to usd-replay/1
+        working-directory: prototypes/restore-replay
+        run: |
+          python -m pip install --quiet numpy usd-core "$RUNNER_TEMP/usd-recorder"
+          usd-recorder replay validate a.usda
+
+      - name: Relative links in Markdown resolve
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys
+          bad = []
+          for md in pathlib.Path(".").rglob("*.md"):
+              for target in re.findall(r"\]\(([^)\s]+)\)", md.read_text(encoding="utf-8")):
+                  if re.match(r"[a-z]+:", target) or target.startswith("#"):
+                      continue
+                  path = (md.parent / target.split("#")[0]).resolve()
+                  if not path.exists():
+                      bad.append(f"{md}: {target}")
+          print("\n".join(bad) or "all relative links resolve")
+          sys.exit(1 if bad else 0)
+          PY
