@@ -39,7 +39,14 @@ Description describe(const World& w, const Aim& aim) {
             return dirtyAt(w, Surface::HearthFace, aim.point)
                        ? Description{"Chimney stones", "Black with old soot. Scrub them (2)."}
                        : Description{"Chimney stones", ""};
-        case TargetKind::Firebox: return {"Hearth", "Cold, full of ash."};
+        case TargetKind::Firebox: {
+            const Hearth& h = w.hearth;
+            if (h.lit) return {"The fire", h.fuelMinutes < 60 ? "Burning low. Lay another split log (E)." : ""};
+            if (h.ash > 0) return {"Cold hearth", "Full of old ash. Shovel it out (3)."};
+            if (!h.kindlingLaid) return {"Clean hearth", "Lay kindling here (E), from the chopping block."};
+            if (h.logsLaid == 0) return {"Kindling laid", "Lay a split log on the andirons (E)."};
+            return {"A fire laid", "Strike a match and hold it to the kindling (8, hold)."};
+        }
         case TargetKind::Debris: {
             if (!validIndex(aim.index, w.debris.size()) || w.debris[aim.index].hauled) return {};
             switch (w.debris[aim.index].kind) {
@@ -77,14 +84,25 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Ceiling: return {"Ceiling boards", ""};
         case TargetKind::Ground: return {};
         case TargetKind::Wagon: return {"Your wagon", "Tools, planks, shingles and furnishings."};
-        case TargetKind::ChoppingBlock: return {"Chopping block", "Split log rounds here."};
-        case TargetKind::LogPile: return {"Log rounds", "Firewood, still to be split."};
+        case TargetKind::ChoppingBlock:
+            return w.wood.roundOnBlock ? Description{"Round on the block", "Split it with the axe (7)."}
+                                       : Description{"Chopping block", "Set a log round on it (E)."};
+        case TargetKind::LogPile:
+            return w.wood.rounds > 0 ? Description{"Log rounds", "Take one to the chopping block (E)."}
+                                     : Description{"Log pile", "All split."};
+        case TargetKind::SplitWood: return {"Split logs", "Carry them in to the woodpile (E)."};
+        case TargetKind::Kindling: return {"Kindling", "Carry it to the hearth (E)."};
+        case TargetKind::Woodpile:
+            return {"Woodpile (" + std::to_string(w.wood.woodpile) + " logs)",
+                    w.wood.woodpile < 4 ? "Stack split logs here (E)." : ""};
         case TargetKind::HayBale: return {"Hay bale", ""};
         case TargetKind::Stall: return {"Stall", ""};
         case TargetKind::Item: {
             if (!validIndex(aim.index, w.items.size())) return {};
             const Item& it = w.items[static_cast<size_t>(aim.index)];
             if (it.place == ItemPlace::Wagon) return {itemName(it.kind), "Take it (E)."};
+            if (it.kind == ItemKind::Candle && it.place == ItemPlace::Placed && !w.hearth.candleLit)
+                return {itemName(it.kind), "Light it (8, hold), or move it (E)."};
             if (it.place == ItemPlace::Placed) return {itemName(it.kind), "Move it (E)."};
             return {};
         }

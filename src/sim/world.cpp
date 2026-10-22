@@ -49,6 +49,28 @@ World newWorld(uint64_t seed) {
     return w;
 }
 
+double gameMinutes(const World& w) {
+    return kStartMinute + static_cast<double>(w.tick) / kTickRate * kGameMinutesPerSecond;
+}
+
+double timeOfDay(const World& w) {
+    const double m = gameMinutes(w);
+    return (m - 1440.0 * static_cast<double>(static_cast<int64_t>(m / 1440.0))) / 1440.0;
+}
+
+int32_t dayNumber(const World& w) { return static_cast<int32_t>(gameMinutes(w) / 1440.0); }
+
+bool frosted(const World& w) { return gameMinutes(w) >= 20.0 * 60.0; }
+
+const char* woodName(Wood k) {
+    switch (k) {
+        case Wood::Round: return "a log round";
+        case Wood::Split: return "a split log";
+        case Wood::Kindling: return "kindling";
+    }
+    return "";
+}
+
 const char* toolName(Tool t) {
     switch (t) {
         case Tool::None: return "Bare hands";
@@ -58,6 +80,8 @@ const char* toolName(Tool t) {
         case Tool::Saw: return "Saw";
         case Tool::PryBar: return "Pry bar";
         case Tool::Hammer: return "Hammer";
+        case Tool::Axe: return "Axe";
+        case Tool::Matches: return "Matches";
         case Tool::Count: break;
     }
     return "";
@@ -125,8 +149,24 @@ uint64_t fingerprint(const World& w) {
         f.add(it.pos.z);
         f.add(it.yaw);
     }
+    const Hearth& h = w.hearth;
+    f.add(h.ash);
+    f.add(h.kindlingLaid);
+    f.add(h.logsLaid);
+    f.add(h.lit);
+    f.add(h.fire);
+    f.add(h.fuelMinutes);
+    f.add(h.candleLit);
+    f.add(h.matchesStruck);
+    f.add(w.wood.rounds);
+    f.add(w.wood.roundOnBlock);
+    f.add(w.wood.splitByBlock);
+    f.add(w.wood.kindlingByBlock);
+    f.add(w.wood.woodpile);
+    f.add(w.lantern);
     f.add(w.cleared);
     f.add(w.repaired);
+    f.add(w.kindled);
     for (const std::vector<uint8_t>& t : w.grime.texels) {
         f.add(static_cast<uint64_t>(t.size()));
         f.bytes(t.data(), t.size());

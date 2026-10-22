@@ -2,8 +2,9 @@
 
 Kindling is a C++17 game on [Strata](https://github.com/Preponderous-Software/strata). This document
 describes how it is built, and how it is meant to be built where the code does not exist yet.
-Implemented so far (MVP milestones M1 to M3): the simulation core's world, movement and collision,
-grime, tools, debris, repairs, furnishings, Ada's brief and the step checklist (`src/sim/`), the room as tagged meshes
+Implemented so far (MVP milestones M1 to M4): the simulation core's world, movement and collision,
+grime, tools, debris, repairs, furnishings, Ada's brief, firewood, the hearth, the game clock and the
+step checklist (`src/sim/`), the room as tagged meshes
 (`src/bridge/room.*`), the scene, grime textures and mesh picking on Strata (`src/bridge/scene.*`),
 and the first-person app (`app/main.cpp`). The other sections are still a plan.
 
@@ -92,7 +93,10 @@ The **render bridge** turns game state into Strata calls each frame:
 - Cabin kit pieces and furniture are static meshes (`strata_add_mesh` /
   `strata_add_textured_mesh`) with per-mesh transforms.
 - The hearth, candles and lanterns are point lights (up to 32; up to 4 cast shadows). The hearth
-  flickers by small seeded changes to its light each frame.
+  flickers with the real clock in the renderer only (`Scene::animate`, `Scene::lights`), so the
+  flicker never touches the simulation. Daylight indoors is soft unshadowed fills scaled by the
+  sun's height: one through the door, one under each open section of the roof hole, and one at
+  the window once its boards are off, standing in for bounced light.
 - Flames and embers are unlit meshes.
 - Creatures are rigid parts with per-mesh transforms, animated procedurally (no skeletons).
 

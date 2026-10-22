@@ -212,8 +212,6 @@ void chimney(MeshData& m) {
     m.beginTag(TargetKind::Firebox);
     m.box({L::kFireboxX0, 0, L::kBreastZ0}, {L::kFireboxX1, L::kFireboxTop, -2.86f}, kSoot);
     m.box({L::kFireboxX0, 0, L::kBreastZ0}, {L::kFireboxX1, 0.04f, L::kBreastFront}, kSoot);
-    m.box({-1.35f, 0.04f, -2.82f}, {-0.25f, 0.08f, -2.4f}, kAsh);  // the old ash bed
-    m.logX(-1.15f, -0.6f, 0.1f, -2.6f, 0.06f, {0.06f, 0.06f, 0.06f}, {0.18f, 0.18f, 0.18f});
     m.endTag();
 
     // The chimney stack above the roof.
@@ -359,15 +357,102 @@ void yard(MeshData& m) {
     }
 }
 
-void ground(MeshData& m) {
+void ground(MeshData& m, const World& w) {
     m.beginTag(TargetKind::Ground);
-    m.quad({-60, 0, -60}, {60, 0, -60}, {60, 0, 60}, {-60, 0, 60}, kGrass, {0, 1, 0});
+    const Rgb grass = frosted(w) ? Rgb{0.52f, 0.56f, 0.58f} : kGrass;
+    m.quad({-60, 0, -60}, {60, 0, -60}, {60, 0, 60}, {-60, 0, 60}, grass, {0, 1, 0});
     // A worn path from the door to the wagon, just above the grass.
     m.quad({2.0f, 0.005f, 4.4f}, {3.0f, 0.005f, 4.4f}, {3.4f, 0.005f, 7.0f}, {1.8f, 0.005f, 7.0f}, kDirt, {0, 1, 0});
     m.endTag();
 }
 
+const Rgb kSplit{0.55f, 0.40f, 0.24f};
+const Rgb kRoundBark{0.20f, 0.14f, 0.09f};
+
+void fireboxContents(MeshData& m, const World& w) {
+    const Hearth& h = w.hearth;
+    const float cx = (L::kFireboxX0 + L::kFireboxX1) / 2;
+    m.beginTag(TargetKind::Firebox);
+    // Andirons, always.
+    m.box({cx - 0.48f, 0.04f, -2.7f}, {cx - 0.42f, 0.24f, -2.45f}, {0.06f, 0.06f, 0.06f});
+    m.box({cx + 0.42f, 0.04f, -2.7f}, {cx + 0.48f, 0.24f, -2.45f}, {0.06f, 0.06f, 0.06f});
+    if (h.ash > 0) {
+        m.box({cx - 0.55f, 0.04f, -2.82f}, {cx + 0.55f, 0.04f + 0.05f * h.ash, -2.4f}, kAsh);
+        m.logX(cx - 0.35f, cx + 0.2f, 0.1f, -2.6f, 0.06f, {0.06f, 0.06f, 0.06f}, {0.18f, 0.18f, 0.18f});
+    }
+    if (h.kindlingLaid)
+        for (int k = 0; k < 7; ++k)
+            m.box({cx - 0.3f + 0.09f * k, 0.05f, -2.66f + 0.03f * (k % 3)}, {cx - 0.27f + 0.09f * k, 0.09f, -2.5f + 0.03f * (k % 3)},
+                  vary({0.55f, 0.40f, 0.22f}, k));
+    const int logs = h.lit ? (h.fuelMinutes > 240 ? 3 : h.fuelMinutes > 0 ? 2 : 0) : h.logsLaid;
+    const Rgb charred = h.lit ? Rgb{0.12f, 0.07f, 0.04f} : kSplit;
+    for (int k = 0; k < logs; ++k)
+        m.logX(cx - 0.5f + 0.05f * k, cx + 0.45f - 0.05f * k, 0.2f + 0.12f * (k == 2), -2.62f + 0.14f * (k == 1), 0.075f,
+               charred, {0.5f, 0.3f, 0.12f});
+    if (h.lit) m.box({cx - 0.5f, 0.04f, -2.78f}, {cx + 0.5f, 0.07f, -2.42f}, {0.35f, 0.12f, 0.04f});  // embers bed
+    m.endTag();
+}
+
+void yardWood(MeshData& m, const World& w) {
+    const Firewood& f = w.wood;
+    m.beginTag(TargetKind::LogPile);
+    for (int k = 0; k < f.rounds; ++k) {
+        const int row = k < 3 ? 0 : k < 5 ? 1 : 2, inRow = k < 3 ? k : k < 5 ? k - 3 : 0;
+        const float x = -3.35f + inRow * 0.32f + row * 0.16f, y = 0.0f + row * 0.36f;
+        m.rod({x, y, 7.85f}, {x, y + 0.36f, 7.85f}, 0.15f, kRoundBark, 10);
+    }
+    m.endTag();
+    if (f.roundOnBlock) {
+        m.beginTag(TargetKind::ChoppingBlock);
+        m.rod({-1.8f, 0.55f, 7.0f}, {-1.8f, 0.9f, 7.0f}, 0.15f, kRoundBark, 10);
+        m.endTag();
+    }
+    m.beginTag(TargetKind::SplitWood);
+    for (int k = 0; k < f.splitByBlock && k < 12; ++k)
+        m.logZ(6.2f + 0.02f * k, 6.75f, 0.06f + 0.11f * (k / 4), -1.25f + 0.13f * (k % 4), 0.06f, kSplit, {0.62f, 0.45f, 0.26f}, 6);
+    m.endTag();
+    m.beginTag(TargetKind::Kindling);
+    for (int k = 0; k < f.kindlingByBlock && k < 6; ++k)
+        for (int s = 0; s < 6; ++s)
+            m.box({-2.45f + 0.05f * s + 0.02f * k, 0.02f * k, 6.3f + 0.04f * k}, {-2.43f + 0.05f * s + 0.02f * k, 0.02f * k + 0.03f, 6.75f},
+                  vary({0.55f, 0.40f, 0.22f}, s + 6 * k));
+    m.endTag();
+}
+
+void woodpile(MeshData& m, const World& w) {
+    m.beginTag(TargetKind::Woodpile);
+    // A low frame of two rails, always, so the spot is findable when empty.
+    m.box({-3.62f, 0.0f, -2.75f}, {-2.62f, 0.05f, -2.7f}, kWood);
+    m.box({-3.62f, 0.0f, -2.1f}, {-2.62f, 0.05f, -2.05f}, kWood);
+    const int counts[4] = {5, 4, 3, 2};
+    int left = w.wood.woodpile;
+    for (int row = 0; row < 4 && left > 0; ++row)
+        for (int k = 0; k < counts[row] && left > 0; ++k, --left) {
+            const float x = -3.5f + 0.17f * k + 0.085f * row;
+            m.logZ(-2.75f, -2.05f, 0.13f + 0.15f * row, x, 0.08f, vary(kSplit, 50 + row * 5 + k), {0.62f, 0.45f, 0.26f}, 8);
+        }
+    m.endTag();
+}
+
 }  // namespace
+
+MeshData buildFlames() {
+    MeshData m;
+    const Rgb outer{1.0f, 0.36f, 0.05f}, outerTip{1.0f, 0.62f, 0.12f}, core{1.0f, 0.75f, 0.3f}, coreTip{1.0f, 0.95f, 0.7f};
+    const float tongues[5][3] = {{-0.3f, 0.42f, 0.13f}, {-0.12f, 0.62f, 0.16f}, {0.08f, 0.55f, 0.15f},
+                                 {0.26f, 0.4f, 0.12f}, {0.0f, 0.3f, 0.2f}};
+    for (int k = 0; k < 5; ++k)
+        m.cone({tongues[k][0], 0, 0.05f * (k % 2)}, tongues[k][2], tongues[k][1], outer, outerTip);
+    const float cores[3][3] = {{-0.12f, 0.38f, 0.08f}, {0.08f, 0.34f, 0.08f}, {-0.02f, 0.24f, 0.12f}};
+    for (const auto& c : cores) m.cone({c[0], 0.02f, 0.06f}, c[2], c[1], core, coreTip);
+    return m;
+}
+
+MeshData buildCandleFlame() {
+    MeshData m;
+    m.cone({0, 0, 0}, 0.018f, 0.07f, {1.0f, 0.7f, 0.25f}, {1.0f, 0.95f, 0.75f}, 8);
+    return m;
+}
 
 MeshData buildPart(Part part, const World& w) {
     MeshData m;
@@ -387,7 +472,10 @@ MeshData buildPart(Part part, const World& w) {
         case Part::Table: table(m, w); break;
         case Part::Snow: snow(m, w); break;
         case Part::Yard: yard(m); break;
-        case Part::Ground: ground(m); break;
+        case Part::Ground: ground(m, w); break;
+        case Part::FireboxContents: fireboxContents(m, w); break;
+        case Part::YardWood: yardWood(m, w); break;
+        case Part::Woodpile: woodpile(m, w); break;
         case Part::Count: break;
     }
     Surface surface;
@@ -434,6 +522,17 @@ uint64_t partVersion(Part part, const World& w) {
         case Part::Chair: return static_cast<uint64_t>(w.chair);
         case Part::Table: return static_cast<uint64_t>(w.table);
         case Part::Snow: return static_cast<uint64_t>(std::lround(w.snow * 20));
+        case Part::Ground: return frosted(w) ? 1 : 0;
+        case Part::FireboxContents: {
+            const Hearth& h = w.hearth;
+            const uint64_t logs = h.lit ? (h.fuelMinutes > 240 ? 3u : h.fuelMinutes > 0 ? 2u : 0u) : static_cast<uint64_t>(h.logsLaid);
+            return static_cast<uint64_t>(std::lround(h.ash * 10)) | static_cast<uint64_t>(h.kindlingLaid) << 8 | logs << 9 |
+                   static_cast<uint64_t>(h.lit) << 12;
+        }
+        case Part::YardWood:
+            return static_cast<uint64_t>(w.wood.rounds) | static_cast<uint64_t>(w.wood.roundOnBlock) << 8 |
+                   static_cast<uint64_t>(w.wood.splitByBlock) << 9 | static_cast<uint64_t>(w.wood.kindlingByBlock) << 20;
+        case Part::Woodpile: return static_cast<uint64_t>(w.wood.woodpile);
         default: return 0;
     }
 }

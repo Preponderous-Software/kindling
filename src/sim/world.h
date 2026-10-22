@@ -20,6 +20,11 @@ namespace kindling {
 constexpr int kTickRate = 30;                 // simulation ticks per real second
 constexpr float kTickSeconds = 1.0f / kTickRate;
 
+// The clock: one game minute per real second, from nine in the morning on
+// 11 November (late autumn) of the first year.
+constexpr int kStartMinute = 9 * 60;
+constexpr float kGameMinutesPerSecond = 1.0f;
+
 // ---- what the ruin starts with
 
 enum class DebrisKind : int32_t { Board = 0, Shingle = 1, Rafter = 2, RafterPiece = 3 };
@@ -50,13 +55,40 @@ enum class Tool : int32_t {
     Saw,         // cuts the fallen rafter into pieces you can carry
     PryBar,      // lifts rotten boards and the boards over the window
     Hammer,      // mends the chair
+    Axe,         // splits log rounds on the chopping block
+    Matches,     // lights the hearth and the candle
     Count
 };
 constexpr int kToolCount = static_cast<int>(Tool::Count);
 const char* toolName(Tool t);
 
 // What the player's hands are full of, if anything.
-enum class Carry : int32_t { Nothing = 0, Debris = 1, Item = 2 };
+enum class Carry : int32_t { Nothing = 0, Debris = 1, Item = 2, Firewood = 3 };
+
+// Firewood in its forms; carried as Carry::Firewood with the kind in carryIndex.
+enum class Wood : int32_t { Round = 0, Split = 1, Kindling = 2 };
+const char* woodName(Wood k);  // "a log round"
+
+// The hearth, from cold ash to a fire that keeps the room warm.
+struct Hearth {
+    float ash = 1.0f;          // old ash still in the firebox, 0..1
+    bool kindlingLaid = false;
+    int32_t logsLaid = 0;      // split logs on the andirons, unburned
+    bool lit = false;
+    float fire = 0;            // 0..1, how big the fire is
+    float fuelMinutes = 0;     // game minutes of burning left in what is laid
+    bool candleLit = false;
+    int32_t matchesStruck = 0;
+};
+
+// Firewood around the yard and the hearth.
+struct Firewood {
+    int32_t rounds = 6;        // unsplit rounds on the pile by the chopping block
+    bool roundOnBlock = false;
+    int32_t splitByBlock = 0;  // split logs lying by the block
+    int32_t kindlingByBlock = 0;
+    int32_t woodpile = 2;      // split logs stacked inside, left of the hearth (two old ones to start)
+};
 
 // Kinds of damage the survey asks the player to find, as bits of World::surveyed.
 constexpr uint32_t kSurveyGrime = 1u << 0;
@@ -92,14 +124,27 @@ struct World {
     Grime grime;
     std::vector<Item> items;                    // materials and furnishings, from the wagon
 
+    Hearth hearth;
+    Firewood wood;
+    bool lantern = false;  // carrying a lit lantern (for the dark)
+
     // Steps once finished stay finished, even if the player makes a new mess.
     bool cleared = false;
     bool repaired = false;
+    bool kindled = false;
 
     uint32_t surveyed = 0;                      // kSurvey* bits the player has looked at
 };
 
 constexpr uint32_t kRoofAllPatched = 0xF;
+
+// Game minutes since midnight on the first day (11 November).
+double gameMinutes(const World& w);
+// 0..1 through the day (0.5 is noon), and the day number (0 = 11 November).
+double timeOfDay(const World& w);
+int32_t dayNumber(const World& w);
+// The first frost settles after dark on the first night.
+bool frosted(const World& w);
 
 // A new game: the ruin as the player finds it, the player in the yard.
 World newWorld(uint64_t seed);

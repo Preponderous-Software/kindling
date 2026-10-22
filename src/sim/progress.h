@@ -38,7 +38,17 @@ struct Progress {
 
     // Furnish
     int32_t furnished = 0;       // furnishings placed in the cabin
+
+    // Kindle
+    bool ashOut = false;
+    bool kindlingLaid = false;
+    bool logsLaid = false;       // at least one split log on the andirons (or already burning)
+    bool woodStacked = false;    // the woodpile holds kWoodpileGoal or more
+    bool burning = false;        // lit, and grown past a flicker
 };
+
+constexpr int kWoodpileGoal = 4;
+constexpr float kBurningFire = 0.6f;
 
 Progress progress(const World& w);
 

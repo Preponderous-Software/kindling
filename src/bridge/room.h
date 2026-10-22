@@ -31,6 +31,9 @@ enum class Part : int32_t {
     Snow,
     Yard,
     Ground,
+    FireboxContents,  // ash, kindling, logs laid on the andirons
+    YardWood,         // rounds on the pile and the block, split logs and kindling by it
+    Woodpile,         // split logs stacked inside, left of the hearth
     Count
 };
 
@@ -43,6 +46,12 @@ bool partSurface(Part part, Surface& out);
 
 // A key that changes whenever the part's mesh would.
 uint64_t partVersion(Part part, const World& w);
+
+// The flames, built around the firebox's centre on the andirons, unlit; the
+// renderer scales them with the fire each frame.
+MeshData buildFlames();
+// A candle flame, built around its base.
+MeshData buildCandleFlame();
 
 // One material or furnishing, built around its origin; place it with itemTransform.
 MeshData buildItem(const Item& item, int32_t index);
