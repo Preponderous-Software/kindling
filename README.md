@@ -12,8 +12,11 @@ a small C++ engine.
 the damage, clear the place out (sweep and scrub the grime away patch by patch, haul the debris
 out, saw the fallen rafter, shovel out the snow), repair it (pry up rotten boards and lay new
 planks, patch the roof with shingles, pry the boards off the window, mend the rocking chair, set
-the table right), and furnish it from the wagon against Ada's brief. The hearth and Ada herself
-arrive in the next milestones; see [MVP.md](MVP.md).
+the table right), and furnish it from the wagon against Ada's brief, and kindle the hearth: split log rounds on the
+chopping block, stack the wood, shovel out the old ash, lay kindling and a log, and hold a match
+to it until it catches. The day runs from late morning on 11 November into the first frost; the
+fire, a candle and a carried lantern light the night. Ada herself arrives in the next milestone;
+see [MVP.md](MVP.md).
 
 ![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg)
 
@@ -38,10 +41,11 @@ simulation and its tests, with no engine.
 | Mouse | look |
 | W A S D | walk |
 | Shift | hurry |
-| 1 to 6 | take a tool: broom, scrub brush, shovel, saw, pry bar, hammer (\` for bare hands) |
+| 1 to 8 | take a tool: broom, scrub brush, shovel, saw, pry bar, hammer, axe, matches (\` for bare hands) |
 | Left mouse (hold) | work with the tool on what the crosshair is on; with a plank or shingles in hand, work them in |
 | E | pick up or put down (debris put down outdoors is hauled out; furnishings go where they belong; E at the wagon puts a thing back) |
 | R | turn what you carry |
+| L | light or put out your lantern |
 | F1 | show or hide the help |
 | F12 | screenshot |
 | Esc | free the mouse (Esc again quits) |
