@@ -1,0 +1,7 @@
+build/
+*.scene
+*.usda
+*.usdc
+prototypes/restore-replay/restore
+site/
+__pycache__/

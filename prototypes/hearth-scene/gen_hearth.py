@@ -1,0 +1,344 @@
+#!/usr/bin/env python3
+"""Writes hearth.scene: Kindling's restored cabin interior on a winter night, for strata-golden."""
+import math, random, sys
+
+random.seed(1880)
+BEFORE = len(sys.argv) > 1 and sys.argv[1] == "before"
+
+def dusty(col):
+    """Before: colours fade toward a cold grey and darken, the look of a room nobody has lived in."""
+    if not BEFORE: return col
+    g = 0.3 * col[0] + 0.55 * col[1] + 0.15 * col[2]
+    mix = [c * 0.35 + g * 0.65 for c in col]
+    return (mix[0] * 0.95, mix[1] * 0.97, mix[2] * 1.05)
+out = []
+def w(s): out.append(s)
+
+def sub(a, b): return (a[0]-b[0], a[1]-b[1], a[2]-b[2])
+def cross(a, b): return (a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0])
+def dot(a, b): return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
+
+class Mesh:
+    def __init__(self, unlit=False):
+        self.v, self.c, self.i, self.unlit = [], [], [], unlit
+    def vert(self, p, col):
+        self.v.append(p); self.c.append(col if self.unlit else dusty(col)); return len(self.v) - 1
+    def tri(self, a, b, c, outward):
+        pa, pb, pc = self.v[a], self.v[b], self.v[c]
+        if dot(cross(sub(pb, pa), sub(pc, pa)), outward) < 0: b, c = c, b
+        self.i += [a, b, c]
+    def quad(self, pts, col, outward):
+        ids = [self.vert(p, col) for p in pts]
+        self.tri(ids[0], ids[1], ids[2], outward); self.tri(ids[0], ids[2], ids[3], outward)
+    def box(self, x0, x1, y0, y1, z0, z1, col):
+        X, Y, Z = (x0, x1), (y0, y1), (z0, z1)
+        self.quad([(x1,y0,z0),(x1,y1,z0),(x1,y1,z1),(x1,y0,z1)], col, (1,0,0))
+        self.quad([(x0,y0,z0),(x0,y0,z1),(x0,y1,z1),(x0,y1,z0)], col, (-1,0,0))
+        self.quad([(x0,y1,z0),(x0,y1,z1),(x1,y1,z1),(x1,y1,z0)], col, (0,1,0))
+        self.quad([(x0,y0,z0),(x1,y0,z0),(x1,y0,z1),(x0,y0,z1)], col, (0,-1,0))
+        self.quad([(x0,y0,z1),(x1,y0,z1),(x1,y1,z1),(x0,y1,z1)], col, (0,0,1))
+        self.quad([(x0,y0,z0),(x0,y1,z0),(x1,y1,z0),(x1,y0,z0)], col, (0,0,-1))
+    def log(self, axis, a0, a1, c1, c2, r, col, end_col=None, n=12):
+        """Horizontal cylinder along 'x' or 'z' from a0 to a1, centred at (c1=y, c2=other axis)."""
+        def P(a, ang):
+            u, v = r*math.cos(ang), r*math.sin(ang)
+            return (a, c1+v, c2+u) if axis == 'x' else (c2+u, c1+v, a)
+        ring0 = [self.vert(P(a0, 2*math.pi*k/n), col) for k in range(n)]
+        ring1 = [self.vert(P(a1, 2*math.pi*k/n), col) for k in range(n)]
+        for k in range(n):
+            k2 = (k + 1) % n
+            mid = 2*math.pi*(k+0.5)/n
+            o = (0, math.sin(mid), math.cos(mid)) if axis == 'x' else (math.cos(mid), math.sin(mid), 0)
+            self.tri(ring0[k], ring1[k], ring1[k2], o); self.tri(ring0[k], ring1[k2], ring0[k2], o)
+        ec = end_col or col
+        for a, sgn in ((a0, -1), (a1, 1)):
+            ctr = self.vert((a, c1, c2) if axis == 'x' else (c2, c1, a), ec)
+            rim = [self.vert(P(a, 2*math.pi*k/n), ec) for k in range(n)]
+            o = (sgn, 0, 0) if axis == 'x' else (0, 0, sgn)
+            for k in range(n): self.tri(ctr, rim[k], rim[(k+1) % n], o)
+    def rod(self, p0, p1, r, col, n=10):
+        d = sub(p1, p0); L = math.sqrt(dot(d, d)); a = (d[0]/L, d[1]/L, d[2]/L)
+        t = (0, 1, 0) if abs(a[1]) < 0.9 else (1, 0, 0)
+        u = cross(a, t); ul = math.sqrt(dot(u, u)); u = (u[0]/ul, u[1]/ul, u[2]/ul); v = cross(a, u)
+        def P(base, ang): return tuple(base[i] + r*(math.cos(ang)*u[i] + math.sin(ang)*v[i]) for i in range(3))
+        r0 = [self.vert(P(p0, 2*math.pi*k/n), col) for k in range(n)]
+        r1 = [self.vert(P(p1, 2*math.pi*k/n), col) for k in range(n)]
+        for k in range(n):
+            k2 = (k + 1) % n; m = 2*math.pi*(k+0.5)/n
+            o = tuple(math.cos(m)*u[i] + math.sin(m)*v[i] for i in range(3))
+            self.tri(r0[k], r1[k], r1[k2], o); self.tri(r0[k], r1[k2], r0[k2], o)
+    def cone(self, x, y, z, r, h, col, tip=None, n=10):
+        apex = self.vert((x, y+h, z), tip or col)
+        rim = [self.vert((x+r*math.cos(2*math.pi*k/n), y, z+r*math.sin(2*math.pi*k/n)), col) for k in range(n)]
+        for k in range(n):
+            mid = 2*math.pi*(k+0.5)/n
+            self.tri(apex, rim[k], rim[(k+1) % n], (math.cos(mid), 0.3, math.sin(mid)))
+    def emit(self, name):
+        w(f"# {name}")
+        w("mesh 1 1 1")
+        w("vertices " + " ".join(f"{c:.4f}" for p in self.v for c in p))
+        w("vcolors " + " ".join(f"{c:.4f}" for p in self.c for c in p))
+        w("triangles " + " ".join(str(i) for i in self.i))
+        if self.unlit: w("mesh_unlit")
+
+def jitter(col, amt=0.12):
+    f = 1 + (random.random()*2 - 1)*amt
+    return tuple(min(1.0, c*f) for c in col)
+
+def item(kind, pos, scale, col):
+    w(f"item {kind} " + " ".join(f"{v:.3f}" for v in (*pos, *scale, *dusty(col))))
+
+LOG = (0.30, 0.17, 0.09); LOG_END = (0.48, 0.32, 0.17)
+H = 3.0  # wall height
+
+w("# Kindling: a restored cabin on a winter night, lit by its hearth (generated by gen_hearth.py)")
+w("size 1280 720")
+w("camera 2.9 1.55 3.3  -1.1 0.95 -2.0  55 0.05 80")
+w("lighting sun 0.96 42  4 2048 40 0.6 0")
+w("clear 0.01 0.015 0.04 1 sky")
+
+# ---- floor: planks running along x
+floor = Mesh()
+z = -3.0
+while z < 4.2:
+    if BEFORE and round(z, 2) in (-0.25, 0.75, 1.0):
+        gap0 = {-0.25: -1.9, 0.75: 0.3, 1.0: 0.6}[round(z, 2)]
+        floor.box(-4.0, gap0, 0.0, 0.06, z, z + 0.24, jitter((0.24, 0.14, 0.075), 0.18))
+        floor.box(gap0 + 0.9, 4.0, 0.0, 0.06, z, z + 0.24, jitter((0.24, 0.14, 0.075), 0.18))
+    else:
+        floor.box(-4.0, 4.0, 0.0, 0.06, z, z + 0.24, jitter((0.24, 0.14, 0.075), 0.18))
+    z += 0.25
+floor.emit("floor planks")
+
+# ---- walls: stacked logs
+walls = Mesh()
+ys = [0.16 + k*0.31 for k in range(10)]
+for y in ys:
+    walls.log('x', -4.25, 4.25, y, -3.12, 0.17, jitter(LOG), LOG_END)        # back
+    walls.log('x', -4.25, 4.25, y, 4.3, 0.17, jitter(LOG), LOG_END)          # front (behind camera)
+    walls.log('z', -3.3, 4.4, y, 4.12, 0.17, jitter(LOG), LOG_END)           # right
+    if 0.95 < y < 2.15:                                                      # left, with the window gap
+        walls.log('z', -3.3, -1.0, y, -4.12, 0.17, jitter(LOG), LOG_END)
+        walls.log('z', 0.45, 4.4, y, -4.12, 0.17, jitter(LOG), LOG_END)
+    else:
+        walls.log('z', -3.3, 4.4, y, -4.12, 0.17, jitter(LOG), LOG_END)
+walls.emit("log walls")
+
+# ---- ceiling and beams
+ceil = Mesh()
+HOLE = (-0.6, 0.8, -1.5, -0.3)  # x0, x1, z0, z1
+if BEFORE:
+    hx0, hx1, hz0, hz1 = HOLE
+    ceil.box(-4.3, hx0, H + 0.05, H + 0.15, -3.3, 4.4, (0.16, 0.09, 0.05))
+    ceil.box(hx1, 4.3, H + 0.05, H + 0.15, -3.3, 4.4, (0.16, 0.09, 0.05))
+    ceil.box(hx0, hx1, H + 0.05, H + 0.15, -3.3, hz0, (0.16, 0.09, 0.05))
+    ceil.box(hx0, hx1, H + 0.05, H + 0.15, hz1, 4.4, (0.16, 0.09, 0.05))
+    for bx in (-2.4, 2.4):
+        ceil.box(bx - 0.13, bx + 0.13, H - 0.22, H + 0.05, -3.3, 4.4, (0.22, 0.12, 0.06))
+    ceil.box(-0.13, 0.13, H - 0.22, H + 0.05, -3.3, hz0 + 0.1, (0.22, 0.12, 0.06))
+    ceil.box(-0.13, 0.13, H - 0.22, H + 0.05, hz1 + 0.15, 4.4, (0.22, 0.12, 0.06))
+    ceil.rod((0.0, H - 0.15, hz1 + 0.1), (-1.9, 0.13, 0.5), 0.12, (0.22, 0.12, 0.06))      # fallen rafter
+    for k in range(5):                                                                 # broken shingles on the floor
+        sx, sz = random.uniform(-0.6, 0.9), random.uniform(-1.6, 0.6)
+        ceil.box(sx, sx + random.uniform(0.15, 0.3), 0.06, 0.09, sz, sz + random.uniform(0.08, 0.16), (0.2, 0.17, 0.14))
+else:
+    ceil.box(-4.3, 4.3, H + 0.05, H + 0.15, -3.3, 4.4, (0.16, 0.09, 0.05))
+    for bx in (-2.4, 0.0, 2.4):
+        ceil.box(bx - 0.13, bx + 0.13, H - 0.22, H + 0.05, -3.3, 4.4, (0.22, 0.12, 0.06))
+ceil.box(-4.3, 4.3, H - 0.28, H - 0.02, 0.6, 0.86, (0.2, 0.11, 0.055))
+ceil.emit("ceiling")
+
+# ---- chimney breast
+FX = -0.8            # hearth centre x
+ZF = -2.35           # breast front face
+OX0, OX1, OY = -1.45, -0.15, 1.05
+mortar = (0.36, 0.33, 0.29)
+breast = Mesh()
+breast.box(-2.3, OX0, 0, H + 0.05, -2.98, ZF, mortar)
+breast.box(OX1, 0.7, 0, H + 0.05, -2.98, ZF, mortar)
+breast.box(OX0, OX1, OY, H + 0.05, -2.98, ZF, mortar)
+breast.box(OX0, OX1, 0, OY, -2.98, -2.86, (0.05, 0.035, 0.03))          # sooty firebox back
+breast.box(OX0, OX1, 0, 0.04, -2.98, ZF, (0.07, 0.05, 0.04))           # firebox floor
+breast.box(-2.55, 0.95, 0, 0.13, ZF, -1.72, (0.30, 0.28, 0.25))         # hearthstone
+breast.emit("chimney breast")
+
+stones = Mesh()
+y = 0.02
+row = 0
+while y < H:
+    hgt = random.uniform(0.17, 0.27)
+    x = -2.3 + (0.12 if row % 2 else 0.0) - 0.15
+    while x < 0.7:
+        wid = random.uniform(0.24, 0.42)
+        x0, x1 = max(x + 0.025, -2.3), min(x + wid - 0.025, 0.7)
+        y0, y1 = y + 0.02, min(y + hgt - 0.02, H)
+        in_opening = x1 > OX0 - 0.02 and x0 < OX1 + 0.02 and y0 < OY
+        if x1 - x0 > 0.06 and y1 - y0 > 0.05 and not in_opening:
+            g = random.uniform(0.38, 0.62)
+            col = (g * random.uniform(0.95, 1.08), g * random.uniform(0.9, 1.0), g * random.uniform(0.8, 0.92))
+            stones.box(x0, x1, y0, y1, ZF - 0.01, ZF + random.uniform(0.04, 0.08), col)
+        x += wid
+    y += hgt
+    row += 1
+# arch stones over the opening
+for k in range(7):
+    x0 = OX0 - 0.05 + k * (OX1 - OX0 + 0.1) / 7
+    stones.box(x0 + 0.015, x0 + (OX1 - OX0 + 0.1) / 7 - 0.015, OY - 0.02, OY + 0.2, ZF - 0.01, ZF + 0.09, jitter((0.5, 0.47, 0.42), 0.15))
+stones.emit("hearth stones")
+
+# ---- mantel and things on it
+mantel = Mesh()
+mantel.box(-2.6, 1.0, 1.24, 1.36, -2.62, -2.08, (0.20, 0.10, 0.05))
+mantel.box(-2.5, -2.38, 1.08, 1.24, -2.4, -2.12, (0.18, 0.09, 0.045))   # corbels
+mantel.box(0.78, 0.9, 1.08, 1.24, -2.4, -2.12, (0.18, 0.09, 0.045))
+# framed sampler above the mantel
+if BEFORE:
+    mantel.box(-0.82, -0.78, 2.4, 2.46, -2.36, -2.3, (0.15, 0.15, 0.15))
+if not BEFORE:
+  mantel.box(-1.32, -0.28, 1.72, 2.44, -2.36, -2.26, (0.17, 0.09, 0.04))
+  mantel.box(-1.24, -0.36, 1.8, 2.36, -2.27, -2.24, (0.78, 0.72, 0.58))
+  for k in range(5):
+    mantel.box(-1.1 + k * 0.16, -1.0 + k * 0.16, 2.02, 2.14, -2.245, -2.235, (0.6, 0.12, 0.1) if k % 2 == 0 else (0.18, 0.35, 0.22))
+  mantel.box(-1.12, -0.52, 1.9, 1.94, -2.245, -2.235, (0.25, 0.3, 0.45))
+mantel.emit("mantel")
+if BEFORE:
+    item("cylinder", (-2.2, 1.40, -2.3), (0.16, 0.04, 0.16), (0.55, 0.48, 0.32))   # broken crock
+    item("cylinder", (0.55, 1.39, -2.3), (0.08, 0.02, 0.08), (0.9, 0.86, 0.72))   # candle stub
+    item("cylinder", (0.55, 1.37, -2.3), (0.16, 0.01, 0.16), (0.45, 0.38, 0.22))
+else:
+  item("cylinder", (-2.2, 1.49, -2.3), (0.16, 0.13, 0.16), (0.55, 0.48, 0.32))    # crock
+  item("cylinder", (-1.9, 1.46, -2.32), (0.12, 0.1, 0.12), (0.25, 0.4, 0.5))      # blue jar
+  item("cube", (-0.05, 1.52, -2.38), (0.3, 0.32, 0.14), (0.25, 0.13, 0.06))        # mantel clock
+  item("cylinder", (-0.05, 1.56, -2.3), (0.18, 0.005, 0.18), (0.85, 0.8, 0.65))   # clock face
+  item("cylinder", (0.55, 1.47, -2.3), (0.08, 0.11, 0.08), (0.9, 0.86, 0.72))     # candle
+  item("cylinder", (0.55, 1.37, -2.3), (0.16, 0.01, 0.16), (0.45, 0.38, 0.22))    # candle dish
+
+# ---- the fire
+fire = Mesh()
+fire.box(FX - 0.48, FX - 0.42, 0.04, 0.24, -2.7, -2.45, (0.06, 0.06, 0.06))     # andirons
+fire.box(FX + 0.42, FX + 0.48, 0.04, 0.24, -2.7, -2.45, (0.06, 0.06, 0.06))
+if BEFORE:
+    fire.log('x', FX - 0.35, FX + 0.2, 0.1, -2.6, 0.06, (0.07, 0.07, 0.07), (0.2, 0.2, 0.2))
+    fire.box(FX - 0.55, FX + 0.5, 0.04, 0.08, -2.82, -2.4, (0.42, 0.42, 0.42))       # ash bed
+else:
+  fire.log('x', FX - 0.5, FX + 0.5, 0.2, -2.62, 0.08, (0.2, 0.11, 0.06), (0.5, 0.3, 0.12))
+  fire.log('x', FX - 0.45, FX + 0.42, 0.21, -2.47, 0.075, (0.16, 0.09, 0.05), (0.45, 0.27, 0.1))
+  fire.log('x', FX - 0.3, FX + 0.35, 0.34, -2.55, 0.07, (0.12, 0.07, 0.04), (0.4, 0.22, 0.08))
+fire.emit("fire logs")
+flames = Mesh(unlit=True)
+if BEFORE: flames = Mesh()   # nothing burning; built and discarded below
+for k in range(16):
+    ex, ez = FX + random.uniform(-0.5, 0.5), random.uniform(-2.75, -2.42)
+    flames.box(ex - 0.03, ex + 0.03, 0.04, 0.07, ez - 0.03, ez + 0.03, (1.0, random.uniform(0.25, 0.45), 0.05))
+for k, (dx, h, r) in enumerate([(-0.3, 0.42, 0.13), (-0.12, 0.62, 0.16), (0.08, 0.55, 0.15), (0.26, 0.4, 0.12), (0.0, 0.3, 0.2)]):
+    flames.cone(FX + dx, 0.22, -2.56 + (k % 2) * 0.05, r, h, (1.0, 0.36, 0.05), (1.0, 0.62, 0.12))
+for dx, h, r in [(-0.12, 0.38, 0.08), (0.08, 0.34, 0.08), (-0.02, 0.24, 0.12)]:
+    flames.cone(FX + dx, 0.24, -2.5, r, h, (1.0, 0.75, 0.3), (1.0, 0.95, 0.7))
+flames.cone(0.55, 1.58, -2.3, 0.018, 0.07, (1.0, 0.7, 0.25), (1.0, 0.95, 0.75))   # candle flame
+if not BEFORE: flames.emit("flames and embers")
+
+# ---- woodpile beside the hearth
+pile = Mesh()
+for rowi, count in enumerate([2] if BEFORE else [5, 4, 3, 2]):
+    for k in range(count):
+        cx = -3.45 + k * 0.17 + rowi * 0.085
+        pile.log('z', -2.75, -2.05, 0.08 + rowi * 0.15, cx, 0.08, jitter((0.32, 0.2, 0.11)), (0.62, 0.45, 0.26))
+pile.emit("woodpile")
+
+# ---- kindling basket
+if not BEFORE: item("cylinder", (0.95, 0.3, -1.95), (0.42, 0.18, 0.42), (0.45, 0.31, 0.15))
+kind = Mesh()
+for k in range(0 if BEFORE else 11):
+    sx, sz = 0.95 + random.uniform(-0.13, 0.13), -1.95 + random.uniform(-0.13, 0.13)
+    kind.box(sx - 0.015, sx + 0.015, 0.3, random.uniform(0.6, 0.75), sz - 0.015, sz + 0.015, jitter((0.55, 0.4, 0.22)))
+if not BEFORE: kind.emit("kindling sticks")
+
+# ---- braided rug (before: leaves, splinters and a snow drift under the roof hole)
+if BEFORE:
+    junk = Mesh()
+    for k in range(70):
+        lx, lz = random.uniform(-3.6, 2.6), random.uniform(-2.2, 2.8)
+        s = random.uniform(0.04, 0.09)
+        junk.box(lx, lx + s, 0.06, 0.075, lz, lz + s * 0.7, random.choice([(0.35, 0.22, 0.1), (0.3, 0.26, 0.15), (0.22, 0.16, 0.1)]))
+    for k in range(9):
+        lx, lz = random.uniform(-3.0, 2.2), random.uniform(-1.8, 2.4)
+        junk.box(lx, lx + random.uniform(0.4, 0.9), 0.06, 0.1, lz, lz + random.uniform(0.06, 0.12), (0.26, 0.2, 0.14))
+    junk.emit("debris")
+    item("sphere", (0.1, 0.06, -0.9), (1.5, 0.22, 1.2), (0.5, 0.53, 0.6))
+    item("sphere", (0.35, 0.06, -0.6), (0.9, 0.14, 0.8), (0.5, 0.53, 0.6))
+if not BEFORE:
+  item("cylinder", (-0.55, 0.066, -0.55), (2.8, 0.005, 1.8), (0.3, 0.09, 0.06))
+  item("cylinder", (-0.55, 0.068, -0.55), (2.3, 0.005, 1.4), (0.45, 0.34, 0.18))
+  item("cylinder", (-0.55, 0.070, -0.55), (1.9, 0.005, 1.06), (0.26, 0.08, 0.055))
+  item("cylinder", (-0.55, 0.072, -0.55), (1.3, 0.005, 0.66), (0.22, 0.28, 0.4))
+  item("cylinder", (-0.55, 0.074, -0.55), (0.8, 0.005, 0.3), (0.45, 0.34, 0.18))
+
+# ---- rocking chair facing the fire, with a quilt over the back
+CX, CZ = 1.65, -1.15
+chair = Mesh()
+wood = (0.22, 0.12, 0.06)
+chair.box(CX - 0.3, CX + 0.3, 0.46, 0.52, CZ - 0.27, CZ + 0.27, wood)
+for lx in (CX - 0.26, CX + 0.22):
+    for lz in (CZ - 0.24, CZ + 0.2):
+        chair.box(lx, lx + 0.04, 0.1, 0.48, lz, lz + 0.04, wood)
+    chair.box(lx - 0.01, lx + 0.05, 0.05, 0.12, CZ - 0.5, CZ + 0.5, wood)     # rockers
+    chair.box(lx, lx + 0.04, 0.48, 1.3, CZ + 0.22, CZ + 0.27, wood)           # back posts
+    chair.box(lx - 0.01, lx + 0.05, 0.72, 0.76, CZ - 0.26, CZ + 0.27, wood)   # arms
+for k in range(1 if BEFORE else 3):
+    chair.box(CX - 0.24, CX + 0.24, 0.8 + k * 0.17, 0.86 + k * 0.17, CZ + 0.23, CZ + 0.26, wood)
+chair.box(CX - 0.28, CX + 0.28, 1.24, 1.32, CZ + 0.22, CZ + 0.28, wood)
+patches = [(0.55, 0.14, 0.12), (0.85, 0.75, 0.55), (0.2, 0.32, 0.5), (0.7, 0.5, 0.2), (0.3, 0.45, 0.3)]
+for k in range(0 if BEFORE else 6):
+    for j in range(4):
+        chair.box(CX - 0.3 + k * 0.1, CX - 0.2 + k * 0.1, 0.62 + j * 0.13, 0.75 + j * 0.13, CZ + 0.28, CZ + 0.31, patches[(k + 2 * j) % 5])
+chair.emit("rocking chair")
+
+# ---- window on the left wall, with curtains and snow outside
+win = Mesh()
+frame = (0.2, 0.11, 0.055)
+win.box(-4.3, -3.94, 0.9, 1.0, -1.08, 0.53, frame)          # sill
+win.box(-4.3, -3.98, 2.1, 2.2, -1.08, 0.53, frame)
+win.box(-4.3, -3.98, 0.9, 2.2, -1.08, -0.98, frame)
+win.box(-4.3, -3.98, 0.9, 2.2, 0.43, 0.53, frame)
+win.box(-4.2, -4.16, 1.0, 2.1, -0.3, -0.25, frame)           # muntins
+win.box(-4.2, -4.16, 1.52, 1.57, -1.0, 0.45, frame)
+win.box(-4.3, -4.0, 1.0, 1.05, -0.98, 0.43, (0.85, 0.88, 0.95))   # snow on the outer sill
+if BEFORE:
+    for (y0, y1) in [(1.04, 1.24), (1.33, 1.55), (1.66, 1.84), (1.95, 2.12)]:
+        win.box(-3.98, -3.92, y0, y1, -1.25, 0.7, jitter((0.32, 0.27, 0.2), 0.15))
+if not BEFORE: win.box(-3.96, -3.9, 1.0, 2.35, -1.45, -0.98, (0.26, 0.07, 0.06))   # curtains
+win.box(-3.96, -3.9, 1.7 if BEFORE else 1.0, 2.35, 0.43, 0.9, (0.26, 0.07, 0.06))
+win.box(-3.95, -3.88, 2.32, 2.38, -1.6, 1.05, (0.12, 0.07, 0.04))  # rod
+win.emit("window")
+outside = Mesh()
+outside.box(-16, -4.3, -0.4, 0.0, -10, 10, (0.62, 0.68, 0.82))     # snowfield
+for k in range(9):
+    px, pz = random.uniform(-14, -6.5), random.uniform(-6, 6)
+    s = random.uniform(1.6, 3.2)
+    for t in range(3):
+        outside.cone(px, 0.2 + t * s * 0.28, pz, s * (0.42 - t * 0.1), s * 0.45, (0.05, 0.09, 0.08), (0.55, 0.6, 0.72))
+outside.emit("snowy outside")
+
+# ---- a small table under the window with a folded quilt and a bowl
+if BEFORE: item("cube", (-3.3, 0.04, 1.6), (0.6, 0.05, 1.1), (0.24, 0.13, 0.065))
+else: item("cube", (-3.5, 0.72, 1.45), (0.6, 0.05, 1.1), (0.24, 0.13, 0.065))
+for lz in (1.0, 1.9):
+    for lx in (-3.72, -3.28):
+        item("cube", (lx, 0.36, lz), (0.05, 0.7, 0.05), (0.22, 0.12, 0.06))
+if not BEFORE: item("cube", (-3.5, 0.8, 1.75), (0.42, 0.1, 0.38), (0.2, 0.32, 0.5))
+if not BEFORE: item("cube", (-3.5, 0.88, 1.75), (0.42, 0.06, 0.38), (0.85, 0.75, 0.55))
+if not BEFORE: item("sphere", (-3.5, 0.79, 1.2), (0.26, 0.12, 0.26), (0.55, 0.3, 0.15))
+
+# ---- lights: the hearth (shadowed), its glow, the candle, and moonlight through the window
+if BEFORE:
+    w("light point -6.20 3.10 -0.30  13.0  0.55 0.66 1.0  9.0 shadow")    # moon through the boards
+    w("light point 0.1 6.2 -0.9  10.0  0.6 0.7 1.0  14.0 shadow")         # moon through the roof
+    w("light point 0.8 1.8 1.2  9.0  0.45 0.52 0.7  1.9")                # cold bounce
+    sys.stdout.write("\n".join(out) + "\n"); sys.exit(0)
+w("light point -0.80 0.55 -2.40  9.0  1.0 0.56 0.26  5.5 shadow")
+w("light point -0.80 0.75 -1.70  5.5  1.0 0.6 0.3  0.9")
+w("light point 0.55 1.66 -2.22  2.6  1.0 0.75 0.40  1.6 shadow")
+w("light point -6.20 3.10 -0.30  12.0  0.5 0.62 1.0  5.0 shadow")
+w("light point 1.5 2.6 2.5  6.0  0.35 0.25 0.2  0.25")
+
+sys.stdout.write("\n".join(out) + "\n")
