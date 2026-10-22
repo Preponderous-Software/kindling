@@ -1,8 +1,11 @@
 # Architecture
 
 Kindling is a C++17 game on [Strata](https://github.com/Preponderous-Software/strata). This document
-describes how it is meant to be built. Nothing beyond the two prototypes exists yet, so every
-section below is a plan.
+describes how it is built, and how it is meant to be built where the code does not exist yet.
+Implemented so far (MVP milestone M1): the simulation core's world, movement and collision
+(`src/sim/`), the room as tagged meshes (`src/bridge/room.*`), the scene and mesh picking on Strata
+(`src/bridge/scene.*`), and the first-person app (`app/main.cpp`). The other sections are still a
+plan.
 
 ## Layers
 
@@ -97,12 +100,13 @@ candle when restored.
 ## Engine additions
 
 The MVP needs these from Strata. Each is generic enough to belong in the engine, and Kindling
-would be its first consumer.
+is its first consumer.
 
 | Addition | Why Kindling needs it | Notes |
 |---|---|---|
-| **Updatable surface masks** (texture sub-region updates) | Grime and paint that change patch by patch as the player cleans | Strata textures are uploaded once today. This is the riskiest item (MVP milestone M2). |
-| **Picking** (ray against meshes and primitives) | Knowing which wall, plank or item is under the crosshair | steading picks against its ground plane in its own app code; a shared version would serve both. |
+| **Updatable surface masks** (texture sub-region updates) | Grime and paint that change patch by patch as the player cleans | Added in Strata ABI 1.8 (`strata_update_texture_rgba8`). |
+| **Picking** (ray against meshes) | Knowing which wall, plank or item is under the crosshair | Added in Strata ABI 1.8 (`strata_raycast_meshes`, which returns the mesh and triangle hit). Kindling tags each mesh's triangle ranges with the target they belong to. |
+| **Relative mouse mode** | First-person mouse look | Added in Strata ABI 1.8 (`strata_set_relative_mouse_mode`). |
 | **Model loading** | Building the cabin kit and furniture in Blender | Either a small glTF loader in Kindling, or loading geometry through `modules/usd`. To be decided. |
 
 Not needed for the MVP: skeletal animation, physics, a UI toolkit beyond Strata's text overlay.

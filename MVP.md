@@ -51,7 +51,7 @@ Each milestone ends in something that can be run or looked at.
 | Milestone | Result | Checked by |
 |---|---|---|
 | **M0 Prototypes** (done) | The hearth room rendered in Strata before and after; a restoration recorded as a `usd-replay/1` replay and played in usd-web | The images in the README; `usd-recorder replay validate` passes |
-| **M1 Walk the room** | First-person camera in the ruined cabin on Strata, with collision and object picking | A build where you can walk the room and the object under the crosshair is named |
+| **M1 Walk the room** (done) | First-person camera in the ruined cabin on Strata, with collision and object picking | A build where you can walk the room and the object under the crosshair is named |
 | **M2 Clean** | Surfaces that hold grime and change as they are cleaned (needs a Strata addition, see [ARCHITECTURE.md](ARCHITECTURE.md#engine-additions)) | Sweeping a patch of floor visibly cleans exactly that patch, and it stays clean after save and load |
 | **M3 Repair and furnish** | Plank, roof, window and chair repairs; placing and moving furniture | The repair and furnish checks in the table above |
 | **M4 Kindle** | The fire ritual, firelight, a flickering flame and the candle | The kindle check above; a headless golden image of the lit room |

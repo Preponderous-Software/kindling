@@ -83,6 +83,12 @@ void setDaylight(strata::Engine& engine) {
     const double unixSeconds = 1794418200.0;  // 2026-11-11 10:30 at UTC-7; the sky's geometry, not the year
     const StrataSolarPosition sun = strata::solarPosition(unixSeconds, 46.6, -112.0);
     engine.setSunDirection(sun.to_sun);
+    // Daylight spilling in through the door and the roof hole: a soft fill that
+    // stands in for bounced light, which the renderer does not compute.
+    const StrataPointLight fill{{1.5f, 2.2f, 2.6f}, 8.0f, {0.75f, 0.82f, 1.0f}, 0.5f, 0};
+    const StrataPointLight shaft{{0.1f, 2.6f, -0.9f}, 4.5f, {0.75f, 0.82f, 1.0f}, 0.6f, 0};
+    const StrataPointLight lights[2] = {fill, shaft};
+    engine.setPointLights(lights, 2);
 }
 
 StrataCamera playerCamera(const Player& p, float aspect) {
@@ -194,11 +200,11 @@ struct TourStop {
 
 const TourStop kTour[] = {
     {1, 0, 0.0f, 0.05f, "01-yard"},
-    {95, 1, 0.0f, -0.05f, "02-doorway"},
-    {40, 1, -0.35f, -0.12f, "03-hearth"},
-    {20, 0, -1.25f, 0.05f, "04-window"},
-    {20, 0, 0.3f, 0.95f, "05-roof-hole"},
-    {20, 0, 0.75f, -0.45f, "06-floor"},
+    {30, 1, 0.0f, -0.05f, "02-doorway"},
+    {40, 1, -0.75f, -0.1f, "03-hearth"},
+    {20, 0, -1.6f, 0.05f, "04-window"},
+    {20, 0, -0.9f, 0.95f, "05-roof-hole"},
+    {20, 0, -0.2f, -0.6f, "06-floor"},
 };
 
 int runTour(strata::Engine& engine, const Args& args) {
