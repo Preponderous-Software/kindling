@@ -119,8 +119,9 @@ images.
 ## Built on
 
 - [Strata](https://github.com/Preponderous-Software/strata): rendering, the window and input,
-  checksummed saves (`modules/save`), OpenUSD (`modules/usd`), and deterministic simulation pieces
-  (`strata::sim`).
+  texture updates and mesh picking. The MVP does not use its checksummed saves (`modules/save`),
+  OpenUSD (`modules/usd`) or deterministic simulation pieces (`strata::sim`): Kindling has its own
+  save file and simulation core (see [ARCHITECTURE.md](ARCHITECTURE.md#saves)).
 - [usd-recorder](https://github.com/Preponderous-Software/usd-recorder): its C++ replay writer
   records each restoration for the reveal timelapse.
 - [usd-web](https://github.com/Preponderous-Software/usd-web): plays those replays in a browser.
