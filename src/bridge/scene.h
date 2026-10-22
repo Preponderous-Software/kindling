@@ -34,6 +34,13 @@ public:
     // hand. Flickers with `seconds` like the flames.
     void lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const;
 
+    // Show the player's own figure (in the reveal, seen from outside).
+    void showPlayer(bool on) { showPlayer_ = on; }
+
+    // Re-uploads every grime texel (after jumping to a different world, as
+    // the reveal does).
+    void reloadGrime(const World& w);
+
     // Re-uploads the grime texels a tick changed.
     void updateGrime(const World& w, const std::array<TexelRect, kSurfaceCount>& changed);
 
@@ -60,6 +67,8 @@ private:
     std::vector<Held> debris_;  // one per World::debris entry
     std::vector<Held> items_;   // one per World::items entry
     uint32_t flames_ = 0, candleFlame_ = 0;  // unlit meshes, not pickable
+    uint32_t settler_ = 0, homesteader_ = 0;  // figures, not pickable
+    bool showPlayer_ = false;
     std::unordered_map<uint32_t, const Held*> byId_;
     std::array<uint32_t, kSurfaceCount> grimeTextures_{};
     std::vector<uint8_t> scratch_;
