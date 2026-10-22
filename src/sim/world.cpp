@@ -44,7 +44,20 @@ World newWorld(uint64_t seed) {
 
     w.planks.fill(PlankState::Rotten);
     w.windowBoards.fill(1);
+    w.grime = newGrime(seed);
     return w;
+}
+
+const char* toolName(Tool t) {
+    switch (t) {
+        case Tool::None: return "Bare hands";
+        case Tool::Broom: return "Broom";
+        case Tool::ScrubBrush: return "Scrub brush";
+        case Tool::Shovel: return "Shovel";
+        case Tool::Saw: return "Saw";
+        case Tool::Count: break;
+    }
+    return "";
 }
 
 namespace {
@@ -76,6 +89,12 @@ uint64_t fingerprint(const World& w) {
     f.add(w.player.z);
     f.add(w.player.yaw);
     f.add(w.player.pitch);
+    f.add(w.tool);
+    f.add(w.carry);
+    f.add(w.carryIndex);
+    f.add(w.workKind);
+    f.add(w.workIndex);
+    f.add(w.workSeconds);
     f.add(static_cast<uint64_t>(w.debris.size()));
     for (const Debris& d : w.debris) {
         f.add(d.id);
@@ -92,6 +111,11 @@ uint64_t fingerprint(const World& w) {
     f.add(w.chair);
     f.add(w.table);
     f.add(w.snow);
+    f.add(w.debrisHauled);
+    for (const std::vector<uint8_t>& t : w.grime.texels) {
+        f.add(static_cast<uint64_t>(t.size()));
+        f.bytes(t.data(), t.size());
+    }
     f.add(w.surveyed);
     return f.h;
 }

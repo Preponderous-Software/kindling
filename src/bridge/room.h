@@ -15,7 +15,10 @@
 namespace kindling::bridge {
 
 enum class Part : int32_t {
-    Walls = 0,
+    WallBack = 0,
+    WallLeft,
+    WallRight,
+    WallFront,
     Floor,
     Ceiling,
     Roof,
@@ -31,8 +34,12 @@ enum class Part : int32_t {
     Count
 };
 
-// The mesh for one part in the world's current state.
+// The mesh for one part in the world's current state. Parts with a grime
+// surface (partSurface) come with uvs that map onto that surface's texels.
 MeshData buildPart(Part part, const World& w);
+
+// The grime surface a part is textured with, or false for untextured parts.
+bool partSurface(Part part, Surface& out);
 
 // A key that changes whenever the part's mesh would.
 uint64_t partVersion(Part part, const World& w);

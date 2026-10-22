@@ -10,7 +10,9 @@
 #include <string>
 #include <vector>
 
+#include "sim/grime.h"
 #include "sim/math.h"
+#include "sim/target.h"
 
 namespace kindling {
 
@@ -19,7 +21,7 @@ constexpr float kTickSeconds = 1.0f / kTickRate;
 
 // ---- what the ruin starts with
 
-enum class DebrisKind : int32_t { Board = 0, Shingle = 1, Rafter = 2 };
+enum class DebrisKind : int32_t { Board = 0, Shingle = 1, Rafter = 2, RafterPiece = 3 };
 
 struct Debris {
     int32_t id = 0;
@@ -38,6 +40,21 @@ struct Player {
     float yaw = 0, pitch = 0;  // radians; yaw 0 faces -z
 };
 
+// The tools on the player's belt, chosen with the number keys.
+enum class Tool : int32_t {
+    None = 0,
+    Broom,       // sweeps the floor
+    ScrubBrush,  // scrubs walls and the chimney stones
+    Shovel,      // snow, ash
+    Saw,         // cuts the fallen rafter into pieces you can carry
+    Count
+};
+constexpr int kToolCount = static_cast<int>(Tool::Count);
+const char* toolName(Tool t);
+
+// What the player's hands are full of, if anything.
+enum class Carry : int32_t { Nothing = 0, Debris = 1 };
+
 // Kinds of damage the survey asks the player to find, as bits of World::surveyed.
 constexpr uint32_t kSurveyGrime = 1u << 0;
 constexpr uint32_t kSurveyDebris = 1u << 1;
@@ -51,6 +68,15 @@ struct World {
     int64_t tick = 0;
     uint64_t seed = 0;
     Player player;
+    Tool tool = Tool::None;
+    Carry carry = Carry::Nothing;
+    int32_t carryIndex = -1;  // into debris while carrying debris
+
+    // A job that takes a while (sawing, shovelling): what it is aimed at and how
+    // far along it is. Looking away or letting go resets it.
+    TargetKind workKind = TargetKind::None;
+    int32_t workIndex = -1;
+    float workSeconds = 0;
 
     std::vector<Debris> debris;
     std::array<PlankState, 3> planks{};         // one per layout::kRottenSpans entry
@@ -59,6 +85,8 @@ struct World {
     ChairState chair = ChairState::Broken;
     TableState table = TableState::Toppled;
     float snow = 1.0f;                          // the drift under the roof hole, 0..1
+    int32_t debrisHauled = 0;                   // pieces carried out to the pile in the yard
+    Grime grime;
 
     uint32_t surveyed = 0;                      // kSurvey* bits the player has looked at
 };

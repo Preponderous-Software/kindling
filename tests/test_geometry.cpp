@@ -83,7 +83,9 @@ int main() {
     for (int i = 0; i < 3; ++i) CHECK(hasTag(floorMesh, TargetKind::RottenPlank, i));
     const MeshData boardMesh = buildPart(Part::Boards, w);
     for (int i = 0; i < 4; ++i) CHECK(hasTag(boardMesh, TargetKind::WindowBoard, i));
-    CHECK(hasTag(buildPart(Part::Walls, w), TargetKind::Wall, 1));
+    CHECK(hasTag(buildPart(Part::WallLeft, w), TargetKind::Wall, 1));
+    CHECK(buildPart(Part::WallLeft, w).uvs.size() == buildPart(Part::WallLeft, w).vertexCount() * 2);
+    CHECK(buildPart(Part::Boards, w).uvs.empty());
     CHECK(hasTag(buildPart(Part::Chimney, w), TargetKind::Firebox, -1));
 
     // Changes show up in the version key of the part they affect, and only there.

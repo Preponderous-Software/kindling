@@ -23,6 +23,7 @@ Description describe(const World& w, const Aim& aim) {
                 case DebrisKind::Board: return {"Broken board", "Haul it out of the cabin."};
                 case DebrisKind::Shingle: return {"Fallen shingle", "Haul it out of the cabin."};
                 case DebrisKind::Rafter: return {"Fallen rafter", "Too long to carry. Saw it into pieces."};
+                case DebrisKind::RafterPiece: return {"Length of rafter", "Haul it out of the cabin."};
             }
             return {};
         }

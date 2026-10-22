@@ -3,16 +3,18 @@
 // alters the outcome shows up here (update the pin deliberately, in the same
 // PR as the rule change, and say why).
 #include <cinttypes>
+#include <cmath>
 #include <cstdio>
 
 #include "check.h"
+#include "sim/layout.h"
 #include "sim/rules.h"
 
 using namespace kindling;
 
 namespace {
 
-// Walk in through the door, wander round the room looking about, and stop.
+// Walk in through the door, wander round the room looking about and sweeping, and stop.
 World scriptedWalk(uint64_t seed) {
     World w = newWorld(seed);
     for (int i = 0; i < 20 * kTickRate; ++i) {
@@ -27,6 +29,13 @@ World scriptedWalk(uint64_t seed) {
             in.aim.kind = TargetKind::Debris;
             in.aim.index = (i / 60) % 15;
             in.aim.distance = 1.0f;
+        } else if (i > 4 * kTickRate) {
+            // Sweep the floor a little ahead of the player as they wander.
+            in.selectTool = static_cast<int32_t>(Tool::Broom);
+            in.use = true;
+            in.aim.kind = TargetKind::Floor;
+            in.aim.point = {w.player.x + 0.5f * detSin(t), layout::kFloorY, w.player.z - 0.8f};
+            in.aim.distance = 1.2f;
         }
         tick(w, in);
     }
@@ -41,7 +50,7 @@ int main() {
     CHECK(fingerprint(newWorld(1)) != fingerprint(newWorld(2)));
 
     // The pinned fingerprint of the scripted walk.
-    const uint64_t pinned = 0x1c0d2153e30ca0f5ULL;
+    const uint64_t pinned = 0x6fb13080be99c6cfULL;
     std::printf("scripted walk fingerprint: %016" PRIx64 "\n", fingerprint(a));
     CHECK(fingerprint(a) == pinned);
 
