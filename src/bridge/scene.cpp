@@ -32,6 +32,7 @@ void grimeTexel(Surface s, uint8_t g, uint8_t* out) {
 Scene::~Scene() {
     for (Held& h : parts_) drop(h);
     for (Held& h : debris_) drop(h);
+    for (Held& h : items_) drop(h);
     for (uint32_t t : grimeTextures_)
         if (t) engine_.destroyTexture(t);
 }
@@ -119,6 +120,28 @@ void Scene::sync(const World& w) {
         debrisTransform(d, model);
         engine_.setMeshTransform(h.id, model);
     }
+
+    if (items_.size() != w.items.size()) {
+        for (Held& h : items_) drop(h);
+        items_.assign(w.items.size(), Held{});
+    }
+    for (size_t i = 0; i < w.items.size(); ++i) {
+        const Item& it = w.items[i];
+        Held& h = items_[i];
+        if (it.place == ItemPlace::Used) {
+            drop(h);
+            continue;
+        }
+        if (!h.id) {
+            const MeshData m = buildItem(it, static_cast<int32_t>(i));
+            h.id = upload(m);
+            h.tags = m.tags;
+            byId_[h.id] = &h;
+        }
+        float model[16];
+        itemTransform(it, model);
+        engine_.setMeshTransform(h.id, model);
+    }
 }
 
 Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
@@ -143,17 +166,19 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
     }
 
     // The roof hole has no mesh to hit: test the ray against the ceiling plane.
-    if (dir.y > 1e-4f && w.roofPatches < 4) {
+    if (dir.y > 1e-4f && w.roofPatched != kRoofAllPatched) {
         const float t = (L::kCeilingY - eye.y) / dir.y;
         const Vec3 p = eye + dir * t;
         if (t > 0 && t < best && p.x > L::kRoofHoleX0 && p.x < L::kRoofHoleX1 && p.z > L::kRoofHoleZ0 &&
             p.z < L::kRoofHoleZ1) {
             const int i = p.x < (L::kRoofHoleX0 + L::kRoofHoleX1) / 2 ? 0 : 1;
             const int j = p.z < (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2 ? 0 : 1;
-            aim.kind = TargetKind::RoofHole;
-            aim.index = i + 2 * j;
-            aim.point = p;
-            aim.distance = t;
+            if (!((w.roofPatched >> (i + 2 * j)) & 1u)) {
+                aim.kind = TargetKind::RoofHole;
+                aim.index = i + 2 * j;
+                aim.point = p;
+                aim.distance = t;
+            }
         }
     }
     return aim;

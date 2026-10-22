@@ -50,7 +50,7 @@ int main() {
     CHECK(fingerprint(newWorld(1)) != fingerprint(newWorld(2)));
 
     // The pinned fingerprint of the scripted walk.
-    const uint64_t pinned = 0x6fb13080be99c6cfULL;
+    const uint64_t pinned = 0x2b676910a6ef26faULL;
     std::printf("scripted walk fingerprint: %016" PRIx64 "\n", fingerprint(a));
     CHECK(fingerprint(a) == pinned);
 

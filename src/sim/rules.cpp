@@ -3,6 +3,7 @@
 #include <cmath>
 #include <string>
 
+#include "sim/brief.h"
 #include "sim/layout.h"
 #include "sim/progress.h"
 
@@ -19,6 +20,9 @@ constexpr int kBroomStrength = 16, kBrushStrength = 14;
 constexpr float kBroomRadius = 0.5f, kBrushRadius = 0.32f;
 constexpr float kShovelPerSecond = 0.16f;  // share of the drift moved per second
 constexpr float kSawSeconds = 4.0f;
+constexpr float kPryPlankSeconds = 2.5f, kPryBoardSeconds = 2.0f;
+constexpr float kLayPlankSeconds = 2.0f, kPatchSeconds = 2.5f, kMendSeconds = 3.0f;
+constexpr float kRotateStep = 0.2617994f;  // 15 degrees
 
 // Pushes a circle out of one box, if it overlaps it.
 void pushOut(float& x, float& z, float r, const Box2& b) {
@@ -82,8 +86,53 @@ const char* debrisName(DebrisKind k) {
     return "debris";
 }
 
+bool validItem(const World& w, int32_t i) { return i >= 0 && static_cast<size_t>(i) < w.items.size(); }
+
+// Old wood that comes away during repairs, dropped where it came from.
+void spawnDebris(World& w, DebrisKind kind, Vec3 pos, float yaw) {
+    int32_t nextId = 0;
+    for (const Debris& d : w.debris) nextId = d.id >= nextId ? d.id + 1 : nextId;
+    Debris d;
+    d.id = nextId;
+    d.kind = kind;
+    d.pos = pos;
+    d.yaw = yaw;
+    w.debris.push_back(d);
+}
+
+// Putting down a carried item: back on the wagon, or where it belongs.
+void putDownItem(World& w, const Input& in, TickEvents* ev) {
+    Item& it = w.items[static_cast<size_t>(w.carryIndex)];
+    if (in.aim.kind == TargetKind::Wagon && inReach(w, in.aim)) {
+        it.place = ItemPlace::Wagon;
+        it.pos = newItems()[static_cast<size_t>(w.carryIndex)].pos;
+        it.yaw = newItems()[static_cast<size_t>(w.carryIndex)].yaw;
+    } else if (isMaterial(it.kind)) {
+        say(ev, it.kind == ItemKind::Plank ? "Hold the plank over a gap in the floor and work it in (left mouse)."
+                                           : "Stand under the hole in the roof and work the shingles in (left mouse).");
+        return;
+    } else {
+        Pose pose;
+        if (!placementFor(w, it.kind, in.aim, it.yaw, pose)) {
+            say(ev, anchorHint(anchorOf(it.kind)));
+            return;
+        }
+        const bool wasMet = evaluateBrief(w).met();
+        it.place = ItemPlace::Placed;
+        it.pos = pose.pos;
+        it.yaw = pose.yaw;
+        if (!wasMet && evaluateBrief(w).met()) say(ev, "Everything Ada asked for. She is going to love it.");
+    }
+    w.carry = Carry::Nothing;
+    w.carryIndex = -1;
+}
+
 // Pressing interact: pick something up, or put down what is carried.
 void interact(World& w, const Input& in, TickEvents* ev) {
+    if (w.carry == Carry::Item) {
+        putDownItem(w, in, ev);
+        return;
+    }
     if (w.carry == Carry::Debris) {
         Debris& d = w.debris[static_cast<size_t>(w.carryIndex)];
         if (!L::kInterior.contains(w.player.x, w.player.z)) {
@@ -110,6 +159,19 @@ void interact(World& w, const Input& in, TickEvents* ev) {
         w.carry = Carry::Debris;
         w.carryIndex = in.aim.index;
         return;
+    }
+    if (in.aim.kind == TargetKind::Item && validItem(w, in.aim.index) && inReach(w, in.aim)) {
+        Item& it = w.items[static_cast<size_t>(in.aim.index)];
+        if (it.place == ItemPlace::Wagon || it.place == ItemPlace::Placed) {
+            it.place = ItemPlace::Carried;
+            w.carry = Carry::Item;
+            w.carryIndex = in.aim.index;
+        }
+        return;
+    }
+    if (in.aim.kind == TargetKind::Table && w.table == TableState::Toppled && inReach(w, in.aim)) {
+        w.table = TableState::Upright;
+        say(ev, "You set the table back on its legs.");
     }
 }
 
@@ -154,7 +216,8 @@ void sawRafter(World& w, int32_t index, TickEvents* ev) {
 void work(World& w, const Input& in, TickEvents* ev) {
     const Aim& aim = in.aim;
     const bool sameJob = aim.kind == w.workKind && aim.index == w.workIndex;
-    if (!in.use || w.carry != Carry::Nothing || !inReach(w, aim)) {
+    const bool carryingMaterial = w.carry == Carry::Item && isMaterial(w.items[static_cast<size_t>(w.carryIndex)].kind);
+    if (!in.use || (w.carry != Carry::Nothing && !carryingMaterial) || !inReach(w, aim)) {
         w.workKind = TargetKind::None;
         w.workIndex = -1;
         w.workSeconds = 0;
@@ -166,6 +229,30 @@ void work(World& w, const Input& in, TickEvents* ev) {
         w.workSeconds = 0;
     }
     w.workSeconds += kTickSeconds;
+
+    if (carryingMaterial) {
+        Item& it = w.items[static_cast<size_t>(w.carryIndex)];
+        bool done = false;
+        if (it.kind == ItemKind::Plank && aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
+            w.planks[static_cast<size_t>(aim.index)] == PlankState::Removed && w.workSeconds >= kLayPlankSeconds) {
+            w.planks[static_cast<size_t>(aim.index)] = PlankState::New;
+            say(ev, "A new board, pale against the old. It will darken with the years.");
+            done = true;
+        }
+        if (it.kind == ItemKind::Shingles && aim.kind == TargetKind::RoofHole && aim.index >= 0 && aim.index < 4 &&
+            !((w.roofPatched >> aim.index) & 1u) && w.workSeconds >= kPatchSeconds) {
+            w.roofPatched |= 1u << aim.index;
+            say(ev, w.roofPatched == kRoofAllPatched ? "The roof is whole again." : "One more section patched.");
+            done = true;
+        }
+        if (done) {
+            it.place = ItemPlace::Used;
+            w.carry = Carry::Nothing;
+            w.carryIndex = -1;
+            w.workSeconds = 0;
+        }
+        return;
+    }
 
     switch (w.tool) {
         case Tool::Broom:
@@ -190,6 +277,33 @@ void work(World& w, const Input& in, TickEvents* ev) {
             if (aim.kind == TargetKind::Debris && validDebris(w, aim.index) &&
                 w.debris[static_cast<size_t>(aim.index)].kind == DebrisKind::Rafter && w.workSeconds >= kSawSeconds) {
                 sawRafter(w, aim.index, ev);
+                w.workSeconds = 0;
+            }
+            break;
+        case Tool::PryBar:
+            if (aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
+                w.planks[static_cast<size_t>(aim.index)] == PlankState::Rotten && w.workSeconds >= kPryPlankSeconds) {
+                const L::RottenSpan& s = L::kRottenSpans[static_cast<size_t>(aim.index)];
+                w.planks[static_cast<size_t>(aim.index)] = PlankState::Removed;
+                spawnDebris(w, DebrisKind::Board, {(s.x0 + s.x1) / 2, L::kFloorY + 0.03f, L::plankZ0(s.row) + 0.6f}, 0.1f);
+                say(ev, "The rotten board comes up. Haul it out, then lay a new plank.");
+                w.workSeconds = 0;
+            }
+            if (aim.kind == TargetKind::WindowBoard && aim.index >= 0 && aim.index < 4 &&
+                w.windowBoards[static_cast<size_t>(aim.index)] && w.workSeconds >= kPryBoardSeconds) {
+                w.windowBoards[static_cast<size_t>(aim.index)] = 0;
+                spawnDebris(w, DebrisKind::Board, {L::kInnerX0 + 0.5f, L::kFloorY + 0.03f, -0.3f + 0.25f * aim.index},
+                            1.5708f);
+                bool open = true;
+                for (int32_t b : w.windowBoards) open = open && b == 0;
+                say(ev, open ? "Daylight floods in." : "Light comes through the gap.");
+                w.workSeconds = 0;
+            }
+            break;
+        case Tool::Hammer:
+            if (aim.kind == TargetKind::Chair && w.chair == ChairState::Broken && w.workSeconds >= kMendSeconds) {
+                w.chair = ChairState::Mended;
+                say(ev, "The rocking chair is sound again.");
                 w.workSeconds = 0;
             }
             break;
@@ -234,13 +348,24 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         d.pos = carryPosition(w.player);
         d.yaw = w.player.yaw + 1.2f;
     }
+    if (w.carry == Carry::Item) {
+        Item& it = w.items[static_cast<size_t>(w.carryIndex)];
+        it.yaw += kRotateStep * static_cast<float>(in.rotate);
+        it.yaw -= 2 * kPi * std::nearbyint(it.yaw / (2 * kPi));
+        it.pos = carryPosition(w.player);
+    }
 
     if (in.aim.kind != TargetKind::None && in.aim.distance <= L::kReach * 2.5f) w.surveyed |= surveyBit(w, in.aim);
 
+    const Progress now = progress(w);
+    if (now.surveyed && now.cleared && !w.cleared) w.cleared = true;
+    if (w.cleared && now.repairedNow && !w.repaired) w.repaired = true;
     const Step after = progress(w).step;
     if (after != before) {
         if (after == Step::Clear) say(ev, "You've seen the worst of it. Time to clear the place out.");
         if (after == Step::Repair) say(ev, "Cleared. Now for the repairs.");
+        if (after == Step::Furnish) say(ev, "Sound again. Now make it a home: bring things in from the wagon.");
+        if (after == Step::Kindle) say(ev, "It's starting to look like Ada's place. Time to light the hearth.");
     }
     ++w.tick;
 }

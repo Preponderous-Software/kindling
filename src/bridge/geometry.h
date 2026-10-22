@@ -56,6 +56,8 @@ struct MeshData {
     void cone(Vec3 base, float r, float h, Rgb c, Rgb tip, int segments = 10);
     // A cylinder between two arbitrary points, with flat caps.
     void rod(Vec3 a, Vec3 b, float r, Rgb c, int segments = 10);
+    // A flat elliptical disc facing up at height y (a rug's rings).
+    void disc(Vec3 centre, float rx, float rz, Rgb c, int segments = 28);
     // An ellipsoid (a snow drift, a tree crown, a horse's belly).
     void ellipsoid(Vec3 centre, Vec3 radii, Rgb c, int slices = 14, int stacks = 8);
 

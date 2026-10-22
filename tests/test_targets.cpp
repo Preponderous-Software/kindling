@@ -12,7 +12,7 @@ int main() {
     CHECK(w.debris.size() == 15);
     CHECK(w.planks[0] == PlankState::Rotten);
     CHECK(w.windowBoards[3] == 1);
-    CHECK(w.roofPatches == 0);
+    CHECK(w.roofPatched == 0);
     CHECK(w.snow == 1.0f);
 
     Aim plank;

@@ -45,6 +45,7 @@ World newWorld(uint64_t seed) {
     w.planks.fill(PlankState::Rotten);
     w.windowBoards.fill(1);
     w.grime = newGrime(seed);
+    w.items = newItems();
     return w;
 }
 
@@ -55,6 +56,8 @@ const char* toolName(Tool t) {
         case Tool::ScrubBrush: return "Scrub brush";
         case Tool::Shovel: return "Shovel";
         case Tool::Saw: return "Saw";
+        case Tool::PryBar: return "Pry bar";
+        case Tool::Hammer: return "Hammer";
         case Tool::Count: break;
     }
     return "";
@@ -107,11 +110,23 @@ uint64_t fingerprint(const World& w) {
     }
     for (PlankState p : w.planks) f.add(p);
     for (int32_t b : w.windowBoards) f.add(b);
-    f.add(w.roofPatches);
+    f.add(w.roofPatched);
     f.add(w.chair);
     f.add(w.table);
     f.add(w.snow);
     f.add(w.debrisHauled);
+    f.add(static_cast<uint64_t>(w.items.size()));
+    for (const Item& it : w.items) {
+        f.add(it.id);
+        f.add(it.kind);
+        f.add(it.place);
+        f.add(it.pos.x);
+        f.add(it.pos.y);
+        f.add(it.pos.z);
+        f.add(it.yaw);
+    }
+    f.add(w.cleared);
+    f.add(w.repaired);
     for (const std::vector<uint8_t>& t : w.grime.texels) {
         f.add(static_cast<uint64_t>(t.size()));
         f.bytes(t.data(), t.size());

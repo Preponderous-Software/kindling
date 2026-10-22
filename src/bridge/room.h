@@ -44,6 +44,13 @@ bool partSurface(Part part, Surface& out);
 // A key that changes whenever the part's mesh would.
 uint64_t partVersion(Part part, const World& w);
 
+// One material or furnishing, built around its origin; place it with itemTransform.
+MeshData buildItem(const Item& item, int32_t index);
+void itemTransform(const Item& item, float out[16]);
+// Half the footprint of a furnishing on its anchor (x, z half-extents), for
+// the placement outline.
+void itemFootprint(ItemKind kind, float& halfX, float& halfZ);
+
 // One piece of debris, built around the origin; place it with debrisTransform.
 MeshData buildDebris(const Debris& d, int32_t index);
 // Column-major model matrix for a piece of debris.

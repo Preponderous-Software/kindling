@@ -35,6 +35,7 @@ enum class TargetKind : int32_t {
     LogPile,
     HayBale,
     Stall,
+    Item,         // index: into World::items
 };
 
 struct Aim {

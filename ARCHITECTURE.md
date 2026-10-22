@@ -2,8 +2,8 @@
 
 Kindling is a C++17 game on [Strata](https://github.com/Preponderous-Software/strata). This document
 describes how it is built, and how it is meant to be built where the code does not exist yet.
-Implemented so far (MVP milestones M1 and M2): the simulation core's world, movement and collision,
-grime, tools, debris and the step checklist (`src/sim/`), the room as tagged meshes
+Implemented so far (MVP milestones M1 to M3): the simulation core's world, movement and collision,
+grime, tools, debris, repairs, furnishings, Ada's brief and the step checklist (`src/sim/`), the room as tagged meshes
 (`src/bridge/room.*`), the scene, grime textures and mesh picking on Strata (`src/bridge/scene.*`),
 and the first-person app (`app/main.cpp`). The other sections are still a plan.
 
