@@ -34,7 +34,11 @@ recorded and rendered headless by the game itself (`--headless --autopilot --rev
 
 ## Play it
 
-Kindling builds with CMake and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
+**In your browser:** [kindling.play.danielstephenson.dev](https://kindling.play.danielstephenson.dev),
+on a computer or a phone. It saves in that browser. [docs/WEB.md](docs/WEB.md) says how the browser
+build differs.
+
+**On your computer:** Kindling builds with CMake and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
 built along with it (at the commit `KINDLING_STRATA_REF` in `CMakeLists.txt` pins).
 
 ```sh

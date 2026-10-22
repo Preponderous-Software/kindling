@@ -6,3 +6,4 @@ prototypes/restore-replay/restore
 site/
 __pycache__/
 build-*/
+node_modules/

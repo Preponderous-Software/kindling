@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Kindling</title>
+<meta name="description" content="Kindling: restore a ruined frontier cabin, room by room, for the settler coming to live in it. A cozy first-person game on the Strata engine.">
+<style>
+  :root {
+    --bg: #14100c; --panel: rgba(22, 17, 12, 0.88); --line: #3a2e22; --text: #f0e6d6; --dim: #b4a690;
+    --ember: #f08a3c; --btn: #2a2119; --btn-on: #5a3a1c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  #stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  canvas#canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; background: #000; }
+  .bar { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    padding: 6px max(10px, env(safe-area-inset-left)); background: var(--panel); z-index: 2; }
+  #top { border-bottom: 1px solid var(--line); padding-top: max(6px, env(safe-area-inset-top)); }
+  #tools { border-top: 1px solid var(--line); padding-bottom: max(6px, env(safe-area-inset-bottom));
+    flex-wrap: nowrap; overflow-x: auto; display: none; }
+  body.touch #tools { display: flex; }
+  .brand { font-weight: 700; letter-spacing: 0.03em; margin-right: 4px; }
+  .brand a { color: var(--text); text-decoration: none; }
+  .stat { white-space: nowrap; color: var(--dim); }
+  .stat b { color: var(--ember); font-weight: 600; }
+  .note { margin-left: auto; color: var(--dim); font-size: 12px; white-space: nowrap; }
+  button { font: inherit; color: var(--text); background: var(--btn); border: 1px solid var(--line);
+    border-radius: 6px; padding: 7px 11px; min-height: 36px; cursor: pointer; touch-action: manipulation; }
+  button[aria-pressed="true"] { background: var(--btn-on); border-color: var(--ember); }
+  button:focus-visible { outline: 2px solid var(--ember); }
+  #tools button { flex: 0 0 auto; white-space: nowrap; }
+  .overlay { position: absolute; z-index: 1; pointer-events: none; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+  #panel { top: 8px; left: 8px; max-width: min(78%, 360px); display: none; pointer-events: auto;
+    background: rgba(20, 15, 10, 0.55); border-radius: 8px; padding: 6px 9px; font-size: 13px; }
+  body.compact #panel { display: block; }
+  #panel.folded .row-item, #panel.folded .row-note, #panel.folded .row-brief { display: none; }
+  #panel .row-step, #panel .row-brief { color: var(--ember); font-weight: 600; }
+  #panel .row-brief { margin-top: 6px; }
+  #panel .row-item.done { color: var(--text); }
+  #panel .row-item { color: var(--dim); }
+  #panel .row-note { color: var(--dim); font-style: italic; }
+  #cross { left: 50%; top: 50%; transform: translate(-50%, -50%); font: 600 22px/1 system-ui, sans-serif;
+    display: none; }
+  body.compact #cross { display: block; }
+  #words { left: 50%; transform: translateX(-50%); top: calc(50% + 18px); width: 92%; text-align: center; display: none; }
+  body.compact #words { display: block; }
+  #aim { font-size: 15px; font-weight: 600; }
+  #aim.far { color: var(--dim); }
+  #hint, #carry { font-size: 13px; color: var(--dim); }
+  #carry { color: var(--ember); margin-top: 4px; }
+  #msg { color: var(--ember); font-size: 13px; margin-top: 4px; }
+  #speech { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; width: 92%; text-align: center;
+    font-size: 14px; display: none; }
+  body.compact #speech { display: block; }
+  body.touch #speech { bottom: 150px; }
+  #touch { position: absolute; inset: 0; z-index: 1; display: none; touch-action: none; }
+  body.touch #touch { display: block; }
+  #stickBase, #stickKnob { position: absolute; border-radius: 50%; pointer-events: none; display: none; }
+  #stickBase { width: 120px; height: 120px; margin: -60px 0 0 -60px; border: 2px solid rgba(240, 230, 214, 0.35);
+    background: rgba(20, 15, 10, 0.25); }
+  #stickKnob { width: 52px; height: 52px; margin: -26px 0 0 -26px; background: rgba(240, 138, 60, 0.55); }
+  #stickHint { position: absolute; left: 14px; bottom: 14px; color: var(--dim); font-size: 12px; pointer-events: none; }
+  #pad { position: absolute; right: max(10px, env(safe-area-inset-right)); bottom: 12px; z-index: 2; display: none;
+    grid-template-columns: repeat(2, 64px); gap: 8px; }
+  body.touch #pad { display: grid; }
+  #pad button { min-height: 52px; padding: 0 4px; background: rgba(42, 33, 25, 0.82); }
+  #pad #work { grid-column: span 2; min-height: 64px; font-weight: 700; }
+  #pad #work.on { background: var(--btn-on); border-color: var(--ember); }
+  #clickToPlay { position: absolute; inset: 0; z-index: 1; display: none; align-items: center; justify-content: center;
+    background: rgba(10, 8, 6, 0.35); cursor: pointer; }
+  #clickToPlay div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px;
+    text-align: center; }
+  #skip { position: absolute; right: 12px; bottom: 12px; z-index: 2; display: none; }
+  body.revealing #skip { display: block; }
+  body.revealing #pad, body.revealing #touch, body.revealing #panel, body.revealing #words, body.revealing #cross { display: none !important; }
+  .dialog { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; z-index: 3;
+    width: min(92vw, 460px); max-height: 88vh; overflow-y: auto; display: none; }
+  .dialog h2 { margin: 0 0 8px; font-size: 18px; color: var(--ember); }
+  .dialog ul { margin: 6px 0 10px; padding-left: 18px; }
+  .dialog li { margin: 3px 0; }
+  kbd { background: #33281e; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 12px; }
+  .row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  #loading { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; z-index: 3; max-width: min(92vw, 440px);
+    text-align: center; }
+  .for-touch { display: none; }
+  body.touch .for-touch { display: block; }
+  body.touch .for-keys { display: none; }
+  a { color: var(--ember); }
+  @media (max-width: 640px) {
+    .note, .stat.opt { display: none; }
+    button { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+<div id="top" class="bar">
+  <span class="brand"><a href="https://danielstephenson.dev/play" title="More games">Kindling</a></span>
+  <span class="stat"><b id="step">Survey</b></span>
+  <span class="stat opt" id="clock"></span>
+  <span class="note" id="saveNote" title="Saves stay in this browser on this device">Saves in this browser</span>
+  <button id="saveBtn" title="Save now (F5)">Save</button>
+  <button id="replayBtn" title="Play back your restoration (T)" hidden>Replay</button>
+  <button id="newBtn" title="Start again from the ruined cabin">New</button>
+  <button id="helpBtn" title="How to play" aria-label="How to play">?</button>
+</div>
+
+<div id="stage">
+  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  <div id="panel" class="overlay" title="Tap to fold or unfold"></div>
+  <div id="cross" class="overlay">+</div>
+  <div id="words" class="overlay"><div id="aim"></div><div id="hint"></div><div id="carry"></div><div id="msg"></div></div>
+  <div id="speech" class="overlay"></div>
+  <div id="touch" aria-hidden="true">
+    <div id="stickBase"></div><div id="stickKnob"></div>
+    <div id="stickHint">drag left: walk &middot; drag right: look</div>
+  </div>
+  <div id="pad" role="group" aria-label="Actions">
+    <button id="work" title="Hold to work with what you hold">Work</button>
+    <button data-key="8" title="Pick up / put down (E)">Take</button>
+    <button data-key="21" title="Turn what you carry (R)">Turn</button>
+    <button data-key="15" title="Lantern (L)">Lamp</button>
+    <button data-key="58" title="Show the controls on the canvas">Keys</button>
+  </div>
+  <div id="clickToPlay"><div><b>Click to play</b><br><span style="color:var(--dim)">Esc frees the mouse</span></div></div>
+  <button id="skip">Skip</button>
+</div>
+
+<div id="tools" class="bar" role="group" aria-label="Tools"></div>
+
+<div id="loading">Loading Kindling&hellip;</div>
+
+<div id="help" class="dialog" role="dialog" aria-labelledby="helpTitle">
+  <h2 id="helpTitle">Kindling</h2>
+  <p>A homesteader's cabin in the hills has fallen to ruin, and a settler, Ada, is coming to live in it before the
+  first frost. Survey the damage, clear it out, repair it, furnish it to her wishes and light the hearth.
+  The list in the corner says what the step you are on needs.</p>
+  <ul class="for-keys">
+    <li>Mouse: look. <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>: walk, <kbd>Shift</kbd>: hurry.</li>
+    <li><kbd>1</kbd>&ndash;<kbd>9</kbd>: take a tool (<kbd>`</kbd> for bare hands). Hold the left button to work with it.</li>
+    <li><kbd>E</kbd>: pick up or put down. <kbd>R</kbd>: turn what you carry. <kbd>L</kbd>: lantern.</li>
+    <li><kbd>F5</kbd> / <kbd>F9</kbd>: save / load the last save. <kbd>F1</kbd>: the controls on screen.
+      <kbd>Esc</kbd>: free the mouse.</li>
+  </ul>
+  <ul class="for-touch">
+    <li>Drag on the left half to walk (all the way out to hurry); drag on the right half to look.</li>
+    <li>Tap a tool along the bottom, then hold <b>Work</b> to use it on what the crosshair is on.</li>
+    <li><b>Take</b>: pick up or put down. <b>Turn</b>: turn what you carry. <b>Lamp</b>: the lantern.</li>
+  </ul>
+  <p style="color:var(--dim);font-size:13px">The game saves every two minutes, when you press Save, and when you leave
+  the page. Saves stay in this browser on this device. Built on the <a href="https://github.com/Preponderous-Software/strata">Strata</a>
+  engine; <a href="https://github.com/Preponderous-Software/kindling">source</a>.</p>
+  <div class="row"><button id="helpClose">Play</button></div>
+</div>
+
+<div id="confirmNew" class="dialog" role="dialog" aria-labelledby="newTitle">
+  <h2 id="newTitle">Start again?</h2>
+  <p>This puts the cabin back the way you found it. Your progress here is replaced the next time the game saves.</p>
+  <div class="row"><button id="newYes">Start again</button><button id="newNo">Keep playing</button></div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var canvas = $('canvas');
+  var ready = false, call = {}, last = {}, toolCount = 0;
+  var touchMode = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+
+  function api(name, ret, args) { return Module.cwrap(name, ret, args || []); }
+  function dialogOpen() { return $('help').style.display === 'block' || $('confirmNew').style.display === 'block'; }
+
+  function setTouch(on) {
+    touchMode = on;
+    document.body.classList.toggle('touch', on);
+    if (on && document.pointerLockElement) document.exitPointerLock();
+  }
+
+  // The drawing size: the stage in CSS pixels, times the device pixel ratio
+  // capped at 2 (SDL applies the ratio itself, so pass the scaled CSS size).
+  // Below 760 CSS pixels wide the page shows the HUD's words, not the canvas.
+  function sizeCanvas() {
+    if (!ready) return;
+    var st = $('stage');
+    var dpr = window.devicePixelRatio || 1;
+    var k = dpr > 2 ? 2 / dpr : 1;
+    var compact = st.clientWidth < 760;
+    call.resize(Math.round(st.clientWidth * k), Math.round(st.clientHeight * k), compact ? 1 : 0);
+    document.body.classList.toggle('compact', compact);
+  }
+
+  // ---- saves: /kindling-save lives in IndexedDB; each save is flushed at once
+  var syncing = false, again = false;
+  function flushSaves() {
+    if (syncing) { again = true; return; }
+    syncing = true;
+    FS.syncfs(false, function (err) {
+      syncing = false;
+      $('saveNote').textContent = err ? 'Could not store the save in this browser' : 'Saved in this browser';
+      if (err) console.warn('kindling: could not store the save: ' + err);
+      if (again) { again = false; flushSaves(); }
+    });
+  }
+
+  // ---- the page's view of the game
+  function refresh() {
+    if (!ready) return;
+    var s;
+    try { s = JSON.parse(call.status()); } catch (e) { return; }
+    $('step').textContent = s.step;
+    $('clock').textContent = s.clock;
+    $('replayBtn').hidden = !s.done;
+    document.body.classList.toggle('revealing', s.revealing);
+    var showClick = !touchMode && !s.captured && !s.revealing && !dialogOpen();
+    $('clickToPlay').style.display = showClick ? 'flex' : 'none';
+    if (s.tools.length !== toolCount) buildTools(s.tools);
+    document.querySelectorAll('#tools [data-tool]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.tool) === s.tool));
+    });
+    var key = JSON.stringify(s.checklist);
+    if (key !== last.checklist) {
+      last.checklist = key;
+      var panel = $('panel');
+      panel.textContent = '';
+      s.checklist.forEach(function (r) {
+        var d = document.createElement('div');
+        d.className = 'row-' + r.kind + (r.done ? ' done' : '');
+        d.textContent = r.kind === 'item' ? (r.done ? '\u2713 ' : '\u25CB ') + r.text : r.text;
+        panel.appendChild(d);
+      });
+    }
+    $('aim').textContent = s.aim;
+    $('aim').classList.toggle('far', !s.inReach);
+    $('hint').textContent = s.hint;
+    $('carry').textContent = s.carry;
+    $('msg').textContent = s.message;
+    $('speech').textContent = s.speech ? 'Ada: “' + s.speech + '”' : '';
+    window.kindlingStatus = s;
+  }
+
+  function buildTools(names) {
+    toolCount = names.length;
+    var bar = $('tools');
+    bar.innerHTML = '';
+    names.forEach(function (n, i) {
+      var b = document.createElement('button');
+      b.dataset.tool = i;
+      b.textContent = i === 0 ? 'Hands' : i + ' ' + n;
+      b.title = n;
+      b.addEventListener('click', function () {
+        // ` for bare hands, else the number key (SDL scancodes 30.. for 1..)
+        call.press(i === 0 ? 53 : 29 + i);
+        b.blur();
+        setTimeout(refresh, 60);
+      });
+      bar.appendChild(b);
+    });
+  }
+
+  // ---- mouse: the page owns the pointer lock
+  canvas.addEventListener('mousedown', function () {
+    if (touchMode || dialogOpen()) return;
+    if (document.pointerLockElement !== canvas && canvas.requestPointerLock) canvas.requestPointerLock();
+  });
+  $('clickToPlay').addEventListener('click', function () {
+    if (canvas.requestPointerLock) canvas.requestPointerLock();
+  });
+  // Browsers can report a jump on the first move after the lock is taken, and
+  // now and then a spike: skip the first move, and drop spikes.
+  var skipMove = false;
+  document.addEventListener('pointerlockchange', function () {
+    skipMove = true;
+    if (ready) call.captured(document.pointerLockElement === canvas ? 1 : 0);
+    refresh();
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (!ready || document.pointerLockElement !== canvas) return;
+    var dx = e.movementX || 0, dy = e.movementY || 0;
+    if (skipMove) { skipMove = false; return; }
+    if (Math.abs(dx) > 400 || Math.abs(dy) > 400) return;
+    call.look(dx, dy);
+  });
+
+  // ---- touch: a stick on the left half, look on the right half
+  var stick = null, lookers = {};
+  var R = 60;
+  function setStick(dx, dy) {
+    var m = Math.sqrt(dx * dx + dy * dy);
+    if (m > R) { dx *= R / m; dy *= R / m; }
+    $('stickKnob').style.left = (stick.x + dx) + 'px';
+    $('stickKnob').style.top = (stick.y + dy) + 'px';
+    call.stick(-dy / R, dx / R);
+  }
+  var touchLayer = $('touch');
+  touchLayer.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    var r = touchLayer.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top;
+    if (x < r.width * 0.45 && !stick) {
+      stick = { id: e.pointerId, x: x, y: y };
+      ['stickBase', 'stickKnob'].forEach(function (id) {
+        var el = $(id); el.style.display = 'block'; el.style.left = x + 'px'; el.style.top = y + 'px';
+      });
+      $('stickHint').style.display = 'none';
+    } else {
+      lookers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    }
+    if (touchLayer.setPointerCapture) touchLayer.setPointerCapture(e.pointerId);
+  });
+  touchLayer.addEventListener('pointermove', function (e) {
+    if (stick && e.pointerId === stick.id) {
+      var r = touchLayer.getBoundingClientRect();
+      setStick(e.clientX - r.left - stick.x, e.clientY - r.top - stick.y);
+    } else if (lookers[e.pointerId]) {
+      var l = lookers[e.pointerId];
+      call.look((e.clientX - l.x) * 1.8, (e.clientY - l.y) * 1.8);
+      l.x = e.clientX; l.y = e.clientY;
+    }
+  });
+  function release(e) {
+    if (stick && e.pointerId === stick.id) {
+      stick = null;
+      call.stick(0, 0);
+      $('stickBase').style.display = 'none';
+      $('stickKnob').style.display = 'none';
+    }
+    delete lookers[e.pointerId];
+  }
+  ['pointerup', 'pointercancel'].forEach(function (t) { touchLayer.addEventListener(t, release); });
+
+  function wire() {
+    document.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () { b.blur(); });
+    });
+    var work = $('work');
+    var down = function (e) { e.preventDefault(); call.use(1); work.classList.add('on'); };
+    var up = function (e) { e.preventDefault(); call.use(0); work.classList.remove('on'); };
+    work.addEventListener('pointerdown', down);
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { work.addEventListener(t, up); });
+    document.querySelectorAll('#pad [data-key]').forEach(function (b) {
+      b.addEventListener('click', function () { call.press(Number(b.dataset.key)); setTimeout(refresh, 60); });
+    });
+    $('panel').addEventListener('click', function () { $('panel').classList.toggle('folded'); });
+    $('saveBtn').addEventListener('click', function () { call.save(); refresh(); });
+    $('replayBtn').addEventListener('click', function () { call.press(23); refresh(); });
+    $('skip').addEventListener('click', function () { call.skipReveal(); refresh(); });
+    $('helpBtn').addEventListener('click', function () {
+      if (document.pointerLockElement) document.exitPointerLock();
+      $('help').style.display = 'block';
+    });
+    $('helpClose').addEventListener('click', function () {
+      $('help').style.display = 'none';
+      try { localStorage.setItem('kindling-seen-help', '1'); } catch (e) {}
+      if (!touchMode && canvas.requestPointerLock) canvas.requestPointerLock();
+      refresh();
+    });
+    $('newBtn').addEventListener('click', function () {
+      if (document.pointerLockElement) document.exitPointerLock();
+      $('confirmNew').style.display = 'block';
+    });
+    $('newNo').addEventListener('click', function () { $('confirmNew').style.display = 'none'; refresh(); });
+    $('newYes').addEventListener('click', function () {
+      $('confirmNew').style.display = 'none'; call.restart(); refresh();
+    });
+    window.addEventListener('touchstart', function () { if (!touchMode) setTouch(true); }, { passive: true });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') call.save();
+    });
+    window.addEventListener('pagehide', function () { call.save(); });
+    window.addEventListener('resize', sizeCanvas);
+    if (window.ResizeObserver) new ResizeObserver(sizeCanvas).observe($('stage'));
+    setInterval(refresh, 250);
+  }
+
+  window.Module = {
+    canvas: canvas,
+    print: function (t) { console.log(t); },
+    printErr: function (t) { console.warn(t); },
+    preRun: [function () {
+      // Saves live in IndexedDB; they are loaded before the game starts.
+      FS.mkdir('/kindling-save');
+      FS.mount(IDBFS, {}, '/kindling-save');
+      addRunDependency('kindling-saves');
+      FS.syncfs(true, function (err) {
+        if (err) console.warn('kindling: could not read saves from this browser: ' + err);
+        removeRunDependency('kindling-saves');
+      });
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+    }],
+    flushSaves: flushSaves,
+    onGameReady: function () {
+      call = {
+        look: api('kindling_look', null, ['number', 'number']),
+        stick: api('kindling_stick', null, ['number', 'number']),
+        use: api('kindling_use', null, ['number']),
+        press: api('kindling_press', null, ['number']),
+        captured: api('kindling_captured', null, ['number']),
+        help: api('kindling_help', null, ['number']),
+        skipReveal: api('kindling_skip_reveal'),
+        save: api('kindling_save', 'number'),
+        restart: api('kindling_restart'),
+        resize: api('kindling_resize', null, ['number', 'number', 'number']),
+        status: api('kindling_status', 'string')
+      };
+      window.kindling = call;  // for the smoke test and the curious
+      ready = true;
+      $('loading').style.display = 'none';
+      setTouch(touchMode);
+      wire();
+      sizeCanvas();
+      var seen = false;
+      try { seen = localStorage.getItem('kindling-seen-help') === '1'; } catch (e) {}
+      if (!seen) $('help').style.display = 'block';
+      refresh();
+    },
+    onRendererFailed: function (why) {
+      $('loading').textContent = 'Kindling needs WebGL 2, which this browser did not provide (' + why + ').';
+    },
+    onAbort: function (what) {
+      $('loading').style.display = 'block';
+      $('loading').textContent = 'Kindling stopped: ' + what;
+    }
+  };
+})();
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>
