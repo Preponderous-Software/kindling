@@ -56,7 +56,8 @@ Strata and SDL3 are linked into the executable, and the Windows build links the 
 statically (`/MT`), so each download is the one executable,
 [`README-download.txt`](README-download.txt) as `README.txt`, the licence and
 [`THIRD-PARTY.md`](THIRD-PARTY.md). The player needs an OpenGL 4.5 graphics driver on Windows 10/11
-x64 or Linux x64, and on Linux the X11 (or XWayland) client libraries every desktop has.
+x64 or Linux x64, and on Linux glibc 2.34 or newer (Ubuntu 22.04, Debian 12, Fedora 35 and later; the build
+runs on Ubuntu 22.04) and the X11 (or XWayland) client libraries every desktop has.
 
 What each run checks:
 

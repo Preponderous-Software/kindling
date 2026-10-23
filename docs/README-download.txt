@@ -12,7 +12,8 @@ Windows:  double-click kindling.exe. Windows may say it protected your PC,
           because the game is not signed: choose "More info", then
           "Run anyway".
 Linux:    ./kindling   (needs OpenGL 4.5, which any current Mesa or
-          vendor driver has)
+          vendor driver has, and glibc 2.34 or newer: Ubuntu 22.04,
+          Debian 12, Fedora 35 and later)
 
 Press F1 in the game for the controls. Click in the window to look around
 with the mouse; Esc frees the mouse, and Esc again quits.
