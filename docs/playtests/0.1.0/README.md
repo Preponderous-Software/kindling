@@ -1,7 +1,7 @@
 # Playtest: Kindling 0.1.0 candidate
 
 Four AI agents played the desktop build headless with the
-[playtester](https://github.com/dmccoystephenson/playtester) kit (Kindling profile, playtester 0.2.0),
+[playtester](https://github.com/Preponderous-Software/playtester) kit (Kindling profile, playtester 0.2.0),
 each toward its own goal. [summary.md](summary.md) is the merged summary; each session's folder has
 its `report.json`, `session.json`, every harness command (`actions.jsonl`), its raw notes
 (`findings.jsonl`), the game's probe events (`events.jsonl`) and the screenshots its findings cite.
