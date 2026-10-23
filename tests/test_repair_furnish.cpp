@@ -112,6 +112,18 @@ int main() {
         CHECK(w.carry == Carry::Nothing);
     }
 
+    // ---- a keyframe taken while carrying a stack shows it back on the wagon
+    {
+        World w = newWorld(5);
+        take(w, ItemKind::Shingles);
+        const World seen = fromKeyframe(w, snapshot(w));
+        const std::vector<Item> load = newItems();
+        for (size_t i = 0; i < seen.items.size(); ++i) {
+            CHECK(seen.items[i].place == ItemPlace::Wagon);
+            CHECK(seen.items[i].pos.y == load[i].pos.y && seen.items[i].pos.z == load[i].pos.z);
+        }
+    }
+
     // ---- the window, the chair and the table
     {
         World w = newWorld(5);
