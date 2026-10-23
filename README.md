@@ -19,18 +19,18 @@ thinks of what you made for her, and sits down by the fire, and the whole restor
 as a timelapse. Your mare waits in her stall to be fed and brushed. The game saves as you go. What
 comes after the MVP is in [CONCEPT.md](CONCEPT.md).
 
-![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from a cold grey morning to the hearth lit at night with Ada by the fire](docs/images/reveal.gif)
+![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from a grey morning to the hearth lit at dusk with Ada in the rocking chair](docs/images/reveal.gif)
 
 *The reveal at the end of a restoration, as the game plays it: here the autopilot's playthrough,
 recorded and rendered headless by the game itself (`--headless --autopilot --reveal-frames`).*
 
-| The ruin, at nine in the morning | Ada's home, at a quarter to eleven at night |
+| The ruin, at nine in the morning | Ada's home, at twenty to five in the afternoon |
 |---|---|
-| ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored: the fire lit, a braided rug, curtains, a sampler on the wall, and Ada in the rocking chair](docs/images/game-m5-home.jpg) |
+| ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored at dusk: the fire lit, a braided rug, curtains, a sampler on the wall, and Ada in the rocking chair, seen from behind its quilt-hung back](docs/images/game-m5-home.jpg) |
 
-| Surveying the ruin | The mare, fed and brushed, on the night of the first frost |
+| Surveying the ruin | The mare, fed and brushed, at sundown |
 |---|---|
-| ![First person inside the ruined cabin: the soot-black chimney, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall at night, the yard white with frost, Ada's brief all met in the corner](docs/images/game-m7-mare.jpg) |
+| ![First person inside the ruined cabin: the soot-black chimney, the fallen rafter, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall at sundown, under a pink sky, with Ada's brief all met in the corner](docs/images/game-m7-mare.jpg) |
 
 ## Play it
 
@@ -72,9 +72,11 @@ simulation and its tests, with no engine.
 | F12 | screenshot |
 | Esc | free the mouse (Esc again quits) |
 
-| Swept | Unboarded |
+| Sweeping | Unboarded |
 |---|---|
-| ![First person, broom in hand: an arc of floorboards swept clean through the dust, broken boards still lying about](docs/images/game-m2-swept.jpg) | ![The window with two of its boards pried off and daylight coming in](docs/images/game-m3-window.jpg) |
+| ![First person, broom in hand, sweeping: dust rising at the crosshair, the meter under it at 77% clean, and the Clear checklist in the corner](docs/images/game-m2-swept.jpg) | ![The window with its boards pried off and daylight coming in, the pry bar in hand](docs/images/game-m3-window.jpg) |
+| **Shovelling the drift** | **Ada, home** |
+| ![The snow drift under the roof hole, the shovel in hand, its meter just starting, and the hint to shovel it out before it melts into the floor](docs/images/game-snow-shovel.jpg) | ![Close-up of Ada in the mended rocking chair by a braided rug, a quilt over the chair back, in the late afternoon light](docs/images/game-closeup-ada.jpg) |
 
 `kindling --headless --tour --frames DIR` walks a scripted path into the cabin, sweeps and scrubs a
 little, without a window, and writes a screenshot at each stop. `kindling --autopilot` hands the
