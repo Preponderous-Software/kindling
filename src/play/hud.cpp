@@ -89,7 +89,9 @@ std::vector<HudRow> checklist(const World& w) {
         row(p.ashOut, "Shovel out the old ash");
         row(p.kindlingLaid, "Lay kindling in the hearth");
         row(p.logsLaid, "Lay a split log on the andirons");
-        row(p.burning, "Strike a match and hold it till it catches");
+        row(p.burning, w.hearth.lit && !p.burning
+                           ? "Let the fire take hold (" + toward(w.hearth.fire, kBurningFire) + ")"
+                           : std::string("Strike a match and hold it till it catches"));
     } else if (p.step == Step::Repair) {
         row(p.planksLeft == 0, "Replace the rotten floorboards (" + std::to_string(p.planksLeft) + " left)");
         row(p.roofLeft == 0, "Patch the roof (" + count(p.roofLeft, "section", "sections") + " open)");
@@ -143,8 +145,14 @@ std::string carryLine(const World& w) {
         return std::string("Carrying ") + woodName(static_cast<Wood>(w.carryIndex)) + ": E to put it where it goes";
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
-        return std::string("Carrying ") + itemName(it.kind) +
-               (isMaterial(it.kind) ? ": hold the left button where it goes" : ": E to put down, R to turn");
+        if (isMaterial(it.kind)) {
+            int n = 0;
+            for (const Item& o : w.items) n += o.place == ItemPlace::Carried ? 1 : 0;
+            const std::string what = it.kind == ItemKind::Plank ? count(n, "new plank", "new planks")
+                                                                : count(n, "bundle of shingles", "bundles of shingles");
+            return "Carrying " + what + ": hold the left button where it goes";
+        }
+        return std::string("Carrying ") + itemName(it.kind) + ": E to put down, R to turn";
     }
     return {};
 }

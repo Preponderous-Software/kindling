@@ -1,6 +1,7 @@
 #include "sim/target.h"
 
 #include "sim/items.h"
+#include "sim/progress.h"
 #include "sim/world.h"
 
 namespace kindling {
@@ -108,7 +109,9 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Kindling: return {"Kindling", "Carry it to the hearth (E)."};
         case TargetKind::Woodpile:
             return {"Woodpile (" + std::to_string(w.wood.woodpile) + " logs)",
-                    w.wood.woodpile < 4 ? "Stack split logs here (E)." : ""};
+                    w.wood.woodpile < kWoodpileGoal  ? "Stack split logs here (E)."
+                    : w.carry == Carry::Nothing      ? "Stacked. E takes a log for the fire."
+                                                     : ""};
         case TargetKind::HayBale:
             return w.carry == Carry::Hay ? Description{"Hay bale", "Put the hay back (E)."}
                                          : Description{"Hay bale", "Take an armful for the mare (E)."};
@@ -121,7 +124,10 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Item: {
             if (!validIndex(aim.index, w.items.size())) return {};
             const Item& it = w.items[static_cast<size_t>(aim.index)];
-            if (it.place == ItemPlace::Wagon) return {itemName(it.kind), "Take it (E)."};
+            if (it.place == ItemPlace::Wagon && isMaterial(it.kind))
+                return {itemName(it.kind), it.kind == ItemKind::Plank ? "Take the planks (E)." : "Take the shingles (E)."};
+            if (it.place == ItemPlace::Wagon)
+                return {itemName(it.kind), w.repaired ? "Take it (E)." : "For later, once the cabin is mended."};
             if (it.kind == ItemKind::Candle && it.place == ItemPlace::Placed && !w.hearth.candleLit)
                 return {itemName(it.kind), "Light it (8, hold), or move it (E)."};
             if (it.place == ItemPlace::Placed) return {itemName(it.kind), "Move it (E)."};

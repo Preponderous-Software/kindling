@@ -284,6 +284,14 @@ bool decodeSave(const std::vector<uint8_t>& bytes, World& out, std::string* erro
     fields.world(w);
     if (!r.ok || r.at != r.n) return fail("the save's contents do not parse");
     if (!plausible(w, error)) return false;
+    // What is still on the wagon sits where the wagon's load puts it now
+    // (0.1.0 saves have the older, crowded layout).
+    const std::vector<Item> load = newItems();
+    for (size_t i = 0; i < w.items.size(); ++i)
+        if (w.items[i].place == ItemPlace::Wagon) {
+            w.items[i].pos = load[i].pos;
+            w.items[i].yaw = load[i].yaw;
+        }
     out = std::move(w);
     return true;
 }
