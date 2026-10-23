@@ -318,7 +318,9 @@ void snow(MeshData& m, const World& w) {
     if (w.snow <= 0) return;
     const float s = w.snow;
     m.beginTag(TargetKind::Snow);
-    m.ellipsoid({0.1f, L::kFloorY, -0.9f}, {0.45f + 0.35f * s, 0.05f + 0.12f * s, 0.35f + 0.3f * s}, kSnow);
+    // Shrinks to nothing as it is shovelled out.
+    const float r = std::sqrt(s);
+    m.ellipsoid({0.1f, L::kFloorY, -0.9f}, {0.8f * r, 0.17f * s, 0.65f * r}, kSnow);
     if (s > 0.4f) m.ellipsoid({0.35f, L::kFloorY, -0.6f}, {0.45f * s, 0.1f * s, 0.4f * s}, kSnow);
     m.endTag();
 }
@@ -718,7 +720,7 @@ uint64_t partVersion(Part part, const World& w) {
         }
         case Part::Chair: return static_cast<uint64_t>(w.chair);
         case Part::Table: return static_cast<uint64_t>(w.table);
-        case Part::Snow: return static_cast<uint64_t>(std::lround(w.snow * 20));
+        case Part::Snow: return w.snow <= 0 ? ~1ull : static_cast<uint64_t>(std::lround(w.snow * 40));  // gone: its own version
         case Part::Ground: return frosted(w) ? 1 : 0;
         case Part::FireboxContents: {
             const Hearth& h = w.hearth;
@@ -837,6 +839,82 @@ void itemFootprint(ItemKind kind, float& halfX, float& halfZ) {
         case ItemKind::Quilt: halfX = 0.3f; halfZ = 0.3f; break;
         default: halfX = halfZ = 0.12f; break;
     }
+}
+
+MeshData buildTool(Tool tool) {
+    MeshData m;
+    const Rgb handle{0.36f, 0.24f, 0.12f}, iron{0.16f, 0.16f, 0.17f}, straw{0.62f, 0.50f, 0.25f};
+    switch (tool) {
+        case Tool::Broom:
+            m.rod({0, 0.12f, 0.1f}, {-0.05f, -0.3f, -0.42f}, 0.014f, handle, 8);
+            m.frustum({-0.05f, -0.3f, -0.42f}, {-0.065f, -0.46f, -0.56f}, 0.03f, 0.085f, straw, 10);
+            break;
+        case Tool::ScrubBrush:
+            m.box({-0.055f, -0.01f, -0.13f}, {0.055f, 0.035f, 0.02f}, handle);
+            m.box({-0.05f, -0.045f, -0.125f}, {0.05f, -0.01f, 0.015f}, straw);
+            break;
+        case Tool::Shovel:
+            m.rod({0, 0.08f, 0.14f}, {0, -0.14f, -0.36f}, 0.016f, handle, 8);
+            m.box({-0.09f, -0.2f, -0.6f}, {0.09f, -0.18f, -0.36f}, iron);
+            break;
+        case Tool::Saw:
+            m.box({-0.02f, -0.06f, -0.02f}, {0.02f, 0.05f, 0.08f}, handle);
+            m.box({-0.004f, -0.07f, -0.52f}, {0.004f, 0.03f, -0.02f}, {0.42f, 0.42f, 0.44f});
+            break;
+        case Tool::PryBar:
+            m.rod({0, -0.06f, 0.08f}, {0, 0.02f, -0.42f}, 0.011f, iron, 8);
+            m.rod({0, 0.02f, -0.42f}, {0, 0.07f, -0.48f}, 0.011f, iron, 8);
+            break;
+        case Tool::Hammer:
+            m.rod({0, -0.08f, 0.06f}, {0, 0.1f, -0.14f}, 0.014f, handle, 8);
+            m.box({-0.022f, 0.08f, -0.22f}, {0.022f, 0.13f, -0.08f}, iron);
+            break;
+        case Tool::Axe:
+            m.rod({0, -0.1f, 0.08f}, {0, 0.17f, -0.26f}, 0.016f, handle, 8);
+            m.box({-0.012f, 0.1f, -0.34f}, {0.012f, 0.25f, -0.22f}, iron);
+            break;
+        case Tool::Matches:
+            m.box({-0.03f, -0.012f, -0.05f}, {0.03f, 0.012f, 0.03f}, {0.45f, 0.12f, 0.08f});
+            m.rod({0, 0.012f, -0.04f}, {0, 0.03f, -0.13f}, 0.003f, {0.80f, 0.70f, 0.50f}, 5);
+            m.ellipsoid({0, 0.03f, -0.13f}, {0.006f, 0.006f, 0.008f}, {0.55f, 0.10f, 0.06f}, 6, 4);
+            break;
+        case Tool::CurryComb:
+            m.ellipsoid({0, 0, -0.08f}, {0.06f, 0.025f, 0.09f}, {0.30f, 0.18f, 0.09f}, 10, 6);
+            m.box({-0.05f, -0.035f, -0.15f}, {0.05f, -0.015f, -0.01f}, iron);
+            break;
+        default: break;
+    }
+    return m;
+}
+
+void debrisCapsule(const Debris& d, Vec3& a, Vec3& b, float& radius) {
+    Vec3 la{0, 0, 0}, lb{0, 0, 0};
+    switch (d.kind) {
+        case DebrisKind::Board: {
+            const float len = 0.5f + 0.05f * static_cast<float>(d.id % 8);
+            la = {-len / 2, 0, 0};
+            lb = {len / 2, 0, 0};
+            radius = 0.14f;
+            break;
+        }
+        case DebrisKind::Shingle:
+            la = {-0.15f, 0, 0};
+            lb = {0.15f, 0, 0};
+            radius = 0.15f;
+            break;
+        case DebrisKind::Rafter:
+            lb = {1.97f, 2.75f, 0};
+            radius = 0.18f;
+            break;
+        case DebrisKind::RafterPiece:
+            la = {-0.37f, 0, 0};
+            lb = {0.37f, 0, 0};
+            radius = 0.18f;
+            break;
+    }
+    const float c = std::cos(d.yaw), s = std::sin(d.yaw);
+    a = d.pos + Vec3{c * la.x + s * la.z, la.y, -s * la.x + c * la.z};
+    b = d.pos + Vec3{c * lb.x + s * lb.z, lb.y, -s * lb.x + c * lb.z};
 }
 
 void debrisTransform(const Debris& d, float out[16]) {

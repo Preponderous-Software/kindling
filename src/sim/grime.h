@@ -9,6 +9,7 @@
 
 #include <array>
 #include <cstdint>
+#include <initializer_list>
 #include <vector>
 
 #include "sim/math.h"
@@ -53,6 +54,12 @@ TexelRect scrub(Grime& g, Surface s, Vec3 p, float radius, int strength);
 
 // The share of a surface's texels at or below the clean threshold, 0..1.
 float cleanFraction(const Grime& g, Surface s);
+// The same over several surfaces together, weighted by their texels (the four
+// walls count as one wall).
+float cleanFraction(const Grime& g, std::initializer_list<Surface> surfaces);
+// The share of texels at or below the clean threshold in a disc of `radius`
+// metres around `p`: how clean the patch a tool is on is. 1 off the surface.
+float patchClean(const Grime& g, Surface s, Vec3 p, float radius);
 constexpr uint8_t kCleanThreshold = 40;
 
 }  // namespace kindling

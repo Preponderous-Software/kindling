@@ -13,7 +13,7 @@ const char* stepName(Step s);
 
 // What "clear" means: these shares of each surface at or below the clean threshold.
 constexpr float kFloorCleanGoal = 0.85f;
-constexpr float kWallCleanGoal = 0.75f;  // each wall, and the chimney stones
+constexpr float kWallCleanGoal = 0.75f;  // the four walls together, and the chimney stones
 
 // What "furnished" means for the MVP: this many furnishings placed.
 constexpr int kFurnishGoal = 5;
@@ -21,7 +21,7 @@ constexpr int kFurnishGoal = 5;
 struct Progress {
     Step step = Step::Survey;
     float floorClean = 0;   // 0..1
-    float wallsClean = 0;   // the least clean wall, 0..1
+    float wallsClean = 0;   // the four walls together, 0..1
     float hearthClean = 0;  // the chimney stones, 0..1
     int32_t debrisLeft = 0;  // pieces still inside the cabin
     float snow = 0;

@@ -144,6 +144,10 @@ EMSCRIPTEN_KEEPALIVE const char* kindling_status() {
     jsonString(o, at.hint);
     o += ",\"inReach\":";
     o += at.inReach ? "true" : "false";
+    o += ",\"note\":";
+    jsonString(o, at.note);
+    o += ",\"meter\":";
+    jsonString(o, play::meterText(w, at));
     o += ",\"carry\":";
     jsonString(o, play::carryLine(w));
     o += ",\"speech\":";

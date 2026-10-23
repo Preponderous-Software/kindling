@@ -1,7 +1,9 @@
 // M2 Clear: sweeping and scrubbing clean exactly the patch aimed at, debris is
-// carried out of the door, the rafter is sawn before it can be carried, the
+// carried out of the door (or tossed out through it), the work meter fills, the rafter is sawn before it can be carried, the
 // snow is shovelled out, and the step moves on once everything is clear.
+#include <cmath>
 #include <cstdio>
+#include <string>
 
 #include "check.h"
 #include "sim/layout.h"
@@ -115,6 +117,56 @@ int main() {
         CHECK(w.debris[board].hauled);
         CHECK(w.debrisHauled == 1);
         CHECK(!ev.messages.empty());
+    }
+
+    // ---- debris put down indoors by the door is tossed out through it; elsewhere indoors it stays
+    {
+        World w = newWorld(11);
+        const int32_t n = static_cast<int32_t>(w.debris.size());
+        standAt(w, w.debris[0].pos.x, w.debris[0].pos.z + 0.8f);
+        press(w, aimAt(TargetKind::Debris, 0, w.debris[0].pos));
+        CHECK(w.carry == Carry::Debris);
+        standAt(w, 0, 0);
+        CHECK(!byTheDoor(w));
+        press(w, Aim{});
+        CHECK(!w.debris[0].hauled && w.carry == Carry::Nothing);
+        press(w, aimAt(TargetKind::Debris, 0, w.debris[0].pos));
+        standAt(w, (L::kDoorX0 + L::kDoorX1) / 2, L::kInnerZ1 - 0.9f);
+        CHECK(byTheDoor(w));
+        TickEvents ev;
+        Input in;
+        in.interact = true;
+        tick(w, in, &ev);
+        CHECK(w.debris[0].hauled && w.debrisHauled == 1 && w.carry == Carry::Nothing);
+        bool said = false;
+        for (const std::string& m : ev.messages) said = said || m.find("Tossed out the door") == 0;
+        CHECK(said);
+        CHECK(progress(w).debrisLeft == n - 1);
+    }
+
+    // ---- scrubbing one wall moves the walls figure at once (#17), and the meter shows the patch
+    {
+        World w = newWorld(5);
+        standAt(w, 0, 2);
+        const Vec3 spot{0.5f, 1.2f, L::kInnerZ0};
+        const Aim wall = aimAt(TargetKind::Wall, 0, spot);
+        const float before = progress(w).wallsClean;
+        CHECK(workMeter(w, wall) < 0);  // no brush in hand
+        hold(w, Tool::ScrubBrush, wall, 1);
+        const float start = workMeter(w, wall);
+        CHECK(start >= 0 && start < 1);
+        hold(w, Tool::ScrubBrush, wall, 10 * kTickRate);
+        CHECK(workMeter(w, wall) >= 0.99f);
+        CHECK(progress(w).wallsClean > before);
+        CHECK(workMeter(w, aimAt(TargetKind::Wall, 0, spot, L::kReach + 0.5f)) < 0);  // out of reach: no meter
+    }
+
+    // ---- the meter for a timed job fills with the time held
+    {
+        World w = newWorld(5);
+        const Aim board = aimAt(TargetKind::WindowBoard, 1, {L::kInnerX0, 1.4f, 0});
+        hold(w, Tool::PryBar, board, kTickRate);
+        CHECK(std::fabs(workMeter(w, board) - 0.5f) < 0.05f);
     }
 
     // ---- the rafter must be sawn before it can be carried

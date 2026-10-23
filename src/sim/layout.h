@@ -59,6 +59,8 @@ constexpr float kEyeHeight = 1.62f;
 constexpr float kWalkSpeed = 2.6f;    // m/s
 constexpr float kSprintSpeed = 4.6f;  // m/s
 constexpr float kReach = 2.2f;        // how far the player can work or pick things up
+constexpr float kNameRange = 10.5f;   // how far things are named (and surveyed): across the room, corner to corner
+constexpr float kTossRange = 1.6f;    // debris carried this near the door can be tossed out through it
 
 // The mare stands in her stall facing out, toward the cabin.
 constexpr Vec2 kHorse{7.6f, 9.6f};

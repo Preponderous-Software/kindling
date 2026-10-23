@@ -50,7 +50,11 @@ std::vector<HudRow> checklist(const World& w);
 struct AimText {
     std::string name, hint;
     bool inReach = false;  // close enough to work on
+    std::string note;      // "Too far to reach" when there is work to do there but it is out of reach
+    float meter = -1;      // the work meter, 0..1 (sim/rules.h workMeter), or negative for none
 };
+// The meter as text: "[#####-----] 50%", or "Clean here" for a finished patch.
+std::string meterText(const World& w, const AimText& at);
 AimText aimText(const World& w, const Aim& aim);
 // What the player is carrying and what to do with it; empty when nothing.
 std::string carryLine(const World& w);

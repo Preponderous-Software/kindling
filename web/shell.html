@@ -51,6 +51,8 @@
   #aim { font-size: 15px; font-weight: 600; }
   #aim.far { color: var(--dim); }
   #hint, #carry { font-size: 13px; color: var(--dim); }
+  #note { font-size: 13px; color: var(--ember); }
+  #meter { font: 13px ui-monospace, monospace; }
   #carry { color: var(--ember); margin-top: 4px; }
   #msg { color: var(--ember); font-size: 13px; margin-top: 4px; }
   #speech { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; width: 92%; text-align: center;
@@ -114,7 +116,7 @@
   <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
   <div id="panel" class="overlay" title="Tap to fold or unfold"></div>
   <div id="cross" class="overlay">+</div>
-  <div id="words" class="overlay"><div id="aim"></div><div id="hint"></div><div id="carry"></div><div id="msg"></div></div>
+  <div id="words" class="overlay"><div id="aim"></div><div id="hint"></div><div id="note"></div><div id="meter"></div><div id="carry"></div><div id="msg"></div></div>
   <div id="speech" class="overlay"></div>
   <div id="touch" aria-hidden="true">
     <div id="stickBase"></div><div id="stickKnob"></div>
@@ -236,6 +238,8 @@
     $('aim').textContent = s.aim;
     $('aim').classList.toggle('far', !s.inReach);
     $('hint').textContent = s.hint;
+    $('note').textContent = s.note;
+    $('meter').textContent = s.meter;
     $('carry').textContent = s.carry;
     $('msg').textContent = s.message;
     $('speech').textContent = s.speech ? 'Ada: “' + s.speech + '”' : '';

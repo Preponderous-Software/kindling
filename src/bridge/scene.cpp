@@ -1,6 +1,7 @@
 #include "bridge/scene.h"
 
 #include <cmath>
+#include <cstddef>
 
 #include "sim/layout.h"
 
@@ -42,6 +43,7 @@ Scene::~Scene() {
     drop(horseTail_);
     if (homesteader_) engine_.removeMesh(homesteader_);
     if (candleFlame_) engine_.removeMesh(candleFlame_);
+    if (tool_) engine_.removeMesh(tool_);
     for (uint32_t t : grimeTextures_)
         if (t) engine_.destroyTexture(t);
 }
@@ -171,8 +173,16 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
     Aim aim;
     float best = maxDistance;
 
-    const float origin[3] = {eye.x, eye.y, eye.z}, direction[3] = {dir.x, dir.y, dir.z};
-    const StrataRayHit hit = engine_.raycastMeshes(origin, direction, maxDistance);
+    float origin[3] = {eye.x, eye.y, eye.z};
+    const float direction[3] = {dir.x, dir.y, dir.z};
+    StrataRayHit hit = engine_.raycastMeshes(origin, direction, maxDistance);
+    if (hit.mesh_id && hit.mesh_id == tool_) {
+        // The tool in hand is never the target: look past it.
+        for (int k = 0; k < 3; ++k) origin[k] = hit.point[k] + direction[k] * 1e-3f;
+        const float skipped = hit.distance;
+        hit = engine_.raycastMeshes(origin, direction, maxDistance - skipped);
+        if (hit.mesh_id) hit.distance += skipped;
+    }
     if (hit.mesh_id) {
         const auto it = byId_.find(hit.mesh_id);
         if (it != byId_.end()) {
@@ -186,6 +196,37 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             aim.distance = hit.distance;
             best = hit.distance;
         }
+    }
+
+    // Debris lying flat is a thin target from eye height: a ray passing close
+    // to a piece counts as on it, unless something clearly nearer is in front.
+    if (aim.kind == TargetKind::None || aim.kind == TargetKind::Floor || aim.kind == TargetKind::Ground ||
+        aim.kind == TargetKind::Debris) {
+        float nearest = aim.kind == TargetKind::Debris ? best : maxDistance;
+        for (size_t i = 0; i < w.debris.size(); ++i) {
+            const Debris& d = w.debris[i];
+            if (d.hauled || (w.carry == Carry::Debris && w.carryIndex == static_cast<int32_t>(i))) continue;
+            Vec3 a, b;
+            float r;
+            debrisCapsule(d, a, b, r);
+            // Closest approach of the ray (eye + t dir) and the segment a..b.
+            const Vec3 ab = b - a, ea = eye - a;
+            const float abab = dot(ab, ab), abd = dot(ab, dir), abea = dot(ab, ea), dea = dot(dir, ea);
+            const float den = abab - abd * abd;
+            float u = den > 1e-8f ? clampf((abea - abd * dea) / den, 0, 1) : 0;
+            float t = std::fmax(0.0f, dot(a + ab * u - eye, dir));
+            u = abab > 1e-8f ? clampf(dot(eye + dir * t - a, ab) / abab, 0, 1) : 0;
+            const Vec3 c = a + ab * u;
+            t = std::fmax(0.0f, dot(c - eye, dir));
+            const Vec3 off = eye + dir * t - c;
+            if (dot(off, off) > r * r || t >= nearest || t > best + 0.35f) continue;
+            nearest = t;
+            aim.kind = TargetKind::Debris;
+            aim.index = static_cast<int32_t>(i);
+            aim.point = c;
+            aim.distance = t;
+        }
+        if (aim.kind == TargetKind::Debris) best = std::fmin(best, aim.distance);
     }
 
     // The roof hole has no mesh to hit: test the ray against the ceiling plane.
@@ -242,6 +283,91 @@ constexpr float kHidden = -100.0f;  // below the ground: an unlit mesh "switched
 const Vec3 kFireBase{(L::kFireboxX0 + L::kFireboxX1) / 2, 0.22f, -2.6f};
 
 }  // namespace
+
+void Scene::animateTool(const World& w, double seconds, bool working) {
+    const Tool tool = showPlayer_ || w.carry != Carry::Nothing ? Tool::None : w.tool;
+    if (tool != toolBuilt_ || !tool_) {
+        if (tool_) engine_.removeMesh(tool_);
+        tool_ = 0;
+        toolBuilt_ = tool;
+        const MeshData m = buildTool(tool);
+        if (!m.empty()) tool_ = upload(m);
+    }
+    if (!tool_) return;
+    const Player& p = w.player;
+    const Vec3 f = lookDirection(p.yaw, p.pitch);
+    const Vec3 right{std::cos(p.yaw), 0, std::sin(p.yaw)};
+    const Vec3 up{right.y * f.z - right.z * f.y, right.z * f.x - right.x * f.z, right.x * f.y - right.y * f.x};
+    const Vec3 back = f * -1.0f;
+    // The swing: side to side for the broom, brush and comb, a chop for the
+    // hammer and axe, a stroke for the saw, a heave for the bar and shovel.
+    const float ph = static_cast<float>(seconds * 9.0);
+    float yawSwing = 0, pitchSwing = 0;
+    Vec3 shift{0, 0.006f * std::sin(static_cast<float>(seconds) * 2.1f), 0};  // the hand breathing
+    if (working) {
+        switch (tool) {
+            case Tool::Broom:
+            case Tool::ScrubBrush:
+            case Tool::CurryComb:
+                yawSwing = 0.35f * std::sin(ph);
+                shift.x += 0.05f * std::sin(ph);
+                break;
+            case Tool::Hammer:
+            case Tool::Axe: pitchSwing = -0.7f * std::fmax(0.0f, std::sin(ph * 1.2f)); break;
+            case Tool::Saw: shift.z += 0.09f * std::sin(ph * 1.4f); break;
+            case Tool::PryBar:
+            case Tool::Shovel: pitchSwing = 0.25f * std::sin(ph * 0.7f); break;
+            case Tool::Matches: shift.y += 0.004f * std::sin(ph * 3.0f); break;
+            default: break;
+        }
+    }
+    // Columns of the local rotation (about y by yawSwing, then x by pitchSwing).
+    const float cy = std::cos(yawSwing), sy = std::sin(yawSwing), cx = std::cos(pitchSwing), sx = std::sin(pitchSwing);
+    const Vec3 rx{cy, 0, -sy}, ry{sy * sx, cx, cy * sx}, rz{sy * cx, -sx, cy * cx};
+    auto toWorld = [&](Vec3 v) { return right * v.x + up * v.y + back * v.z; };
+    const Vec3 hand = Vec3{p.x, L::kEyeHeight, p.z} + f * 0.5f + right * 0.27f + up * -0.27f + toWorld(shift);
+    const Vec3 c0 = toWorld(rx), c1 = toWorld(ry), c2 = toWorld(rz);
+    const float model[16] = {c0.x, c0.y, c0.z, 0, c1.x, c1.y, c1.z, 0, c2.x, c2.y, c2.z, 0, hand.x, hand.y, hand.z, 1};
+    engine_.setMeshTransform(tool_, model);
+}
+
+void Scene::puff(Vec3 at, Rgb color, double seconds) {
+    if (seconds - lastPuff_ < 0.06) return;
+    lastPuff_ = seconds;
+    auto rnd = [this] {
+        rng_ = rng_ * 1664525u + 1013904223u;
+        return static_cast<float>(rng_ >> 8) / 16777216.0f - 0.5f;
+    };
+    for (int k = 0; k < 2; ++k)
+        dust_.push_back({at + Vec3{rnd() * 0.3f, 0.02f, rnd() * 0.3f}, Vec3{rnd() * 0.4f, 0.25f + 0.3f * rnd(), rnd() * 0.4f},
+                         color, seconds});
+    if (dust_.size() > 120) dust_.erase(dust_.begin(), dust_.begin() + static_cast<std::ptrdiff_t>(dust_.size() - 120));
+}
+
+void Scene::drawDust(double seconds) {
+    constexpr double kLife = 1.2;
+    while (!dust_.empty() && seconds - dust_.front().born > kLife) dust_.erase(dust_.begin());
+    if (dust_.empty()) return;
+    std::vector<StrataPoint> points;
+    points.reserve(dust_.size());
+    for (const Mote& m : dust_) {
+        const float age = static_cast<float>((seconds - m.born) / kLife);
+        const Vec3 p = m.pos + m.vel * (age * static_cast<float>(kLife));
+        StrataPoint pt{};
+        pt.position[0] = p.x;
+        pt.position[1] = p.y;
+        pt.position[2] = p.z;
+        pt.size_pixels = 2;
+        pt.world_diameter = 0.08f + 0.22f * age;
+        pt.color[0] = m.color.r;
+        pt.color[1] = m.color.g;
+        pt.color[2] = m.color.b;
+        pt.color[3] = 0.45f * (1 - age);
+        pt.flags = STRATA_POINT_SOFT;
+        points.push_back(pt);
+    }
+    engine_.submitPoints(points.data(), points.size());
+}
 
 void Scene::animate(const World& w, double seconds) {
     if (!flames_) flames_ = uploadUnlit(engine_, buildFlames());

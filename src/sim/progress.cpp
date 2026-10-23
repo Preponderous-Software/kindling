@@ -1,7 +1,5 @@
 #include "sim/progress.h"
 
-#include <algorithm>
-
 namespace kindling {
 
 const char* stepName(Step s) {
@@ -20,9 +18,7 @@ const char* stepName(Step s) {
 Progress progress(const World& w) {
     Progress p;
     p.floorClean = cleanFraction(w.grime, Surface::Floor);
-    p.wallsClean = 1.0f;
-    for (Surface s : {Surface::BackWall, Surface::LeftWall, Surface::RightWall, Surface::FrontWall})
-        p.wallsClean = std::min(p.wallsClean, cleanFraction(w.grime, s));
+    p.wallsClean = cleanFraction(w.grime, {Surface::BackWall, Surface::LeftWall, Surface::RightWall, Surface::FrontWall});
     p.hearthClean = cleanFraction(w.grime, Surface::HearthFace);
     for (const Debris& d : w.debris) p.debrisLeft += d.hauled ? 0 : 1;
     p.snow = w.snow;

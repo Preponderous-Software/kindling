@@ -62,8 +62,8 @@ simulation and its tests, with no engine.
 | W A S D | walk |
 | Shift | hurry |
 | 1 to 9 | take a tool: broom, scrub brush, shovel, saw, pry bar, hammer, axe, matches, curry comb (\` for bare hands) |
-| Left mouse (hold) | work with the tool on what the crosshair is on; with a plank or shingles in hand, work them in |
-| E | pick up or put down (debris put down outdoors is hauled out; furnishings go where they belong; E at the wagon puts a thing back) |
+| Left mouse (hold) | work with the tool on what the crosshair is on (a meter under the crosshair shows how far along the job is, or how clean the patch is); with a plank or shingles in hand, work them in |
+| E | pick up or put down (debris put down outdoors, or just inside the door, is hauled out; furnishings go where they belong; E at the wagon puts a thing back) |
 | R | turn what you carry |
 | L | light or put out your lantern |
 | T | play the restoration back again, once Ada is home |

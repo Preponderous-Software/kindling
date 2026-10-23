@@ -11,6 +11,7 @@
 #include "sim/brief.h"
 #include "sim/layout.h"
 #include "sim/progress.h"
+#include "sim/rules.h"
 #include "sim/settler.h"
 
 namespace kindling::play {
@@ -112,11 +113,22 @@ std::vector<HudRow> checklist(const World& w) {
 AimText aimText(const World& w, const Aim& aim) {
     AimText out;
     const Description d = describe(w, aim);
-    if (d.name.empty() || aim.distance > L::kReach * 2.5f) return out;
+    if (d.name.empty() || aim.distance > L::kNameRange) return out;
     out.name = d.name;
     out.hint = d.hint;
     out.inReach = aim.distance <= L::kReach;
+    if (!out.inReach && toolApplies(w, aim)) out.note = "Too far to reach. Step closer.";
+    out.meter = workMeter(w, aim);
     return out;
+}
+
+std::string meterText(const World& w, const AimText& at) {
+    if (at.meter < 0) return {};
+    const bool patch = w.tool == Tool::Broom || w.tool == Tool::ScrubBrush;
+    if (patch && w.carry == Carry::Nothing && at.meter >= 1) return "Clean here. Move on.";
+    const int filled = static_cast<int>(at.meter * 10.0f + 0.5f);
+    return "[" + std::string(static_cast<size_t>(filled), '#') + std::string(static_cast<size_t>(10 - filled), '-') +
+           "] " + percent(at.meter) + (patch ? " clean" : "");
 }
 
 std::string carryLine(const World& w) {
@@ -152,6 +164,31 @@ void text(std::vector<StrataText>& out, float x, float y, float size, const floa
     out.push_back(t);
 }
 
+// Words centred on cx within `width` pixels: at `size` if they fit, smaller
+// (down to 10 px) if not, and wrapped at spaces onto more lines if even that
+// is too wide. Returns the height used.
+float block(std::vector<StrataText>& out, float cx, float y, float size, const float color[4], const std::string& s,
+            float width, std::vector<std::string>& storage) {
+    const float n = static_cast<float>(s.size());
+    if (size * n > width) size = std::max(10.0f, std::floor(width / n));
+    const size_t perLine = std::max<size_t>(8, static_cast<size_t>(width / size));
+    std::vector<std::string> lines;
+    std::string rest = s;
+    while (rest.size() > perLine) {
+        size_t cut = rest.rfind(' ', perLine);
+        if (cut == std::string::npos || cut == 0) cut = perLine;
+        lines.push_back(rest.substr(0, cut));
+        rest = rest.substr(cut < rest.size() && rest[cut] == ' ' ? cut + 1 : cut);
+    }
+    lines.push_back(rest);
+    const float step = std::round(size * 1.4f);
+    for (const std::string& l : lines) {
+        text(out, centred(cx, size, l), y, size, color, l, storage);
+        y += step;
+    }
+    return step * static_cast<float>(lines.size());
+}
+
 void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, int height, Help help,
              const std::vector<Message>& messages, bool compact) {
     std::vector<StrataText> texts;
@@ -161,12 +198,16 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     const float cx = width * 0.5f, cy = height * 0.5f;
     text(texts, cx - 6, cy - 8, 16, kWhite, "+", storage);
 
+    const float wide = static_cast<float>(width) - 40;  // what centred words may span
     const AimText at = aimText(w, aim);
+    float ay = cy + 28;
     if (!at.name.empty()) {
-        text(texts, centred(cx, 18, at.name), cy + 28, 18, at.inReach ? kWhite : kDim, at.name, storage);
-        if (!at.hint.empty())
-            text(texts, centred(cx, 14, at.hint), cy + 52, 14, kDim, at.hint, storage);
+        ay += block(texts, cx, ay, 18, at.inReach ? kWhite : kDim, at.name, wide, storage) + 4;
+        if (!at.hint.empty()) ay += block(texts, cx, ay, 14, kDim, at.hint, wide, storage);
+        if (!at.note.empty()) ay += block(texts, cx, ay, 14, kEmber, at.note, wide, storage);
     }
+    const std::string meter = meterText(w, at);
+    if (!meter.empty()) ay += block(texts, cx, ay + 4, 14, at.meter >= 1 ? kEmber : kWhite, meter, wide, storage) + 4;
 
     // The checklist for the step the player is on.
     float y = 20;
@@ -176,10 +217,13 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
                 text(texts, 20, y, 18, kEmber, r.text, storage);
                 y += 30;
                 break;
-            case HudRow::Item:
-                text(texts, 20, y, 16, r.done ? kWhite : kDim, std::string(r.done ? "[x] " : "[ ] ") + r.text, storage);
-                y += 24;
+            case HudRow::Item: {
+                const std::string line = std::string(r.done ? "[x] " : "[ ] ") + r.text;
+                const float size = std::max(10.0f, std::min(16.0f, std::floor(wide / static_cast<float>(line.size()))));
+                text(texts, 20, y, size, r.done ? kWhite : kDim, line, storage);
+                y += size + 8;
                 break;
+            }
             case HudRow::Note:
                 text(texts, 20, y, 16, kDim, r.text, storage);
                 y += 24;
@@ -204,37 +248,31 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     const float beltSize = std::min(12.0f, static_cast<float>(width - 40) / static_cast<float>(belt.size()));
     text(texts, centred(cx, beltSize, belt), static_cast<float>(height) - 36, beltSize, kWhite, belt, storage);
     const std::string carrying = carryLine(w);
-    if (!carrying.empty())
-        text(texts, centred(cx, 14, carrying), static_cast<float>(height) - 64, 14, kEmber, carrying, storage);
+    if (!carrying.empty()) block(texts, cx, static_cast<float>(height) - 64, 14, kEmber, carrying, wide, storage);
 
     const std::string speech = settlerSpeech(w);
-    if (!speech.empty()) {
-        const std::string line = "Ada: \"" + speech + "\"";
-        text(texts, cx - 4.5f * static_cast<float>(line.size()), static_cast<float>(height) - 110, 18, kWhite, line, storage);
-    }
+    if (!speech.empty())
+        block(texts, cx, static_cast<float>(height) - 120, 18, kWhite, "Ada: \"" + speech + "\"", wide, storage);
 
-    float my = cy + 90;
-    for (const Message& m : messages) {
-        text(texts, centred(cx, 14, m.text), my, 14, kEmber, m.text, storage);
-        my += 22;
-    }
+    float my = std::max(cy + 90, ay + 8);
+    for (const Message& m : messages) my += block(texts, cx, my, 14, kEmber, m.text, wide, storage) + 2;
 
     if (help != Help::Hidden) {
-        std::vector<const char*> lines = {"Mouse / arrows  look",       "W A S D    walk",          "Shift      hurry",
-                                          "1-9        take a tool", "Left mouse work with it", "E          pick up / put down",
-                                          "R          turn what you carry", "L          lantern",
-                                          "F5 / F9    save / load the last save"};
-        if (help == Help::Browser) {
-            lines.push_back("Esc        free the mouse");
-            lines.push_back("F1  hide help");
-        } else {
-            lines.push_back("Esc        free the mouse / quit");
-            lines.push_back("F1  hide help   F12  screenshot");
-        }
-        float hy = static_cast<float>(height) - 24.0f * static_cast<float>(lines.size()) - 80;
-        for (const char* l : lines) {
-            text(texts, 20, hy, 16, kDim, l, storage);
-            hy += 24;
+        // A strip of keys above the tool belt, clear of the checklist and the
+        // crosshair's words; each line shrinks to the window's width.
+        std::vector<std::string> lines = {"Mouse / arrows look   W A S D walk   Shift hurry",
+                                          "1-9 take a tool   Left mouse work with it",
+                                          "E pick up / put down   R turn it   L lantern"};
+        lines.push_back(help == Help::Browser ? "F5 save   F9 load   Esc free the mouse   F1 hide these"
+                                              : "F5 save   F9 load   Esc free the mouse / quit   F1 hide these   F12 screenshot");
+        float size = 14;
+        for (const std::string& l : lines) size = std::min(size, std::floor(wide / static_cast<float>(l.size())));
+        size = std::max(8.0f, size);
+        const float step = std::round(size * 1.5f);
+        float hy = static_cast<float>(height) - 76 - step * static_cast<float>(lines.size());
+        for (const std::string& l : lines) {
+            text(texts, centred(cx, size, l), hy, size, kDim, l, storage);
+            hy += step;
         }
     }
     for (size_t i = 0; i < texts.size(); ++i) texts[i].utf8 = storage[i].c_str();
@@ -274,6 +312,28 @@ void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const 
             const std::vector<Message>& messages, double seconds, bool compact) {
     scene.sync(w);
     scene.animate(w, seconds);
+    // The tool swings while it works, and dust (or snow, or ash, or sawdust)
+    // rises from what it works on.
+    const bool working = w.workKind != TargetKind::None && w.workKind == aim.kind;
+    const float meter = workMeter(w, aim);
+    scene.animateTool(w, seconds, working && meter >= 0);
+    if (working && meter >= 0 && meter < 1 && w.carry == Carry::Nothing) {
+        switch (w.tool) {
+            case Tool::Broom: scene.puff(aim.point, {0.55f, 0.50f, 0.42f}, seconds); break;
+            case Tool::ScrubBrush:
+                scene.puff(aim.point, aim.kind == TargetKind::HearthFace ? bridge::Rgb{0.22f, 0.21f, 0.20f}
+                                                                        : bridge::Rgb{0.60f, 0.57f, 0.50f},
+                           seconds);
+                break;
+            case Tool::Shovel:
+                scene.puff(aim.point, aim.kind == TargetKind::Snow ? bridge::Rgb{0.90f, 0.92f, 0.97f}
+                                                                  : bridge::Rgb{0.50f, 0.50f, 0.49f},
+                           seconds);
+                break;
+            case Tool::Saw: scene.puff(aim.point, {0.72f, 0.56f, 0.34f}, seconds); break;
+            default: break;
+        }
+    }
     std::vector<StrataPointLight> lights;
     scene.lights(w, seconds, setSky(engine, w), lights);
     engine.setPointLights(lights.data(), lights.size());
@@ -286,6 +346,7 @@ void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const 
     engine.beginFrame(fd);
     drawHud(engine, w, aim, width, height, help, messages, compact);
     drawPlacement(engine, w, aim);
+    scene.drawDust(seconds);
     engine.endFrame();
 }
 
@@ -331,6 +392,7 @@ bool Reveal::frame(strata::Engine& engine, bridge::Scene& scene, const World& w,
     const float up[3] = {0, 1, 0};
     engine.setCamera(strata::cameraLookAt(eye, target, up, 62.0f, aspect, 0.05f, 400.0f));
     scene.animate(ghost_, now);
+    scene.animateTool(ghost_, now, false);  // put away while the player is seen from outside
     std::vector<StrataPointLight> lights;
     scene.lights(ghost_, now, setSky(engine, ghost_), lights);
     engine.setPointLights(lights.data(), lights.size());

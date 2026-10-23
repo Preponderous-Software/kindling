@@ -17,8 +17,8 @@ namespace {
 constexpr float kMaxPitch = 1.45f;  // a little under straight up or down
 
 // Cleaning rates: grime removed per tick at the centre of the tool's reach.
-constexpr int kBroomStrength = 16, kBrushStrength = 14;
-constexpr float kBroomRadius = 0.5f, kBrushRadius = 0.32f;
+constexpr int kBroomStrength = 26, kBrushStrength = 26;
+constexpr float kBroomRadius = 0.75f, kBrushRadius = 0.6f;
 constexpr float kShovelPerSecond = 0.16f;  // share of the drift moved per second
 constexpr float kSawSeconds = 4.0f;
 constexpr float kPryPlankSeconds = 2.5f, kPryBoardSeconds = 2.0f;
@@ -222,11 +222,14 @@ void interact(World& w, const Input& in, TickEvents* ev) {
     }
     if (w.carry == Carry::Debris) {
         Debris& d = w.debris[static_cast<size_t>(w.carryIndex)];
-        if (!L::kInterior.contains(w.player.x, w.player.z)) {
+        const bool outside = !L::kInterior.contains(w.player.x, w.player.z);
+        if (outside || byTheDoor(w)) {
             d.hauled = true;
             ++w.debrisHauled;
-            say(ev, std::string("Hauled out ") + debrisName(d.kind) + ". " + std::to_string(piecesLeft(w)) +
-                        " pieces left inside.");
+            const int32_t left = piecesLeft(w);
+            say(ev, std::string(outside ? "Hauled out " : "Tossed out the door: ") + debrisName(d.kind) + ". " +
+                        (left == 0 ? "That's the last of it." :
+                         left == 1 ? "One piece left inside." : std::to_string(left) + " pieces left inside."));
         } else {
             // Set it down in front of the player, on the floor.
             const Vec3 f = lookDirection(w.player.yaw, 0);
@@ -515,6 +518,86 @@ void moveCircle(float& x, float& z, float dx, float dz, float r) {
 
 bool inReach(const World&, const Aim& aim) { return aim.kind != TargetKind::None && aim.distance <= L::kReach; }
 
+bool byTheDoor(const World& w) {
+    const float dx = w.player.x - (L::kDoorX0 + L::kDoorX1) / 2, dz = w.player.z - L::kInnerZ1;
+    return L::kInterior.contains(w.player.x, w.player.z) && dx * dx + dz * dz <= L::kTossRange * L::kTossRange;
+}
+
+namespace {
+
+// The meter, near enough or not.
+float meterAnyReach(const World& w, const Aim& aim) {
+    if (aim.kind == TargetKind::None) return -1;
+    // A job held for a while: how much of `seconds` it has had.
+    auto timed = [&](float seconds) {
+        const bool same = w.workKind == aim.kind && w.workIndex == aim.index;
+        return same ? std::fmin(1.0f, w.workSeconds / seconds) : 0.0f;
+    };
+    const size_t i = static_cast<size_t>(aim.index);
+    if (w.carry == Carry::Item) {
+        const ItemKind k = w.items[static_cast<size_t>(w.carryIndex)].kind;
+        if (k == ItemKind::Plank && aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
+            w.planks[i] == PlankState::Removed)
+            return timed(kLayPlankSeconds);
+        if (k == ItemKind::Shingles && aim.kind == TargetKind::RoofHole && aim.index >= 0 && aim.index < 4 &&
+            !((w.roofPatched >> aim.index) & 1u))
+            return timed(kPatchSeconds);
+        return -1;
+    }
+    if (w.carry != Carry::Nothing) return -1;
+    switch (w.tool) {
+        // The middle of the tool's disc: its edge cleans too slowly to wait for.
+        case Tool::Broom:
+            return aim.kind == TargetKind::Floor ? patchClean(w.grime, Surface::Floor, aim.point, 0.6f * kBroomRadius) : -1;
+        case Tool::ScrubBrush:
+            if (aim.kind == TargetKind::Wall)
+                return patchClean(w.grime, wallSurface(aim.index), aim.point, 0.6f * kBrushRadius);
+            if (aim.kind == TargetKind::HearthFace)
+                return patchClean(w.grime, Surface::HearthFace, aim.point, 0.6f * kBrushRadius);
+            return -1;
+        case Tool::Shovel:
+            if (aim.kind == TargetKind::Snow && w.snow > 0) return 1 - w.snow;
+            if (aim.kind == TargetKind::Firebox && w.hearth.ash > 0) return 1 - w.hearth.ash;
+            return -1;
+        case Tool::Saw:
+            return aim.kind == TargetKind::Debris && validDebris(w, aim.index) &&
+                           w.debris[i].kind == DebrisKind::Rafter
+                       ? timed(kSawSeconds)
+                       : -1;
+        case Tool::PryBar:
+            if (aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 && w.planks[i] == PlankState::Rotten)
+                return timed(kPryPlankSeconds);
+            if (aim.kind == TargetKind::WindowBoard && aim.index >= 0 && aim.index < 4 && w.windowBoards[i])
+                return timed(kPryBoardSeconds);
+            return -1;
+        case Tool::Hammer:
+            return aim.kind == TargetKind::Chair && w.chair == ChairState::Broken ? timed(kMendSeconds) : -1;
+        case Tool::Axe:
+            return aim.kind == TargetKind::ChoppingBlock && w.wood.roundOnBlock ? timed(kSplitSeconds) : -1;
+        case Tool::Matches: {
+            const Hearth& h = w.hearth;
+            if (aim.kind == TargetKind::Firebox && !h.lit && h.ash <= 0 && h.kindlingLaid && h.logsLaid > 0)
+                return timed(kShieldSeconds);
+            if (aim.kind == TargetKind::Item && validItem(w, aim.index) && w.items[i].kind == ItemKind::Candle &&
+                w.items[i].place == ItemPlace::Placed && !h.candleLit)
+                return timed(kCandleSeconds);
+            return -1;
+        }
+        case Tool::CurryComb:
+            return aim.kind == TargetKind::Horse && w.horse.dirt > 0 ? 1 - w.horse.dirt / Horse{}.dirt : -1;
+        default: return -1;
+    }
+}
+
+}  // namespace
+
+float workMeter(const World& w, const Aim& aim) { return inReach(w, aim) ? meterAnyReach(w, aim) : -1; }
+
+bool toolApplies(const World& w, const Aim& aim) {
+    const float m = meterAnyReach(w, aim);
+    return m >= 0 && m < 1;
+}
+
 Vec3 carryPosition(const Player& p) {
     const Vec3 f = lookDirection(p.yaw, 0);
     const Vec3 right{detCos(p.yaw), 0, detSin(p.yaw)};
@@ -539,7 +622,8 @@ void burn(World& w, TickEvents* ev) {
 }
 
 void tick(World& w, const Input& in, TickEvents* ev) {
-    const Step before = progress(w).step;
+    const Progress was = progress(w);
+    const Step before = was.step;
     const bool frostBefore = frosted(w);
     if (in.toggleLantern) w.lantern = !w.lantern;
 
@@ -572,9 +656,16 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         it.pos = carryPosition(w.player);
     }
 
-    if (in.aim.kind != TargetKind::None && in.aim.distance <= L::kReach * 2.5f) w.surveyed |= surveyBit(w, in.aim);
+    if (in.aim.kind != TargetKind::None && in.aim.distance <= L::kNameRange) w.surveyed |= surveyBit(w, in.aim);
 
     const Progress now = progress(w);
+    // Each Clear job says so when it is done (the snow says it itself).
+    if (was.step == Step::Clear) {
+        if (was.floorClean < kFloorCleanGoal && now.floorClean >= kFloorCleanGoal) say(ev, "The floor is swept.");
+        if (was.wallsClean < kWallCleanGoal && now.wallsClean >= kWallCleanGoal) say(ev, "The walls are scrubbed.");
+        if (was.hearthClean < kWallCleanGoal && now.hearthClean >= kWallCleanGoal)
+            say(ev, "The chimney stones are clean.");
+    }
     if (now.surveyed && now.cleared && !w.cleared) w.cleared = true;
     if (w.cleared && now.repairedNow && !w.repaired) w.repaired = true;
     if (w.repaired && now.furnished >= kFurnishGoal && now.burning && now.woodStacked && !w.kindled) w.kindled = true;
