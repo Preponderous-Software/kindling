@@ -13,24 +13,24 @@ the damage, clear the place out (sweep and scrub the grime away patch by patch, 
 out, saw the fallen rafter, shovel out the snow), repair it (pry up rotten boards and lay new
 planks, patch the roof, pry the boards off the window, mend the rocking chair, set the table right),
 furnish it from the wagon against Ada's brief, and kindle the hearth (split the firewood, shovel
-out the ash, lay the fire and hold a match to it until it catches). The day runs from late morning
-on 11 November into the first frost. Then Ada Lark walks up from her wagon, tells you what she
+out the ash, lay the fire and hold a match to it until it catches). The day runs from nine in the
+morning on 11 November into the first frost. Then Ada Lark walks up from her wagon, tells you what she
 thinks of what you made for her, and sits down by the fire, and the whole restoration plays back
 as a timelapse. Your mare waits in her stall to be fed and brushed. The game saves as you go. What
 comes after the MVP is in [CONCEPT.md](CONCEPT.md).
 
-![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from a grey morning to the hearth lit at dusk with Ada in the rocking chair](docs/images/reveal.gif)
+![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from nine in the morning to the hearth lit before noon, with Ada in the rocking chair](docs/images/reveal.gif)
 
 *The reveal at the end of a restoration, as the game plays it: here the autopilot's playthrough,
 recorded and rendered headless by the game itself (`--headless --autopilot --reveal-frames`).*
 
-| The ruin, at nine in the morning | Ada's home, at twenty to five in the afternoon |
+| The ruin, at nine in the morning | Ada's home, at twenty past eleven |
 |---|---|
-| ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored at dusk: the fire lit, a braided rug, curtains, a sampler on the wall, and Ada in the rocking chair, seen from behind its quilt-hung back](docs/images/game-m5-home.jpg) |
+| ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored, late in the morning: the fire lit, a braided rug, curtains, a sampler on the wall, split logs stacked by the hearth, and Ada in the rocking chair, seen from behind its quilt-hung back](docs/images/game-m5-home.jpg) |
 
-| Surveying the ruin | The mare, fed and brushed, at sundown |
+| Surveying the ruin | The mare, fed and brushed, once Ada is home |
 |---|---|
-| ![First person inside the ruined cabin: the soot-black chimney, the fallen rafter, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall at sundown, under a pink sky, with Ada's brief all met in the corner](docs/images/game-m7-mare.jpg) |
+| ![First person inside the ruined cabin: the soot-black chimney, the fallen rafter, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall under a clear blue sky, content, with the one-line note that Ada is home in the corner](docs/images/game-m7-mare.jpg) |
 
 ## Play it
 
@@ -79,9 +79,9 @@ simulation and its tests, with no engine.
 
 | Sweeping | Unboarded |
 |---|---|
-| ![First person, broom in hand, sweeping: dust rising at the crosshair, the meter under it at 77% clean, and the Clear checklist in the corner](docs/images/game-m2-swept.jpg) | ![The window with its boards pried off and daylight coming in, the pry bar in hand](docs/images/game-m3-window.jpg) |
+| ![First person, broom in hand, sweeping: the meter under the crosshair at 64% clean, and the Clear checklist in the corner](docs/images/game-m2-swept.jpg) | ![The window with its boards pried off and daylight coming in, the pry bar in hand](docs/images/game-m3-window.jpg) |
 | **Shovelling the drift** | **Ada, home** |
-| ![The snow drift under the roof hole, the shovel in hand, its meter just starting, and the hint to shovel it out before it melts into the floor](docs/images/game-snow-shovel.jpg) | ![Close-up of Ada in the mended rocking chair by a braided rug, a quilt over the chair back, in the late afternoon light](docs/images/game-closeup-ada.jpg) |
+| ![The snow drift under the roof hole, the shovel in hand, its meter at 57%, and the hint to shovel it out before it melts into the floor](docs/images/game-snow-shovel.jpg) | ![Close-up of Ada in the mended rocking chair by a braided rug, a quilt over the chair back, in warm light](docs/images/game-closeup-ada.jpg) |
 
 `kindling --headless --tour --frames DIR` walks a scripted path into the cabin, sweeps and scrubs a
 little, without a window, and writes a screenshot at each stop. `kindling --autopilot` hands the
