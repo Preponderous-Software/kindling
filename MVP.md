@@ -56,7 +56,7 @@ Each milestone ends in something that can be run or looked at.
 | **M3 Repair and furnish** (done) | Plank, roof, window and chair repairs; placing and moving furniture | The repair and furnish checks in the table above |
 | **M4 Kindle** (done) | The fire ritual, firelight, a flickering flame and the candle | The kindle check above; a headless golden image of the lit room |
 | **M5 Welcome and reveal** (done) | The settler's arrival and the timelapse of the player's own restoration | The welcome check above; the recorded replay validates |
-| **M6 Saves** (done) | Save and continue at any step, through Strata's save core | Save and quit at each step, reload, and the room is identical (same state fingerprint) |
+| **M6 Saves** (done) | Save and continue at any step, in Kindling's own save file (moving to Strata's save core comes after the MVP; see [ARCHITECTURE.md](ARCHITECTURE.md#saves)) | Save and quit at each step, reload, and the room is identical (same state fingerprint) |
 | **M7 Horse** (done) | The stall, brushing and feeding | The horse reacts to brushing and to being fed |
 
 M2 is the riskiest: it is the one that needs new engine work, and the whole restoration feeling
@@ -67,14 +67,17 @@ depends on it.
 - **Determinism.** The game state has a fingerprint (FNV-1a over every saved field, like
   steading's). The same seed and the same inputs always give the same fingerprint, on every
   compiler. A test pins the fingerprint after a scripted restoration.
-- **Golden images.** Key moments (ruin, cleared, furnished, lit) render headless and are compared
-  to committed images, the way Strata checks its own renderer.
+- **Rendered frames.** CI renders the headless tour, the autopilot's frames and the reveal on every
+  change and keeps them as build artifacts. Comparing key moments (ruin, cleared, furnished, lit) to
+  committed golden images, the way Strata checks its own renderer, is planned and not built yet.
 - **Replays.** Every scripted test restoration writes a replay, and CI runs
   `usd-recorder replay validate` on it.
 - **Saves.** Save, corrupt a byte, reload: the damaged save must be refused and the previous one
   loaded.
-- **Playtests.** Each milestone gets a short playtest against the "done" table above, with notes
-  committed under `docs/playtests/`.
+- **Playtests.** AI agents play the real build with the
+  [playtester](https://github.com/dmccoystephenson/playtester) kit, and each release's evidence (the
+  summary, every agent's report and the screenshots its findings cite) is committed under
+  `docs/playtests/<version>/`.
 
 ## Success
 

@@ -38,7 +38,12 @@ recorded and rendered headless by the game itself (`--headless --autopilot --rev
 on a computer or a phone. It saves in that browser. [docs/WEB.md](docs/WEB.md) says how the browser
 build differs.
 
-**On your computer:** Kindling builds with CMake and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
+**Download:** Windows and Linux builds are on the [releases page](https://github.com/Preponderous-Software/kindling/releases):
+unpack and run `kindling.exe` (Windows) or `./kindling` (Linux). It needs an OpenGL 4.5 graphics driver, and
+saves in `%APPDATA%\Kindling` or `~/.local/share/kindling`. The game is not signed, so Windows asks before running
+it the first time (**More info**, then **Run anyway**).
+
+**From source:** Kindling builds with CMake and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
 built along with it (at the commit `KINDLING_STRATA_REF` in `CMakeLists.txt` pins).
 
 ```sh
@@ -123,6 +128,7 @@ images.
 | [CONCEPT.md](CONCEPT.md) | The game: player fantasy, pillars, the core loop, seasons, settlers, the valley, art direction |
 | [MVP.md](MVP.md) | The first playable slice: what is in, what is out, milestones and how each is checked |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | How it is built: the engine boundary, game modules, saves, content, replays, the browser build |
+| [docs/RELEASING.md](docs/RELEASING.md) | Cutting a release: the version, playtest evidence and the Windows and Linux downloads |
 
 ## Built on
 
