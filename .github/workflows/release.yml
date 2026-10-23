@@ -1,0 +1,297 @@
+# Builds the desktop game for Windows x64 and Linux x64 and attaches the
+# downloads to a GitHub release. macOS is not built.
+#
+#   - Publishing a release (gh release create <tag> ...) or pushing a bare
+#     version tag (0.1.0, no "v") builds both and uploads them to that release.
+#     A pushed tag with no release yet gets a pre-release created for it.
+#   - A pull request that changes this workflow or CMakeLists.txt runs the same
+#     build as a dry run, so a packaging change is checked before it merges.
+#   - workflow_dispatch builds both from the chosen branch and keeps them as
+#     workflow artifacts. Give it a tag to build that tag and attach the builds
+#     to its existing release instead.
+#
+# Strata and SDL3 are linked in statically, and on Windows so is the C++
+# runtime, so each download is the one executable plus the licences. See
+# docs/RELEASING.md.
+name: Release
+
+on:
+  release:
+    types: [published]
+  push:
+    tags: ["[0-9]+.[0-9]+.[0-9]+"]
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - "CMakeLists.txt"
+      - "docs/playtests/**"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to build and attach to (empty = dry run: workflow artifacts only)"
+        required: false
+        default: ""
+
+# A release created with gh release create also pushes its tag, so both events
+# fire for one release. Keyed on the tag, the later run replaces the earlier.
+concurrency:
+  group: release-${{ github.event.release.tag_name || inputs.tag || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  meta:
+    name: Resolve the version
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      ref: ${{ steps.resolve.outputs.ref }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Resolve tag and ref
+        id: resolve
+        env:
+          EVENT: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          case "$EVENT" in
+            release)           tag="$RELEASE_TAG" ;;
+            push)              tag="$REF_NAME" ;;
+            workflow_dispatch) tag="$INPUT_TAG" ;;
+            *)                 tag="" ;;
+          esac
+          if [ -n "$tag" ]; then
+            if ! [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Release tags are bare version numbers such as 0.1.0, not '$tag'."
+              exit 1
+            fi
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+            echo "ref=refs/tags/$tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve.outputs.ref }}
+
+      # The version the game reports (the playtest probe's "version") must be
+      # the version it is released as.
+      - name: Read the project version and check it against the tag
+        id: version
+        env:
+          TAG: ${{ steps.resolve.outputs.tag }}
+        run: |
+          version=$(sed -n 's/^project(kindling VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
+          if [ -z "$version" ]; then
+            echo "::error::Could not read the version from project(kindling VERSION ...) in CMakeLists.txt."
+            exit 1
+          fi
+          if [ -n "$TAG" ] && [ "$version" != "$TAG" ]; then
+            echo "::error::CMakeLists.txt says $version but the tag is $TAG. Bump the project version first (docs/RELEASING.md)."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Building Kindling $version (tag: ${TAG:-none, dry run})"
+
+      # Playtest evidence lives in docs/playtests/<version>/. A playtest of an
+      # unreleased build is filed under the next expected version, so whoever
+      # cuts the release renames it to the version actually released
+      # (docs/RELEASING.md). A tagged release therefore needs its own evidence
+      # directory and must not leave one named for a later version.
+      - name: Check the playtest evidence directories
+        env:
+          TAG: ${{ steps.resolve.outputs.tag }}
+          FIRST_WITH_EVIDENCE: "0.1.0"
+        run: |
+          shopt -s nullglob
+          bad=0
+          for dir in docs/playtests/*/; do
+            name=$(basename "$dir")
+            if ! [[ "$name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::docs/playtests/$name is not named after a version such as 0.1.0."
+              bad=1
+            elif [ -n "$TAG" ] && [ "$name" != "$TAG" ] \
+                && [ "$(printf '%s\n%s\n' "$name" "$TAG" | sort -V | tail -n1)" = "$name" ]; then
+              echo "::error::docs/playtests/$name is newer than the release $TAG. Rename it to $TAG if it is this release's evidence (docs/RELEASING.md)."
+              bad=1
+            fi
+          done
+          if [ -n "$TAG" ] && [ ! -d "docs/playtests/$TAG" ] \
+              && [ "$(printf '%s\n%s\n' "$FIRST_WITH_EVIDENCE" "$TAG" | sort -V | head -n1)" = "$FIRST_WITH_EVIDENCE" ]; then
+            echo "::error::No playtest evidence for $TAG. Playtest the build and commit it as docs/playtests/$TAG/ before tagging (docs/RELEASING.md)."
+            bad=1
+          fi
+          exit "$bad"
+
+  linux:
+    name: Linux x64 build
+    needs: meta
+    # The oldest supported runner, so the download runs on older glibc too.
+    runs-on: ubuntu-22.04
+    env:
+      VERSION: ${{ needs.meta.outputs.version }}
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      GALLIUM_DRIVER: llvmpipe
+      __EGL_VENDOR_LIBRARY_FILENAMES: /usr/share/glvnd/egl_vendor.d/50_mesa.json
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.ref }}
+
+      - name: Install SDL3 build dependencies and Mesa
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            libx11-dev libxext-dev libxcursor-dev libxi-dev libxfixes-dev libxrandr-dev libxss-dev \
+            libegl-dev libgl-dev libegl1 libegl-mesa0 libgl1-mesa-dri
+
+      - name: Build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DKINDLING_BUILD_TESTS=OFF
+          cmake --build build -j4 --target kindling
+
+      - name: Assemble the package
+        run: |
+          dir="dist/Kindling-$VERSION-linux-x64"
+          mkdir -p "$dir"
+          cp build/kindling "$dir/kindling"
+          strip "$dir/kindling"
+          cp LICENSE "$dir/LICENSE.txt"
+          cp docs/THIRD-PARTY.md "$dir/THIRD-PARTY.md"
+          cp docs/README-download.txt "$dir/README.txt"
+          # Only system libraries: Strata and SDL3 are linked in, OpenGL is
+          # loaded at run time.
+          ldd "$dir/kindling"
+          if ldd "$dir/kindling" | grep -Ev 'linux-vdso|ld-linux|/lib/x86_64-linux-gnu/lib(c|m|dl|pthread|rt|stdc\+\+|gcc_s)\.so'; then
+            echo "::error::The game links a library the download does not carry."
+            exit 1
+          fi
+
+      # The packaged binary, not the build output, plays the whole restoration
+      # headless on Mesa llvmpipe.
+      - name: The packaged game plays the restoration
+        run: |
+          cd "dist/Kindling-$VERSION-linux-x64"
+          ./kindling --headless --autopilot --width 320 --height 180 --playtest-out "$RUNNER_TEMP/probe" \
+            --replay "$RUNNER_TEMP/run.usda"
+          grep -q '"title":"Welcome"' "$RUNNER_TEMP/probe/events.jsonl"
+          grep -q "\"version\":\"$VERSION\"" "$RUNNER_TEMP/probe/state.json"
+
+      - name: Archive
+        run: |
+          cd dist
+          tar -czf "Kindling-$VERSION-linux-x64.tar.gz" "Kindling-$VERSION-linux-x64"
+          sha256sum "Kindling-$VERSION-linux-x64.tar.gz" > "Kindling-$VERSION-linux-x64.tar.gz.sha256"
+          ls -l
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kindling-${{ env.VERSION }}-linux-x64
+          path: |
+            dist/Kindling-${{ env.VERSION }}-linux-x64.tar.gz
+            dist/Kindling-${{ env.VERSION }}-linux-x64.tar.gz.sha256
+          if-no-files-found: error
+
+  windows:
+    name: Windows x64 build
+    needs: meta
+    runs-on: windows-2022
+    env:
+      VERSION: ${{ needs.meta.outputs.version }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.ref }}
+
+      # The static C++ runtime (/MT), so a Windows install without the Visual
+      # C++ Redistributable runs the game.
+      - name: Build
+        run: |
+          cmake -S . -B build -A x64 -DKINDLING_BUILD_TESTS=OFF "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build --config Release --parallel --target kindling
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Assemble the package
+        run: |
+          $dir = "dist/Kindling-$env:VERSION-win-x64"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          Copy-Item build/Release/kindling.exe "$dir/kindling.exe"
+          Copy-Item LICENSE "$dir/LICENSE.txt"
+          Copy-Item docs/THIRD-PARTY.md "$dir/THIRD-PARTY.md"
+          Copy-Item docs/README-download.txt "$dir/README.txt"
+
+      # The runner has no OpenGL 4.5 driver, so the game cannot draw here. What
+      # is checked is that the executable imports only DLLs every Windows
+      # install has: no Visual C++ runtime, no SDL3.dll.
+      - name: The executable needs no DLL the download lacks
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $dumpbin = Get-ChildItem "$vs\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" | Select-Object -Last 1
+          $out = & $dumpbin.FullName /dependents "dist/Kindling-$env:VERSION-win-x64/kindling.exe"
+          $out | Write-Host
+          $dlls = $out | Where-Object { $_ -match '^\s+\S+\.dll\s*$' } | ForEach-Object { $_.Trim().ToLower() }
+          $bad = $dlls | Where-Object { $_ -match '^(msvcp|vcruntime|concrt|sdl)' }
+          if ($bad) { Write-Error "kindling.exe imports $($bad -join ', '), which the download does not carry."; exit 1 }
+
+      - name: Archive
+        run: |
+          Compress-Archive -Path "dist/Kindling-$env:VERSION-win-x64" `
+            -DestinationPath "dist/Kindling-$env:VERSION-win-x64.zip"
+          $hash = (Get-FileHash "dist/Kindling-$env:VERSION-win-x64.zip" -Algorithm SHA256).Hash.ToLower()
+          "$hash  Kindling-$env:VERSION-win-x64.zip" | Out-File -Encoding ascii -NoNewline "dist/Kindling-$env:VERSION-win-x64.zip.sha256"
+          Get-ChildItem dist
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kindling-${{ env.VERSION }}-win-x64
+          path: |
+            dist/Kindling-${{ env.VERSION }}-win-x64.zip
+            dist/Kindling-${{ env.VERSION }}-win-x64.zip.sha256
+          if-no-files-found: error
+
+  attach:
+    name: Attach to the release
+    needs: [meta, linux, windows]
+    if: needs.meta.outputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.meta.outputs.tag }}
+    steps:
+      - name: Download the packages
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      # A tag pushed on its own has no release yet; one is made as a
+      # pre-release. A release made with GITHUB_TOKEN does not start this
+      # workflow again.
+      - name: Make sure the release exists
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" --verify-tag --prerelease --generate-notes --title "Kindling $TAG"
+          fi
+
+      - name: Upload to the release
+        run: |
+          ls -l dist
+          gh release upload "$TAG" dist/* --clobber
