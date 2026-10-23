@@ -152,8 +152,14 @@ World fromKeyframe(const World& base, const Keyframe& k) {
     w.table = k.table;
     w.snow = k.snow;
     w.items = k.items;
-    for (Item& it : w.items)
-        if (it.place == ItemPlace::Carried) it.place = ItemPlace::Wagon;  // the reveal shows nothing in mid-air
+    // The reveal shows nothing in mid-air: what was being carried is back on the wagon.
+    const std::vector<Item> load = newItems();
+    for (size_t i = 0; i < w.items.size() && i < load.size(); ++i)
+        if (w.items[i].place == ItemPlace::Carried) {
+            w.items[i].place = ItemPlace::Wagon;
+            w.items[i].pos = load[i].pos;
+            w.items[i].yaw = load[i].yaw;
+        }
     w.hearth = k.hearth;
     w.wood.woodpile = k.woodpile;
     w.settler = k.settler;

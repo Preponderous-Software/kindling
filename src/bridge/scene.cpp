@@ -171,6 +171,7 @@ void Scene::sync(const World& w) {
 
 namespace {
 constexpr float kDebrisAssistRadians = 0.21f;  // about 12 degrees
+constexpr float kRoofHoleAssist = 0.4f;        // metres of ceiling around an open section
 }  // namespace
 
 Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
@@ -181,14 +182,18 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
     const float direction[3] = {dir.x, dir.y, dir.z};
     // The tool in hand and whatever is carried are never the target: look
     // past them (a plank in hand sits right across the crosshair).
-    uint32_t carried = 0;
-    if (w.carry == Carry::Item && w.carryIndex >= 0 && static_cast<size_t>(w.carryIndex) < items_.size())
-        carried = items_[static_cast<size_t>(w.carryIndex)].id;
+    uint32_t carriedDebris = 0;
     if (w.carry == Carry::Debris && w.carryIndex >= 0 && static_cast<size_t>(w.carryIndex) < debris_.size())
-        carried = debris_[static_cast<size_t>(w.carryIndex)].id;
+        carriedDebris = debris_[static_cast<size_t>(w.carryIndex)].id;
+    auto inHand = [&](uint32_t id) {
+        if (id == tool_ || id == carriedDebris) return true;
+        for (size_t i = 0; i < items_.size() && i < w.items.size(); ++i)
+            if (items_[i].id == id) return w.items[i].place == ItemPlace::Carried;
+        return false;
+    };
     StrataRayHit hit = engine_.raycastMeshes(origin, direction, maxDistance);
     float skipped = 0;
-    for (int pass = 0; pass < 4 && hit.mesh_id && (hit.mesh_id == tool_ || hit.mesh_id == carried); ++pass) {
+    for (int pass = 0; pass < 8 && hit.mesh_id && inHand(hit.mesh_id); ++pass) {
         for (int k = 0; k < 3; ++k) origin[k] = hit.point[k] + direction[k] * 1e-3f;
         skipped += hit.distance + 1e-3f;
         hit = engine_.raycastMeshes(origin, direction, maxDistance - skipped);
@@ -209,12 +214,21 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
         }
     }
     // A log wall's outer half faces the yard: weathered, not one of the walls
-    // to scrub.
+    // to scrub. The window's frame, set into the wall, is the window; the
+    // sides of the door opening are inside wall.
     if (aim.kind == TargetKind::Wall) {
-        const float out = L::kWallThickness * 0.5f;
-        if (aim.point.x < L::kInnerX0 - out || aim.point.x > L::kInnerX1 + out || aim.point.z < L::kInnerZ0 - out ||
-            aim.point.z > L::kInnerZ1 + out)
+        const float out = L::kWallThickness * 0.5f, e = 0.05f;
+        const Vec3& q = aim.point;
+        const bool inWindow = q.x < L::kInnerX0 && q.z > L::kWindowZ0 - e && q.z < L::kWindowZ1 + e &&
+                              q.y > L::kWindowY0 - e && q.y < L::kWindowY1 + e;
+        const bool inDoor = q.z > L::kInnerZ1 && q.x > L::kDoorX0 - e && q.x < L::kDoorX1 + e && q.y < L::kDoorTop + e;
+        if (inWindow) {
+            aim.kind = TargetKind::WindowBoard;  // the frame: named "Window", nothing to do
+            aim.index = -1;
+        } else if (!inDoor && (q.x < L::kInnerX0 - out || q.x > L::kInnerX1 + out || q.z < L::kInnerZ0 - out ||
+                               q.z > L::kInnerZ1 + out)) {
             aim.kind = TargetKind::OutsideWall;
+        }
     }
 
     // Debris lying flat is a thin target from eye height: a ray passing close
@@ -286,20 +300,31 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
         }
     }
 
-    // The roof hole has no mesh to hit: test the ray against the ceiling plane.
+    // The roof hole has no mesh to hit: test the ray against the ceiling
+    // plane. A ray on the boards close around an open section counts as on
+    // it, the nearest open one.
     if (dir.y > 1e-4f && w.roofPatched != kRoofAllPatched) {
         const float t = (L::kCeilingY - eye.y) / dir.y;
         const Vec3 p = eye + dir * t;
-        if (t > 0 && t < best && p.x > L::kRoofHoleX0 && p.x < L::kRoofHoleX1 && p.z > L::kRoofHoleZ0 &&
-            p.z < L::kRoofHoleZ1) {
-            const int i = p.x < (L::kRoofHoleX0 + L::kRoofHoleX1) / 2 ? 0 : 1;
-            const int j = p.z < (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2 ? 0 : 1;
-            if (!((w.roofPatched >> (i + 2 * j)) & 1u)) {
-                aim.kind = TargetKind::RoofHole;
-                aim.index = i + 2 * j;
-                aim.point = p;
-                aim.distance = t;
+        const float xs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
+        const float zs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
+        int nearest = -1;
+        float nearestOff = kRoofHoleAssist;
+        for (int k = 0; k < 4 && t > 0 && t < best + 0.02f; ++k) {
+            if ((w.roofPatched >> k) & 1u) continue;
+            const float dx = std::fmax(0.0f, std::fmax(xs[k % 2] - p.x, p.x - xs[k % 2 + 1]));
+            const float dz = std::fmax(0.0f, std::fmax(zs[k / 2] - p.z, p.z - zs[k / 2 + 1]));
+            const float off = std::sqrt(dx * dx + dz * dz);
+            if (off <= nearestOff) {
+                nearest = k;
+                nearestOff = off;
             }
+        }
+        if (nearest >= 0) {
+            aim.kind = TargetKind::RoofHole;
+            aim.index = nearest;
+            aim.point = p;
+            aim.distance = t;
         }
     }
     return aim;

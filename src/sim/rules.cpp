@@ -30,6 +30,7 @@ constexpr float kFireGrowthPerSecond = 0.035f;
 constexpr int32_t kWoodpileMax = 14, kLogsOnAndirons = 3;
 constexpr float kBrushPerSecond = 0.07f, kEatingSeconds = 12.0f, kHungerPerGameMinute = 1.0f / 360.0f;
 constexpr float kGreetDistance = 3.5f;
+constexpr float kCarryBelowView = 0.5f;  // radians below the crosshair a carried thing rides
 
 // Pushes a circle out of one box, if it overlaps it.
 void pushOut(float& x, float& z, float r, const Box2& b) {
@@ -111,9 +112,13 @@ void spawnDebris(World& w, DebrisKind kind, Vec3 pos, float yaw) {
 void putDownItem(World& w, const Input& in, TickEvents* ev) {
     Item& it = w.items[static_cast<size_t>(w.carryIndex)];
     if (in.aim.kind == TargetKind::Wagon && inReach(w, in.aim)) {
-        it.place = ItemPlace::Wagon;
-        it.pos = newItems()[static_cast<size_t>(w.carryIndex)].pos;
-        it.yaw = newItems()[static_cast<size_t>(w.carryIndex)].yaw;
+        const std::vector<Item> load = newItems();
+        for (size_t i = 0; i < w.items.size(); ++i)
+            if (w.items[i].place == ItemPlace::Carried) {
+                w.items[i].place = ItemPlace::Wagon;
+                w.items[i].pos = load[i].pos;
+                w.items[i].yaw = load[i].yaw;
+            }
     } else if (isMaterial(it.kind)) {
         say(ev, it.kind == ItemKind::Plank ? "Hold the plank over a gap in the floor and work it in (left mouse)."
                                            : "Stand under the hole in the roof and work the shingles in (left mouse).");
@@ -252,10 +257,18 @@ void interact(World& w, const Input& in, TickEvents* ev) {
     }
     if (in.aim.kind == TargetKind::Item && validItem(w, in.aim.index) && inReach(w, in.aim)) {
         Item& it = w.items[static_cast<size_t>(in.aim.index)];
+        if (it.place == ItemPlace::Wagon && !isMaterial(it.kind) && !w.repaired) {
+            say(ev, "That's for later: clear and mend the cabin first.");
+            return;
+        }
         if (it.place == ItemPlace::Wagon || it.place == ItemPlace::Placed) {
             it.place = ItemPlace::Carried;
             w.carry = Carry::Item;
             w.carryIndex = in.aim.index;
+            // Planks and shingles come off the wagon all at once.
+            if (isMaterial(it.kind))
+                for (Item& other : w.items)
+                    if (other.kind == it.kind && other.place == ItemPlace::Wagon) other.place = ItemPlace::Carried;
         }
         return;
     }
@@ -378,6 +391,12 @@ void work(World& w, const Input& in, TickEvents* ev) {
             w.carry = Carry::Nothing;
             w.carryIndex = -1;
             w.workSeconds = 0;
+            for (size_t i = 0; i < w.items.size(); ++i)
+                if (w.items[i].place == ItemPlace::Carried) {
+                    w.carry = Carry::Item;
+                    w.carryIndex = static_cast<int32_t>(i);
+                    break;
+                }
         }
         return;
     }
@@ -473,7 +492,7 @@ void work(World& w, const Input& in, TickEvents* ev) {
                     h.logsLaid = 0;
                     h.kindlingLaid = false;
                     ++h.matchesStruck;
-                    say(ev, "It catches.");
+                    say(ev, "It catches. Let it take hold.");
                     w.workSeconds = 0;
                     w.workKind = TargetKind::None;
                 }
@@ -600,9 +619,12 @@ bool toolApplies(const World& w, const Aim& aim) {
 }
 
 Vec3 carryPosition(const Player& p) {
-    const Vec3 f = lookDirection(p.yaw, 0);
+    // Low and to the right of the crosshair wherever the view points, so what
+    // is carried stays in sight without hiding what it is carried to.
+    const Vec3 f = lookDirection(p.yaw, std::fmax(p.pitch - kCarryBelowView, -1.55f));
     const Vec3 right{detCos(p.yaw), 0, detSin(p.yaw)};
-    return {p.x + f.x * 0.75f + right.x * 0.35f, L::kEyeHeight - 0.6f, p.z + f.z * 0.75f + right.z * 0.35f};
+    return {p.x + f.x * 0.7f + right.x * 0.3f, std::fmax(L::kEyeHeight + f.y * 0.7f, L::kFloorY + 0.08f),
+            p.z + f.z * 0.7f + right.z * 0.3f};
 }
 
 // The fire grows toward what its fuel can feed, and dies down as it runs out.
@@ -658,6 +680,14 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         it.yaw += kRotateStep * static_cast<float>(in.rotate);
         it.yaw -= 2 * kPi * std::nearbyint(it.yaw / (2 * kPi));
         it.pos = carryPosition(w.player);
+        // The rest of a stack of planks or shingles, under the one in hand.
+        float below = 0;
+        for (size_t i = 0; i < w.items.size(); ++i)
+            if (w.items[i].place == ItemPlace::Carried && static_cast<int32_t>(i) != w.carryIndex) {
+                below += w.items[i].kind == ItemKind::Plank ? 0.055f : 0.14f;
+                w.items[i].pos = {it.pos.x, it.pos.y - below, it.pos.z};
+                w.items[i].yaw = it.yaw;
+            }
     }
 
     if (in.aim.kind != TargetKind::None && in.aim.distance <= L::kNameRange) w.surveyed |= surveyBit(w, in.aim);
@@ -670,6 +700,7 @@ void tick(World& w, const Input& in, TickEvents* ev) {
         if (was.hearthClean < kWallCleanGoal && now.hearthClean >= kWallCleanGoal)
             say(ev, "The chimney stones are clean.");
     }
+    if (!was.burning && now.burning) say(ev, "The fire has taken hold.");
     if (now.surveyed && now.cleared && !w.cleared) w.cleared = true;
     if (w.cleared && now.repairedNow && !w.repaired) w.repaired = true;
     if (w.repaired && now.furnished >= kFurnishGoal && now.burning && now.woodStacked && !w.kindled) w.kindled = true;
