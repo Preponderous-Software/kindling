@@ -1,0 +1,28 @@
+{
+  "session": "s01",
+  "dir": "s01",
+  "profile": "kindling",
+  "display": ":102",
+  "window": "6291475",
+  "size": "640x360",
+  "seed": "3141",
+  "args": [],
+  "command": [
+    "<kindling checkout>/build/kindling",
+    "--width",
+    "640",
+    "--height",
+    "360",
+    "--slot",
+    "s01/data",
+    "--seed",
+    "3141",
+    "--playtest-out",
+    "s01/out"
+  ],
+  "probe": true,
+  "ticksPerSecond": 30,
+  "startedAtMs": 1792767201637,
+  "version": "0.1.0",
+  "commit": "17ed1e8"
+}

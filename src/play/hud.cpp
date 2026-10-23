@@ -69,13 +69,14 @@ std::string count(int n, const char* one, const char* many) { return std::to_str
 std::vector<HudRow> checklist(const World& w) {
     const Progress p = progress(w);
     std::vector<HudRow> rows;
-    rows.push_back({HudRow::Step, false, std::string("STEP: ") + stepName(p.step)});
+    rows.push_back({HudRow::Step, false,
+                    std::string("STEP: ") + stepName(p.step) + (p.step == Step::Survey ? ": look at each of these" : "")});
     auto row = [&](bool done, const std::string& label) { rows.push_back({HudRow::Item, done, label}); };
     if (p.step == Step::Survey) {
         row((w.surveyed & kSurveyGrime) != 0, "Grime");
         row((w.surveyed & kSurveyDebris) != 0, "Debris");
         row((w.surveyed & kSurveyRottenPlank) != 0, "Rotten floorboards");
-        row((w.surveyed & kSurveyRoofHole) != 0, "Hole in the roof");
+        row((w.surveyed & kSurveyRoofHole) != 0, "Hole in the roof (stand under it, look up)");
         row((w.surveyed & kSurveyBoardedWindow) != 0, "Boarded window");
     } else if (p.step == Step::Clear) {
         row(p.debrisLeft == 0, "Haul out the debris (" + std::to_string(p.debrisLeft) + " left)");
@@ -84,7 +85,7 @@ std::vector<HudRow> checklist(const World& w) {
         row(p.wallsClean >= kWallCleanGoal, "Scrub the walls (" + toward(p.wallsClean, kWallCleanGoal) + ")");
         row(p.hearthClean >= kWallCleanGoal, "Scrub the chimney (" + toward(p.hearthClean, kWallCleanGoal) + ")");
     } else if (p.step == Step::Kindle) {
-        row(p.woodStacked, "Split firewood and stack it by the hearth (" + std::to_string(w.wood.woodpile) + " of " +
+        row(p.woodStacked, "Split firewood and stack it by the hearth (" + std::to_string(p.woodCount) + " of " +
                                std::to_string(kWoodpileGoal) + ")");
         row(p.ashOut, "Shovel out the old ash");
         row(p.kindlingLaid, "Lay kindling in the hearth");

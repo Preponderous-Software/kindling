@@ -67,11 +67,14 @@ int main() {
         CHECK(w.planks[0] == PlankState::Removed);
         CHECK(liveDebris(w) == before + 1);
 
-        // A plank cannot go on a rotten board, only into a gap.
+        // A plank goes only into a gap.
         take(w, ItemKind::Plank);
         CHECK(w.carry == Carry::Item);
-        hold(w, Tool::None, aimAt(TargetKind::RottenPlank, 1), 3.0f);
-        CHECK(w.planks[1] == PlankState::Rotten);
+        // Held on a rotten board, the planks in hand pry it up instead.
+        const size_t beforePry = liveDebris(w);
+        hold(w, Tool::None, aimAt(TargetKind::RottenPlank, 1), 2.6f);
+        CHECK(w.planks[1] == PlankState::Removed);
+        CHECK(liveDebris(w) == beforePry + 1);
         CHECK(w.carry == Carry::Item);
         hold(w, Tool::None, aimAt(TargetKind::RottenPlank, 0), 2.1f);
         CHECK(w.planks[0] == PlankState::New);
@@ -99,8 +102,9 @@ int main() {
         hold(w, Tool::None, aimAt(TargetKind::RoofHole, 2), 3.0f);
         CHECK(w.roofPatched == (1u << 2));
         CHECK(w.carry == Carry::Item);
-        // Put back on the wagon, the whole stack goes back.
-        press(w, aimAt(TargetKind::Wagon, -1));
+        // Put back on the wagon (E on the wagon or on anything still on it),
+        // the whole stack goes back.
+        press(w, aimAt(TargetKind::Item, firstItem(w, ItemKind::Rug)));
         CHECK(w.carry == Carry::Nothing);
         int onWagon = 0;
         for (const Item& it : w.items) onWagon += it.kind == ItemKind::Shingles && it.place == ItemPlace::Wagon ? 1 : 0;

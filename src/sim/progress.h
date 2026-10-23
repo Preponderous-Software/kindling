@@ -43,7 +43,8 @@ struct Progress {
     bool ashOut = false;
     bool kindlingLaid = false;
     bool logsLaid = false;       // at least one split log on the andirons (or already burning)
-    bool woodStacked = false;    // the woodpile holds kWoodpileGoal or more
+    int32_t woodCount = 0;       // split logs on the woodpile, and in the hearth
+    bool woodStacked = false;    // woodCount has reached kWoodpileGoal
     bool burning = false;        // lit, and grown past a flicker
 };
 

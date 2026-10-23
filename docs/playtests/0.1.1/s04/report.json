@@ -1,0 +1,94 @@
+{
+  "session": "s04",
+  "goal": "Your save starts at the Kindle step: split firewood, stack it, lay and light the fire, welcome the settler and watch the reveal (do not skip it); then spend the rest of your time walking around inside and outside the cabin, judging how it looks and reads (finding the woodpile and kindling, the fire taking hold, light, models, the people and the mare) and noting anything ugly, broken, floating, clipping or hard to read.",
+  "build": {"version": "0.1.0", "commit": "17ed1e8"},
+  "seed": 1881,
+  "durationSec": 1430,
+  "outcome": "achieved",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "balance",
+      "title": "Taking a log from the full hearth woodpile for the andirons un-ticks 'Split firewood and stack it (4 of 4)'",
+      "detail": "With the woodpile at 4 of 4 (ticked), the woodpile hint says 'Stacked. E takes a log for the fire.' Doing exactly that and laying the log on the andirons drops the checklist back to '(3 of 4)', so the step cannot finish until the player goes back outside, fetches a fifth round, splits it, finds the half on the ground and carries it in. The game invites the action and then penalises it. Expected: the andiron log does not count against the stack, or the checklist asks for 4 + 1 up front.",
+      "repro": "pt start (save at Kindle); split and stack until 4 of 4; with bare hands aim at 'Woodpile (4 logs)' beside the hearth, E; checklist shows 3 of 4; lay it on the andirons; item stays unticked",
+      "screenshot": "shots/woodpile_untick.png",
+      "tick": 37015
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Kindling bundle and split halves beside the chopping block are not targetable with the crosshair on them",
+      "detail": "After splitting, the kindling bundle lies on the ground by the block. With the crosshair squarely on it (pitch -49, about 1m) no name appears and E does nothing; it only registered at pitch -50.4 after several nudges. A split half on the ground sits behind the held axe model and needed exact aim; E about 8 degrees off picked nothing, despite the promised 'nearest within 12 degrees' forgiveness. The block's own hit area also covers the halves and kindling next to it, so the crosshair keeps reading 'Chopping block - Set a log round on it'.",
+      "repro": "At the chopping block put a round on and split it (7, hold mouse); aim at the kindling bundle on the ground; E",
+      "screenshot": "shots/kindling_no_target.png",
+      "tick": 31766
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Hearth woodpile hit area does not match its visible logs; the crosshair on the logs reads 'Floorboards'",
+      "detail": "Carrying a split log, with the crosshair on the top log of the woodpile left of the hearth, the target reads 'Floorboards' and E only shows 'Stack it on the woodpile by the hearth, or lay it in the hearth (E)' without stacking. 'Woodpile (n logs)' only appears in a narrow band of pitch and distance. Each of the 3 stacking trips took several tries.",
+      "repro": "Carry a split log in; stand about 1m from the woodpile left of the hearth; aim at the visible logs (pitch about -63); the target reads Floorboards; E does nothing",
+      "screenshot": "shots/woodpile_floor.png",
+      "tick": 17105
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "'Cold hearth' (shovel the ash) registers only in a narrow pitch band, and the firebox floor reads 'Floorboards'",
+      "detail": "Standing 0.6m from the hearth, 'Cold hearth' appears only at about -46 to -50 degrees of pitch. At -52 the crosshair is visibly on the firebox floor between the andirons but reads 'Floorboards'; above -45 it reads 'Chimney stones'. From 1.3m it says 'Too far to reach. Step closer.' though the interact range is 2.2m. No ash heap is visible to aim at. The kindling, log and match targets later used the same hearth area and were easier.",
+      "repro": "Shovel (3); stand in front of the fireplace about 0.6m away; tilt down slowly from -40 to -55 and watch the target name",
+      "screenshot": "shots/ash_shovel_aim.png",
+      "tick": 28813
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Ada's arrival happens off-screen: 'wagon coming up the trail' and 'Ada Lark is here' fire on the same tick",
+      "detail": "When the fire takes hold, both lines appear at tick 45235, and 3 seconds later Ada is already seated in the rocking chair. There is no wagon on the trail and no walk-in, so the welcome beat the text promises is never seen. The crosshair on Ada reads 'Log wall', so she has no name or interaction.",
+      "repro": "Complete Kindle while indoors; watch pt events and the screen",
+      "screenshot": "shots/ada_instant.png",
+      "tick": 45961
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "pt walkto door leaves the player against the wall beside the narrow doorway; entering takes repeated lining up",
+      "detail": "Many times 'walkto door' reported within reach, but walking forward slid along the outside log wall or snagged on the frame (for example ending at x 4.9 z 4.1 after holding W from x 1.98 z 5.12). Getting in or out took 2 or 3 tries each trip, which adds up during the 5 or more trips the Kindle step needs between the block and the hearth.",
+      "repro": "From the chopping block: pt walkto door; pt hold w 1.5; check the indoors flag",
+      "screenshot": "shots/dd3.png",
+      "tick": null
+    },
+    {
+      "severity": "polish",
+      "category": "bug",
+      "title": "Firelit chimney stones beside the firebox render as flat saturated yellow slabs",
+      "detail": "After dusk with the fire burning, the stones on the left of the firebox are filled with flat bright yellow and look like a missing texture rather than firelight. The rest of the room past the hearth is nearly black even with the lantern lit. Ada is small, low-poly and flat red; she casts a nice big shadow on the wall.",
+      "repro": "After the fire takes hold and dusk falls, stand left of the hearth looking along the mantel",
+      "screenshot": "shots/ada_label.png",
+      "tick": 47566
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "The 'The fire' target label sits right on top of the flames",
+      "detail": "When the fire catches, the centre target label 'The fire' covers the small flame the player is meant to watch take hold. Expected: the label dims or moves once the fire is lit.",
+      "repro": "Strike a match (8, hold) on the laid fire; watch the centre of the screen",
+      "screenshot": "shots/match1.png",
+      "tick": 37707
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 2,
+    "deaths": 0,
+    "secondsToObjective": {"Kindle": 1507.8, "Welcome": 1533.1},
+    "kindleGameSecondsThisSession": 1216,
+    "fireCatchToTakenHoldSeconds": 15.8,
+    "roundsSplit": 2,
+    "tripsBlockToHearth": 3,
+    "revealWallSeconds": 25
+  },
+  "fun": 3,
+  "verdict": "The Kindle beat pays off. The fire catching in the hearth, the warm doorway at dusk, Ada's shadow on the wall and the reveal's daylight shot of the restored room all look good, and the mare reads well. Most of the 20 minutes went to fighting small hit areas: kindling, split halves, the woodpile and the ash each needed exact aim. Taking the andiron log from the full woodpile un-ticks the stacking item and forces a fifth round. Ada also arrives off-screen, so the welcome falls flat."
+}

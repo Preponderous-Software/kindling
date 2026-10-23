@@ -18,7 +18,7 @@ constexpr float kMaxPitch = 1.45f;  // a little under straight up or down
 
 // Cleaning rates: grime removed per tick at the centre of the tool's reach.
 constexpr int kBroomStrength = 26, kBrushStrength = 26;
-constexpr float kBroomRadius = 0.75f, kBrushRadius = 0.6f;
+constexpr float kBroomRadius = 0.75f, kBrushRadius = 0.8f;
 constexpr float kShovelPerSecond = 0.16f;  // share of the drift moved per second
 constexpr float kSawSeconds = 4.0f;
 constexpr float kPryPlankSeconds = 2.5f, kPryBoardSeconds = 2.0f;
@@ -108,10 +108,23 @@ void spawnDebris(World& w, DebrisKind kind, Vec3 pos, float yaw) {
     w.debris.push_back(d);
 }
 
+// A rotten floorboard comes up, leaving a gap and a board to haul out.
+void pryPlank(World& w, int32_t i, TickEvents* ev) {
+    const L::RottenSpan& s = L::kRottenSpans[static_cast<size_t>(i)];
+    w.planks[static_cast<size_t>(i)] = PlankState::Removed;
+    spawnDebris(w, DebrisKind::Board, {(s.x0 + s.x1) / 2, L::kFloorY + 0.03f, L::plankZ0(s.row) + 0.6f}, 0.1f);
+    say(ev, "The rotten board comes up. Haul it out, then lay a new plank.");
+}
+
 // Putting down a carried item: back on the wagon, or where it belongs.
 void putDownItem(World& w, const Input& in, TickEvents* ev) {
     Item& it = w.items[static_cast<size_t>(w.carryIndex)];
-    if (in.aim.kind == TargetKind::Wagon && inReach(w, in.aim)) {
+    const bool atWagon = in.aim.kind == TargetKind::Wagon ||
+                         (in.aim.kind == TargetKind::Item && validItem(w, in.aim.index) &&
+                          w.items[static_cast<size_t>(in.aim.index)].place == ItemPlace::Wagon);
+    if (atWagon && inReach(w, in.aim)) {
+        if (isMaterial(it.kind))
+            say(ev, it.kind == ItemKind::Plank ? "The planks are back on the wagon." : "The shingles are back on the wagon.");
         const std::vector<Item> load = newItems();
         for (size_t i = 0; i < w.items.size(); ++i)
             if (w.items[i].place == ItemPlace::Carried) {
@@ -277,8 +290,16 @@ void interact(World& w, const Input& in, TickEvents* ev) {
         say(ev, "You set the table back on its legs.");
         return;
     }
-    if (!inReach(w, in.aim)) return;
+    if (in.aim.kind == TargetKind::None || in.aim.kind == TargetKind::Floor || in.aim.kind == TargetKind::Ground) {
+        say(ev, "Nothing to pick up there.");
+        return;
+    }
+    if (!inReach(w, in.aim)) {
+        if (in.aim.kind == TargetKind::Debris || in.aim.kind == TargetKind::Item) say(ev, "Too far to reach. Step closer.");
+        return;
+    }
     switch (in.aim.kind) {
+        case TargetKind::Wagon: say(ev, "Aim at what you want from the wagon, then E."); break;
         case TargetKind::HayBale:
             w.carry = Carry::Hay;
             w.carryIndex = 0;
@@ -374,6 +395,13 @@ void work(World& w, const Input& in, TickEvents* ev) {
     if (carryingMaterial) {
         Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         bool done = false;
+        // A rotten board under a plank in hand: pry it up first, planks and all.
+        if (it.kind == ItemKind::Plank && aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
+            w.planks[static_cast<size_t>(aim.index)] == PlankState::Rotten && w.workSeconds >= kPryPlankSeconds) {
+            pryPlank(w, aim.index, ev);
+            w.workSeconds = 0;
+            return;
+        }
         if (it.kind == ItemKind::Plank && aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
             w.planks[static_cast<size_t>(aim.index)] == PlankState::Removed && w.workSeconds >= kLayPlankSeconds) {
             w.planks[static_cast<size_t>(aim.index)] = PlankState::New;
@@ -437,10 +465,7 @@ void work(World& w, const Input& in, TickEvents* ev) {
         case Tool::PryBar:
             if (aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
                 w.planks[static_cast<size_t>(aim.index)] == PlankState::Rotten && w.workSeconds >= kPryPlankSeconds) {
-                const L::RottenSpan& s = L::kRottenSpans[static_cast<size_t>(aim.index)];
-                w.planks[static_cast<size_t>(aim.index)] = PlankState::Removed;
-                spawnDebris(w, DebrisKind::Board, {(s.x0 + s.x1) / 2, L::kFloorY + 0.03f, L::plankZ0(s.row) + 0.6f}, 0.1f);
-                say(ev, "The rotten board comes up. Haul it out, then lay a new plank.");
+                pryPlank(w, aim.index, ev);
                 w.workSeconds = 0;
             }
             if (aim.kind == TargetKind::WindowBoard && aim.index >= 0 && aim.index < 4 &&
@@ -559,6 +584,9 @@ float meterAnyReach(const World& w, const Aim& aim) {
         if (k == ItemKind::Plank && aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
             w.planks[i] == PlankState::Removed)
             return timed(kLayPlankSeconds);
+        if (k == ItemKind::Plank && aim.kind == TargetKind::RottenPlank && aim.index >= 0 && aim.index < 3 &&
+            w.planks[i] == PlankState::Rotten)
+            return timed(kPryPlankSeconds);
         if (k == ItemKind::Shingles && aim.kind == TargetKind::RoofHole && aim.index >= 0 && aim.index < 4 &&
             !((w.roofPatched >> aim.index) & 1u))
             return timed(kPatchSeconds);
