@@ -1,0 +1,412 @@
+{"t": 1792767198468, "cmd": "start", "args": ["--profile", "kindling", "--game-dir", "<kindling checkout>", "--seed", "3141"]}
+{"t": 1792767203947, "cmd": "shot", "args": ["start"]}
+{"t": 1792767204147, "cmd": "state", "args": []}
+{"t": 1792767211734, "cmd": "note", "args": ["--shot", "survey_unexplained", "Start: checklist says 'STEP: Survey' with items Grime/Debris/... but nothing on screen says what surveying means (look at each problem? walk inside?). 'Grime' is already ticked at tick ~134 just because the crosshair spawns on a grimy wall, which reads like it was pre-completed. Clock 'am' sits tight against right edge."]}
+{"t": 1792767211924, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767213215, "cmd": "key", "args": ["e"]}
+{"t": 1792767213694, "cmd": "shot", "args": ["door"]}
+{"t": 1792767217984, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767219621, "cmd": "hold", "args": ["Down", "0.4"]}
+{"t": 1792767220159, "cmd": "shot", "args": ["inside"]}
+{"t": 1792767220552, "cmd": "state", "args": []}
+{"t": 1792767225417, "cmd": "key", "args": ["F1"]}
+{"t": 1792767225894, "cmd": "face", "args": ["-12"]}
+{"t": 1792767226946, "cmd": "hold", "args": ["Down", "0.3"]}
+{"t": 1792767227363, "cmd": "wait", "args": ["1"]}
+{"t": 1792767228432, "cmd": "shot", "args": ["debris1"]}
+{"t": 1792767228770, "cmd": "state", "args": []}
+{"t": 1792767233674, "cmd": "face", "args": ["-30"]}
+{"t": 1792767234889, "cmd": "hold", "args": ["Down", "0.2"]}
+{"t": 1792767235219, "cmd": "wait", "args": ["1"]}
+{"t": 1792767236284, "cmd": "shot", "args": ["rot"]}
+{"t": 1792767236604, "cmd": "state", "args": []}
+{"t": 1792767240929, "cmd": "hold", "args": ["Up", "0.15"]}
+{"t": 1792767241184, "cmd": "wait", "args": ["1"]}
+{"t": 1792767242250, "cmd": "shot", "args": ["rot2"]}
+{"t": 1792767242575, "cmd": "state", "args": []}
+{"t": 1792767248879, "cmd": "look", "args": ["-90", "63"]}
+{"t": 1792767248964, "cmd": "wait", "args": ["1"]}
+{"t": 1792767250024, "cmd": "shot", "args": ["rot3"]}
+{"t": 1792767250379, "cmd": "state", "args": []}
+{"t": 1792767254812, "cmd": "look", "args": ["-60", "10"]}
+{"t": 1792767254908, "cmd": "wait", "args": ["1"]}
+{"t": 1792767255973, "cmd": "shot", "args": ["rot4"]}
+{"t": 1792767256320, "cmd": "state", "args": []}
+{"t": 1792767260920, "cmd": "look", "args": ["-35", "0"]}
+{"t": 1792767261019, "cmd": "wait", "args": ["1"]}
+{"t": 1792767262081, "cmd": "shot", "args": ["rot5"]}
+{"t": 1792767262397, "cmd": "state", "args": []}
+{"t": 1792767266654, "cmd": "note", "args": ["--shot", "rot5", "Survey of 'Rotten floorboards' needed a precise aim: crosshair right beside the dark/green patch still read plain 'Floorboards' (shots rot3/rot4); only when dead on it did it say 'Rotten floorboard' and tick. The patch also looks like a shadowed checker rather than rotten wood."]}
+{"t": 1792767267001, "cmd": "hold", "args": ["Up", "1.2"]}
+{"t": 1792767268302, "cmd": "wait", "args": ["1"]}
+{"t": 1792767269363, "cmd": "shot", "args": ["roof"]}
+{"t": 1792767269644, "cmd": "state", "args": []}
+{"t": 1792767275565, "cmd": "face", "args": ["45"]}
+{"t": 1792767276688, "cmd": "hold", "args": ["Up", "0.6"]}
+{"t": 1792767277421, "cmd": "wait", "args": ["1"]}
+{"t": 1792767278485, "cmd": "shot", "args": ["roof2"]}
+{"t": 1792767278671, "cmd": "state", "args": []}
+{"t": 1792767280820, "cmd": "events", "args": ["10"]}
+{"t": 1792767280880, "cmd": "hold", "args": ["Down", "1.3"]}
+{"t": 1792767282293, "cmd": "shot", "args": ["clear"]}
+{"t": 1792767288565, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767290971, "cmd": "key", "args": ["e"]}
+{"t": 1792767291476, "cmd": "wait", "args": ["1"]}
+{"t": 1792767292549, "cmd": "shot", "args": ["carry"]}
+{"t": 1792767292886, "cmd": "state", "args": []}
+{"t": 1792767297562, "cmd": "key", "args": ["e"]}
+{"t": 1792767298062, "cmd": "wait", "args": ["1.5"]}
+{"t": 1792767299631, "cmd": "state", "args": []}
+{"t": 1792767299704, "cmd": "events", "args": ["3"]}
+{"t": 1792767303603, "cmd": "hold", "args": ["Down", "0.9"]}
+{"t": 1792767304631, "cmd": "wait", "args": ["1"]}
+{"t": 1792767305696, "cmd": "shot", "args": ["look_down"]}
+{"t": 1792767305987, "cmd": "state", "args": []}
+{"t": 1792767308532, "cmd": "key", "args": ["e"]}
+{"t": 1792767309017, "cmd": "wait", "args": ["1.5"]}
+{"t": 1792767310584, "cmd": "shot", "args": ["carrying"]}
+{"t": 1792767310888, "cmd": "state", "args": []}
+{"t": 1792767316991, "cmd": "note", "args": ["--shot", "carry", "At tick ~2800, walkto debris then E while looking level did nothing and gave no feedback (debris 0.9m away directly ahead, below view). Had to tilt ~60 deg down for E to work. A 'nothing in reach / look down' cue would help. Once carrying, the 'Carrying: E to put down (outside to haul out)' line is clear."]}
+{"t": 1792767317293, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767323569, "cmd": "key", "args": ["e"]}
+{"t": 1792767324060, "cmd": "wait", "args": ["1.5"]}
+{"t": 1792767325634, "cmd": "state", "args": []}
+{"t": 1792767325698, "cmd": "shot", "args": ["dropped"]}
+{"t": 1792767331273, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767336389, "cmd": "key", "args": ["e"]}
+{"t": 1792767337381, "cmd": "state", "args": []}
+{"t": 1792767337448, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767342222, "cmd": "key", "args": ["e"]}
+{"t": 1792767343212, "cmd": "state", "args": []}
+{"t": 1792767343284, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767349124, "cmd": "key", "args": ["e"]}
+{"t": 1792767350119, "cmd": "state", "args": []}
+{"t": 1792767350199, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767356122, "cmd": "key", "args": ["e"]}
+{"t": 1792767357114, "cmd": "state", "args": []}
+{"t": 1792767357182, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767362590, "cmd": "key", "args": ["e"]}
+{"t": 1792767363566, "cmd": "state", "args": []}
+{"t": 1792767363637, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767369052, "cmd": "key", "args": ["e"]}
+{"t": 1792767370046, "cmd": "state", "args": []}
+{"t": 1792767370111, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767375536, "cmd": "key", "args": ["e"]}
+{"t": 1792767376510, "cmd": "state", "args": []}
+{"t": 1792767376572, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767381580, "cmd": "key", "args": ["e"]}
+{"t": 1792767382571, "cmd": "state", "args": []}
+{"t": 1792767382637, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767388950, "cmd": "key", "args": ["e"]}
+{"t": 1792767389915, "cmd": "state", "args": []}
+{"t": 1792767389991, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767396420, "cmd": "key", "args": ["e"]}
+{"t": 1792767397398, "cmd": "state", "args": []}
+{"t": 1792767397458, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767403245, "cmd": "key", "args": ["e"]}
+{"t": 1792767404235, "cmd": "state", "args": []}
+{"t": 1792767404297, "cmd": "key", "args": ["e"]}
+{"t": 1792767405272, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767412365, "cmd": "key", "args": ["e"]}
+{"t": 1792767413338, "cmd": "state", "args": []}
+{"t": 1792767413406, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767420107, "cmd": "key", "args": ["e"]}
+{"t": 1792767421092, "cmd": "state", "args": []}
+{"t": 1792767421166, "cmd": "key", "args": ["e"]}
+{"t": 1792767422161, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767430673, "cmd": "key", "args": ["e"]}
+{"t": 1792767431658, "cmd": "state", "args": []}
+{"t": 1792767431724, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767438502, "cmd": "key", "args": ["e"]}
+{"t": 1792767439503, "cmd": "state", "args": []}
+{"t": 1792767439600, "cmd": "key", "args": ["e"]}
+{"t": 1792767440573, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767448648, "cmd": "key", "args": ["e"]}
+{"t": 1792767449636, "cmd": "state", "args": []}
+{"t": 1792767449702, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767456085, "cmd": "key", "args": ["e"]}
+{"t": 1792767457070, "cmd": "state", "args": []}
+{"t": 1792767457148, "cmd": "key", "args": ["e"]}
+{"t": 1792767458145, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767464914, "cmd": "key", "args": ["e"]}
+{"t": 1792767465916, "cmd": "state", "args": []}
+{"t": 1792767465999, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767472774, "cmd": "key", "args": ["e"]}
+{"t": 1792767473773, "cmd": "state", "args": []}
+{"t": 1792767473839, "cmd": "key", "args": ["e"]}
+{"t": 1792767474843, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767481184, "cmd": "key", "args": ["e"]}
+{"t": 1792767482179, "cmd": "state", "args": []}
+{"t": 1792767482254, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767488523, "cmd": "key", "args": ["e"]}
+{"t": 1792767489514, "cmd": "state", "args": []}
+{"t": 1792767489617, "cmd": "key", "args": ["e"]}
+{"t": 1792767490618, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767499085, "cmd": "key", "args": ["e"]}
+{"t": 1792767500079, "cmd": "state", "args": []}
+{"t": 1792767500145, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767506435, "cmd": "key", "args": ["e"]}
+{"t": 1792767507428, "cmd": "state", "args": []}
+{"t": 1792767507497, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767513612, "cmd": "key", "args": ["e"]}
+{"t": 1792767514609, "cmd": "state", "args": []}
+{"t": 1792767514685, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767520795, "cmd": "key", "args": ["e"]}
+{"t": 1792767521776, "cmd": "state", "args": []}
+{"t": 1792767521850, "cmd": "key", "args": ["e"]}
+{"t": 1792767522827, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767529582, "cmd": "key", "args": ["e"]}
+{"t": 1792767530574, "cmd": "state", "args": []}
+{"t": 1792767530642, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767538536, "cmd": "key", "args": ["e"]}
+{"t": 1792767539516, "cmd": "state", "args": []}
+{"t": 1792767539592, "cmd": "key", "args": ["e"]}
+{"t": 1792767540567, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767548365, "cmd": "key", "args": ["e"]}
+{"t": 1792767549369, "cmd": "state", "args": []}
+{"t": 1792767552110, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767558320, "cmd": "shot", "args": ["stuck"]}
+{"t": 1792767558631, "cmd": "state", "args": []}
+{"t": 1792767563447, "cmd": "key", "args": ["e"]}
+{"t": 1792767565433, "cmd": "state", "args": []}
+{"t": 1792767565496, "cmd": "events", "args": ["3"]}
+{"t": 1792767565561, "cmd": "shot", "args": ["stuck2"]}
+{"t": 1792767571146, "cmd": "note", "args": ["--shot", "stuck2", "Two 'Fallen shingle' debris (1.0m, bearing +11/+15) sit under/inside the snow drift. Pressing E aimed there does nothing and gives no message; the crosshair only names 'Snow drift'. A player can't tell the shingles are blocked by the snow (or that they exist). Several hauling trips silently failed here (ticks 6000-10500)."]}
+{"t": 1792767571442, "cmd": "key", "args": ["3"]}
+{"t": 1792767571922, "cmd": "mousehold", "args": ["4"]}
+{"t": 1792767576020, "cmd": "shot", "args": ["shovel"]}
+{"t": 1792767576307, "cmd": "state", "args": []}
+{"t": 1792767578956, "cmd": "mousehold", "args": ["4"]}
+{"t": 1792767583029, "cmd": "shot", "args": ["shovel2"]}
+{"t": 1792767583324, "cmd": "state", "args": []}
+{"t": 1792767583382, "cmd": "events", "args": ["3"]}
+{"t": 1792767587549, "cmd": "key", "args": ["grave"]}
+{"t": 1792767588037, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767588443, "cmd": "key", "args": ["e"]}
+{"t": 1792767589430, "cmd": "state", "args": []}
+{"t": 1792767589499, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767597677, "cmd": "key", "args": ["e"]}
+{"t": 1792767598648, "cmd": "state", "args": []}
+{"t": 1792767598708, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767604486, "cmd": "key", "args": ["e"]}
+{"t": 1792767605458, "cmd": "state", "args": []}
+{"t": 1792767605524, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767613867, "cmd": "key", "args": ["e"]}
+{"t": 1792767614904, "cmd": "state", "args": []}
+{"t": 1792767614982, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767621648, "cmd": "key", "args": ["e"]}
+{"t": 1792767622621, "cmd": "state", "args": []}
+{"t": 1792767622687, "cmd": "key", "args": ["e"]}
+{"t": 1792767623672, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767629668, "cmd": "key", "args": ["e"]}
+{"t": 1792767630668, "cmd": "state", "args": []}
+{"t": 1792767630741, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767639364, "cmd": "key", "args": ["e"]}
+{"t": 1792767640341, "cmd": "state", "args": []}
+{"t": 1792767640421, "cmd": "key", "args": ["e"]}
+{"t": 1792767641418, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767647607, "cmd": "key", "args": ["e"]}
+{"t": 1792767648592, "cmd": "state", "args": []}
+{"t": 1792767648653, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767657109, "cmd": "key", "args": ["e"]}
+{"t": 1792767658074, "cmd": "state", "args": []}
+{"t": 1792767658133, "cmd": "key", "args": ["e"]}
+{"t": 1792767659105, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767666493, "cmd": "key", "args": ["e"]}
+{"t": 1792767667478, "cmd": "state", "args": []}
+{"t": 1792767667551, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767674687, "cmd": "key", "args": ["e"]}
+{"t": 1792767675669, "cmd": "state", "args": []}
+{"t": 1792767675731, "cmd": "key", "args": ["e"]}
+{"t": 1792767676706, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767682784, "cmd": "key", "args": ["e"]}
+{"t": 1792767683776, "cmd": "state", "args": []}
+{"t": 1792767683864, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767690196, "cmd": "key", "args": ["e"]}
+{"t": 1792767691173, "cmd": "state", "args": []}
+{"t": 1792767691234, "cmd": "key", "args": ["e"]}
+{"t": 1792767692218, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767698561, "cmd": "key", "args": ["e"]}
+{"t": 1792767699579, "cmd": "state", "args": []}
+{"t": 1792767699648, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767705636, "cmd": "key", "args": ["e"]}
+{"t": 1792767706612, "cmd": "state", "args": []}
+{"t": 1792767706672, "cmd": "key", "args": ["e"]}
+{"t": 1792767707649, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767713667, "cmd": "key", "args": ["e"]}
+{"t": 1792767714651, "cmd": "state", "args": []}
+{"t": 1792767717592, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767725688, "cmd": "key", "args": ["e"]}
+{"t": 1792767727691, "cmd": "shot", "args": ["rafter"]}
+{"t": 1792767727995, "cmd": "state", "args": []}
+{"t": 1792767730912, "cmd": "key", "args": ["4"]}
+{"t": 1792767731382, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792767736452, "cmd": "shot", "args": ["saw"]}
+{"t": 1792767736711, "cmd": "state", "args": []}
+{"t": 1792767736781, "cmd": "events", "args": ["2"]}
+{"t": 1792767740912, "cmd": "key", "args": ["grave"]}
+{"t": 1792767741421, "cmd": "state", "args": []}
+{"t": 1792767741490, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767741875, "cmd": "key", "args": ["e"]}
+{"t": 1792767742859, "cmd": "state", "args": []}
+{"t": 1792767742933, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767749305, "cmd": "key", "args": ["e"]}
+{"t": 1792767750286, "cmd": "state", "args": []}
+{"t": 1792767750378, "cmd": "state", "args": []}
+{"t": 1792767750444, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767759123, "cmd": "key", "args": ["e"]}
+{"t": 1792767760099, "cmd": "state", "args": []}
+{"t": 1792767760169, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767768563, "cmd": "key", "args": ["e"]}
+{"t": 1792767769557, "cmd": "state", "args": []}
+{"t": 1792767769646, "cmd": "state", "args": []}
+{"t": 1792767769743, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767776644, "cmd": "key", "args": ["e"]}
+{"t": 1792767777648, "cmd": "state", "args": []}
+{"t": 1792767777719, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767784685, "cmd": "key", "args": ["e"]}
+{"t": 1792767785666, "cmd": "state", "args": []}
+{"t": 1792767785732, "cmd": "state", "args": []}
+{"t": 1792767785797, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767792782, "cmd": "key", "args": ["e"]}
+{"t": 1792767793755, "cmd": "state", "args": []}
+{"t": 1792767793816, "cmd": "key", "args": ["e"]}
+{"t": 1792767794795, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767801086, "cmd": "key", "args": ["e"]}
+{"t": 1792767802139, "cmd": "state", "args": []}
+{"t": 1792767802269, "cmd": "state", "args": []}
+{"t": 1792767802362, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767811566, "cmd": "key", "args": ["e"]}
+{"t": 1792767812558, "cmd": "state", "args": []}
+{"t": 1792767812638, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767820048, "cmd": "key", "args": ["e"]}
+{"t": 1792767821044, "cmd": "state", "args": []}
+{"t": 1792767821112, "cmd": "state", "args": []}
+{"t": 1792767821180, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767828077, "cmd": "key", "args": ["e"]}
+{"t": 1792767829070, "cmd": "state", "args": []}
+{"t": 1792767829136, "cmd": "key", "args": ["e"]}
+{"t": 1792767830163, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767837007, "cmd": "key", "args": ["e"]}
+{"t": 1792767837991, "cmd": "state", "args": []}
+{"t": 1792767838064, "cmd": "state", "args": []}
+{"t": 1792767838124, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767845212, "cmd": "key", "args": ["e"]}
+{"t": 1792767846207, "cmd": "state", "args": []}
+{"t": 1792767846308, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767852552, "cmd": "key", "args": ["e"]}
+{"t": 1792767853534, "cmd": "state", "args": []}
+{"t": 1792767853609, "cmd": "state", "args": []}
+{"t": 1792767853671, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767860352, "cmd": "key", "args": ["e"]}
+{"t": 1792767861339, "cmd": "state", "args": []}
+{"t": 1792767861418, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767868722, "cmd": "key", "args": ["e"]}
+{"t": 1792767869702, "cmd": "state", "args": []}
+{"t": 1792767869771, "cmd": "state", "args": []}
+{"t": 1792767869833, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767876244, "cmd": "key", "args": ["e"]}
+{"t": 1792767877229, "cmd": "state", "args": []}
+{"t": 1792767877303, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767883808, "cmd": "key", "args": ["e"]}
+{"t": 1792767884804, "cmd": "state", "args": []}
+{"t": 1792767884898, "cmd": "state", "args": []}
+{"t": 1792767884970, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767891896, "cmd": "key", "args": ["e"]}
+{"t": 1792767892888, "cmd": "state", "args": []}
+{"t": 1792767892964, "cmd": "key", "args": ["e"]}
+{"t": 1792767893950, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767900974, "cmd": "key", "args": ["e"]}
+{"t": 1792767901973, "cmd": "state", "args": []}
+{"t": 1792767905225, "cmd": "walkto", "args": ["debris"]}
+{"t": 1792767912885, "cmd": "key", "args": ["e"]}
+{"t": 1792767914387, "cmd": "state", "args": []}
+{"t": 1792767914457, "cmd": "shot", "args": ["last"]}
+{"t": 1792767918500, "cmd": "face", "args": ["-24"]}
+{"t": 1792767920010, "cmd": "key", "args": ["e"]}
+{"t": 1792767921501, "cmd": "state", "args": []}
+{"t": 1792767921564, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767927819, "cmd": "key", "args": ["e"]}
+{"t": 1792767929301, "cmd": "state", "args": []}
+{"t": 1792767934818, "cmd": "note", "args": ["--shot", "last", "Clearing 15 debris (17 after the rafter is sawn) one piece per trip to the door took from tick ~3300 to ~21900 (~10 game minutes, i.e. most of a first 15-minute session) with no way to carry more than one. Feels like a chore; consider carrying 2-3 small pieces or a quicker toss. Also walking up to a piece and pressing E can silently fail when it is >12 deg off the crosshair."]}
+{"t": 1792767935107, "cmd": "walkto", "args": ["door"]}
+{"t": 1792767935662, "cmd": "face", "args": ["180"]}
+{"t": 1792767939357, "cmd": "key", "args": ["1"]}
+{"t": 1792767939824, "cmd": "hold", "args": ["Down", "0.3"]}
+{"t": 1792767940243, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792767945334, "cmd": "shot", "args": ["sweep"]}
+{"t": 1792767945649, "cmd": "state", "args": []}
+{"t": 1792767949541, "cmd": "face", "args": ["160"]}
+{"t": 1792767952651, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792767952964, "cmd": "hold", "args": ["w", "2"]}
+{"t": 1792767955102, "cmd": "hold", "args": ["Left", "1"]}
+{"t": 1792767956200, "cmd": "hold", "args": ["w", "2"]}
+{"t": 1792767959811, "cmd": "shot", "args": ["sweep2"]}
+{"t": 1792767960070, "cmd": "state", "args": []}
+{"t": 1792767966520, "cmd": "mousehold", "args": ["9"]}
+{"t": 1792767966823, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767968446, "cmd": "hold", "args": ["Right", "1"]}
+{"t": 1792767969551, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767971156, "cmd": "hold", "args": ["Right", "0.7"]}
+{"t": 1792767971964, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767974581, "cmd": "mousehold", "args": ["9"]}
+{"t": 1792767974895, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767976516, "cmd": "hold", "args": ["Right", "1"]}
+{"t": 1792767977621, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767979241, "cmd": "hold", "args": ["Right", "0.7"]}
+{"t": 1792767980057, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767982667, "cmd": "mousehold", "args": ["9"]}
+{"t": 1792767982977, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767984597, "cmd": "hold", "args": ["Right", "1"]}
+{"t": 1792767985704, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767987316, "cmd": "hold", "args": ["Right", "0.7"]}
+{"t": 1792767988131, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792767990793, "cmd": "state", "args": []}
+{"t": 1792767990866, "cmd": "shot", "args": ["sweep3"]}
+{"t": 1792767995772, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792767996206, "cmd": "mousehold", "args": ["8"]}
+{"t": 1792767996512, "cmd": "hold", "args": ["Left", "4"]}
+{"t": 1792768004134, "cmd": "state", "args": []}
+{"t": 1792768004205, "cmd": "shot", "args": ["sweep4"]}
+{"t": 1792768012002, "cmd": "hold", "args": ["Down", "0.3"]}
+{"t": 1792768012437, "cmd": "face", "args": ["30"]}
+{"t": 1792768013251, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768015866, "cmd": "face", "args": ["30"]}
+{"t": 1792768016853, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768019430, "cmd": "face", "args": ["30"]}
+{"t": 1792768020483, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768023079, "cmd": "face", "args": ["30"]}
+{"t": 1792768023974, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768026576, "cmd": "face", "args": ["30"]}
+{"t": 1792768027635, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768030229, "cmd": "face", "args": ["30"]}
+{"t": 1792768031403, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768034020, "cmd": "hold", "args": ["w", "1"]}
+{"t": 1792768035130, "cmd": "face", "args": ["40"]}
+{"t": 1792768037647, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768040259, "cmd": "face", "args": ["40"]}
+{"t": 1792768041324, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768043913, "cmd": "face", "args": ["40"]}
+{"t": 1792768044916, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768047501, "cmd": "face", "args": ["40"]}
+{"t": 1792768048661, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768051240, "cmd": "face", "args": ["40"]}
+{"t": 1792768053624, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768056211, "cmd": "face", "args": ["40"]}
+{"t": 1792768057054, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768059641, "cmd": "face", "args": ["40"]}
+{"t": 1792768060639, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768063216, "cmd": "face", "args": ["40"]}
+{"t": 1792768063992, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768066558, "cmd": "face", "args": ["40"]}
+{"t": 1792768067544, "cmd": "mousehold", "args": ["2.5"]}
+{"t": 1792768070135, "cmd": "state", "args": []}
+{"t": 1792768074550, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792768074950, "cmd": "key", "args": ["F5"]}
+{"t": 1792768076938, "cmd": "shot", "args": ["final"]}
+{"t": 1792768077276, "cmd": "events", "args": ["4"]}
+{"t": 1792768077349, "cmd": "state", "args": []}
+{"t": 1792768083371, "cmd": "note", "args": ["--shot", "final", "Sweeping: the per-spot meter ('71% clean', 'Clean here. Move on.') and the checklist % are clear, but in this dim interior the dusty and swept boards look almost the same, so it's hard to see which parts of the floor are still dirty. After ~4 game minutes of sweeping the floor is only 42%. F5 'Saved.' feedback is good."]}
+{"t": 1792768083672, "cmd": "stop", "args": []}
+{"t": 1792768103689, "cmd": "report", "args": []}
+{"t": 1792769307015, "cmd": "stop", "args": []}

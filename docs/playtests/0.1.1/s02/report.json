@@ -1,0 +1,82 @@
+{
+  "session": "s02",
+  "goal": "Finish the Survey and the whole Clear step (haul the debris, shovel the snow, sweep the floor, scrub the walls and the chimney) using only what the screen tells you; record the game time each checklist line completes. Judge especially how forgiving the aim is: picking up debris, shovelling the drift, finding the roof hole in the survey; note every target that still needed a fiddly, exact aim.",
+  "build": {"version": "0.1.0", "commit": "17ed1e8"},
+  "seed": 202,
+  "durationSec": 1689,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Survey: roof hole is a tiny sky sliver in a near-black ceiling when seen from the door; needs exact aim",
+      "detail": "From just inside the door the hole in the roof shows as a few blue pixels in an unlit ceiling. With the crosshair ~35 px left of it the label reads 'Ceiling boards'; a 360-degree sweep of the ceiling at pitch ~30 never named it. It was found only by guessing it sits above the snow drift and nudging onto the sliver. Standing directly under it is very forgiving (pitch 62-83 all read 'Hole in the roof'), but nothing on screen tells the player to go under it. Expected: a hole that lets in visible light, or a larger forgiving cone from across the room.",
+      "repro": "pt start --profile kindling --seed 202; pt walkto door; pt hold w 1.5; pt hold Up 1.0; turn around the ceiling with pt face 90 x4; then pt face to yaw ~303, pitch ~32: label is 'Ceiling boards'; pt look 60 30 lands on 'Hole in the roof'",
+      "screenshot": "shots/roof_hole_tiny.png",
+      "tick": 1982
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Debris pickup cone includes pitch: close pieces at your feet need a steep exact look-down",
+      "detail": "E takes debris within ~12 degrees of the crosshair, but that includes the vertical angle. With a board 0.8 m straight ahead (bearing 0) and the view at pitch -43, E did nothing; at 1.4-1.5 m a pitch of -24 also failed. It worked every time once the view was tilted to roughly atan(eye height/distance) (-45 to -62 degrees). Since you naturally walk right up to a piece, the piece ends up under the bottom of the view. About 1 in 4 of my first tries missed. Expected: a larger vertical tolerance, or picking the nearest piece in reach when the crosshair is on the floor near it.",
+      "repro": "pt walkto debris; (with pitch about -40 and a board 0.8 m ahead) pt key e -> carrying nothing; pt hold Down 0.4 (pitch about -62); pt key e -> carrying debris",
+      "screenshot": "shots/debris_pitch.png",
+      "tick": 4300
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Fallen shingles are hidden inside the snow drift and cannot be picked up until it is shovelled",
+      "detail": "After the visible boards were gone, the nearest debris ('Fallen shingle', 1.5 m, straight ahead) could not be seen: the crosshair read 'Snow drift' and E did nothing. Once the drift was shovelled the shingles showed up and could be hauled. Hidden pieces are fine as a design choice, but the checklist count ('7 left') gives no hint that some are under the snow. A player who does debris first, as the checklist order suggests, will hunt for pieces that are not visible.",
+      "repro": "pt walkto debris repeatedly until the boards are gone; the next nearest is a shingle under the drift; pt key e does nothing; pt key 3; pt mousehold 9 -> shingles appear",
+      "screenshot": "shots/shingle_under_snow.png",
+      "tick": 7858
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Sweeping: the last 2-3% of the floor is hard to find, with no visible dirt in the dim light",
+      "detail": "Sweep the floor stalled at 97-98% after lawnmower sweeps of the whole room. The remaining patches (by the door and in front of the hearth) look the same as swept floor in the shadowed interior. They were found only by hovering the crosshair and reading the per-spot '[####] 44% clean' meter. That meter is a good tool, but the hunt took several game-minutes. The checklist shows floorClean scaled to the threshold (0.85 = 100%), which is fine. Expected: stronger contrast between dirty and swept boards, or a hint that points to the dirtiest area.",
+      "repro": "pt key 1; sweep strips across the room with pt mousehold + pt hold w; the checklist reaches 97%; scan the floor with the crosshair and read the meter",
+      "screenshot": "shots/floor_hunt.png",
+      "tick": 29438
+    },
+    {
+      "severity": "minor",
+      "category": "balance",
+      "title": "Scrubbing the walls is very slow: about 70 s of scrubbing for +9% of the checklist",
+      "detail": "A full raster of one wall section (4 rows x 120 degrees, about 70 s of the mouse held down) took 'Scrub the walls' from 13% to 22%. At that rate the walls alone take about 10 more minutes of holding the button, on top of ~8.5 min for the floor. The chimney (a smaller surface) took about 3 min. Time ran out before the walls were finished. The step feels like a chore compared with the satisfying debris/snow lines.",
+      "repro": "pt key 2; stand 1 m from the west wall; raster with pt mousehold while pt face +-20 steps and pt hold Up 0.3 between rows",
+      "screenshot": "shots/walls_slow.png",
+      "tick": 47623
+    },
+    {
+      "severity": "polish",
+      "category": "perf",
+      "title": "Game slowed to ~6 tps / 2 fps for a while during chimney scrubbing (machine load 23)",
+      "detail": "pt status showed tps 5.8 and fps 2 while the host load average was 23 with other sessions running. It recovered to 30 tps later. This is probably the shared machine and not the game, but it is noted for context.",
+      "repro": "pt status during heavy parallel load",
+      "screenshot": "shots/ch3.png",
+      "tick": 40000
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Survey": 66.1,
+      "Shovel out the snow": 272.0,
+      "Haul out the debris": 468.7,
+      "Sweep the floor": 981.3,
+      "Scrub the chimney": 1256.2
+    },
+    "debrisPieces": 15,
+    "debrisPickupMissesBeforeSteepPitch": 4,
+    "snowShovelSeconds": 9,
+    "wallsCleanAtStop": 0.17,
+    "wallsChecklistPctAtStop": 22
+  },
+  "fun": 3,
+  "verdict": "The Survey and the first half of Clear are pleasant. The shovel is forgiving across the whole drift, the feedback lines ('Tossed out the door... 9 pieces left') are good, and sawing the rafter into three pieces is a nice surprise. Aim still bites in three places: the roof hole seen from the door, debris close to your feet (the 12-degree cone includes pitch), and shingles hidden in the snow. The real problem is pacing: sweeping and scrubbing are long hunts for the last few percent, and the walls run so slowly that the Clear step was not finished in ~26 game-minutes."
+}

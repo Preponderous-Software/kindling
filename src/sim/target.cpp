@@ -68,7 +68,7 @@ Description describe(const World& w, const Aim& aim) {
             switch (w.planks[aim.index]) {
                 case PlankState::Rotten:
                     return {"Rotten floorboard", carrying(w, ItemKind::Plank)
-                                                     ? "Put the plank down and pry this up first (5)."
+                                                     ? "Hold the left button to pry it up, planks and all."
                                                      : "Pry it up with the pry bar (5)."};
                 case PlankState::Removed:
                     return {"Gap in the floor", carrying(w, ItemKind::Plank)
@@ -109,9 +109,9 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Kindling: return {"Kindling", "Carry it to the hearth (E)."};
         case TargetKind::Woodpile:
             return {"Woodpile (" + std::to_string(w.wood.woodpile) + " logs)",
-                    w.wood.woodpile < kWoodpileGoal  ? "Stack split logs here (E)."
-                    : w.carry == Carry::Nothing      ? "Stacked. E takes a log for the fire."
-                                                     : ""};
+                    progress(w).woodCount < kWoodpileGoal ? "Stack split logs here (E)."
+                    : w.carry == Carry::Nothing           ? "Stacked. E takes a log for the fire."
+                                                          : ""};
         case TargetKind::HayBale:
             return w.carry == Carry::Hay ? Description{"Hay bale", "Put the hay back (E)."}
                                          : Description{"Hay bale", "Take an armful for the mare (E)."};
@@ -121,6 +121,8 @@ Description describe(const World& w, const Aim& aim) {
             if (w.horse.dirt > 0.05f) return {"Your mare", "Dusty from the trail. Brush her (9)."};
             return {"Your mare", "Content."};
         case TargetKind::Stall: return {"Stall", ""};
+        case TargetKind::Settler:
+            return {"Ada Lark", w.settler.state == SettlerState::Seated ? "Settled by the fire." : ""};
         case TargetKind::Item: {
             if (!validIndex(aim.index, w.items.size())) return {};
             const Item& it = w.items[static_cast<size_t>(aim.index)];

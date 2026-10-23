@@ -1,0 +1,45 @@
+{"type":"world","tick":0,"wallTimeMs":1792767198564,"how":"created","seed":202}
+{"type":"screen","tick":0,"wallTimeMs":1792767198564,"from":null,"to":"WORLD"}
+{"type":"status","tick":1982,"wallTimeMs":1792767264804,"text":"You've seen the worst of it. Time to clear the place out."}
+{"type":"objective_completed","tick":1982,"wallTimeMs":1792767264804,"number":1,"id":"Survey","title":"Survey","ticksTaken":1982}
+{"type":"save","tick":3600,"wallTimeMs":1792767318704,"count":1}
+{"type":"status","tick":4218,"wallTimeMs":1792767339319,"text":"Tossed out the door: a broken board. 14 pieces left inside."}
+{"type":"status","tick":4734,"wallTimeMs":1792767356539,"text":"Tossed out the door: a broken board. 13 pieces left inside."}
+{"type":"status","tick":4861,"wallTimeMs":1792767360797,"text":"Tossed out the door: a broken board. 12 pieces left inside."}
+{"type":"status","tick":5293,"wallTimeMs":1792767375135,"text":"Tossed out the door: a broken board. 11 pieces left inside."}
+{"type":"status","tick":5794,"wallTimeMs":1792767391850,"text":"Tossed out the door: a broken board. 10 pieces left inside."}
+{"type":"status","tick":6284,"wallTimeMs":1792767408685,"text":"Tossed out the door: a broken board. 9 pieces left inside."}
+{"type":"status","tick":6689,"wallTimeMs":1792767422236,"text":"Tossed out the door: a fallen shingle. 8 pieces left inside."}
+{"type":"save","tick":7201,"wallTimeMs":1792767439259,"count":2}
+{"type":"status","tick":7217,"wallTimeMs":1792767439803,"text":"Tossed out the door: a fallen shingle. 7 pieces left inside."}
+{"type":"status","tick":8161,"wallTimeMs":1792767471286,"text":"The snow is out. Patch that hole before the next fall."}
+{"type":"status","tick":8672,"wallTimeMs":1792767488327,"text":"Tossed out the door: a fallen shingle. 6 pieces left inside."}
+{"type":"status","tick":9036,"wallTimeMs":1792767500453,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":9110,"wallTimeMs":1792767502922,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":9183,"wallTimeMs":1792767505406,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":9259,"wallTimeMs":1792767507902,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":9328,"wallTimeMs":1792767510208,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":9403,"wallTimeMs":1792767512678,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":9733,"wallTimeMs":1792767523710,"text":"Sawn into three lengths, each light enough to carry: three pieces to haul out instead of one."}
+{"type":"status","tick":10308,"wallTimeMs":1792767542844,"text":"Tossed out the door: a length of rafter. 7 pieces left inside."}
+{"type":"save","tick":10802,"wallTimeMs":1792767559288,"count":3}
+{"type":"status","tick":10908,"wallTimeMs":1792767562828,"text":"Tossed out the door: a length of rafter. 6 pieces left inside."}
+{"type":"status","tick":11407,"wallTimeMs":1792767579476,"text":"Tossed out the door: a length of rafter. 5 pieces left inside."}
+{"type":"status","tick":11983,"wallTimeMs":1792767598689,"text":"Tossed out the door: a fallen shingle. 4 pieces left inside."}
+{"type":"status","tick":12496,"wallTimeMs":1792767615866,"text":"Tossed out the door: a fallen shingle. 3 pieces left inside."}
+{"type":"status","tick":13011,"wallTimeMs":1792767633017,"text":"Tossed out the door: a broken board. 2 pieces left inside."}
+{"type":"status","tick":13567,"wallTimeMs":1792767651599,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":14062,"wallTimeMs":1792767668063,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":14404,"wallTimeMs":1792767679457,"count":4}
+{"type":"save","tick":18007,"wallTimeMs":1792767799642,"count":5}
+{"type":"save","tick":21608,"wallTimeMs":1792767919803,"count":6}
+{"type":"save","tick":25211,"wallTimeMs":1792768039933,"count":7}
+{"type":"save","tick":28813,"wallTimeMs":1792768160285,"count":8}
+{"type":"status","tick":29438,"wallTimeMs":1792768181172,"text":"The floor is swept."}
+{"type":"save","tick":32414,"wallTimeMs":1792768281992,"count":9}
+{"type":"save","tick":36018,"wallTimeMs":1792768404509,"count":10}
+{"type":"status","tick":37686,"wallTimeMs":1792768460101,"text":"The chimney stones are clean."}
+{"type":"save","tick":39622,"wallTimeMs":1792768586708,"count":11}
+{"type":"status","tick":40501,"wallTimeMs":1792768625855,"text":"The light is going. L lights your lantern."}
+{"type":"save","tick":43225,"wallTimeMs":1792768738321,"count":12}
+{"type":"save","tick":46825,"wallTimeMs":1792768860041,"count":13}

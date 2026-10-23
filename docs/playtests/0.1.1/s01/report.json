@@ -1,0 +1,76 @@
+{
+  "session": "s01",
+  "goal": "Play the first 15 minutes as a brand-new player who has never seen the game; note every moment of confusion.",
+  "build": {"version": "0.1.0", "commit": "17ed1e8"},
+  "seed": 3141,
+  "durationSec": 886,
+  "outcome": "achieved",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "bug",
+      "title": "Fallen shingles under the snow drift can't be picked up, and nothing says why",
+      "detail": "Two 'Fallen shingle' pieces lie inside the snow drift's footprint (1.0m, bearing +11/+15 from x=0.41,z=0.15). With the crosshair there it names only 'Snow drift', and E does nothing and shows no message. Several hauling trips failed silently until I shovelled the snow, and then the shingles could be picked up. Expected either a hint like 'buried under snow, shovel first' or for E to take the debris anyway.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 3141; finish Survey; haul debris until only the shingles near the snow are left; pt walkto debris; pt key e (nothing happens); pt key 3; pt mousehold 8; pt key grave; pt key e (now works)",
+      "screenshot": "shots/stuck2.png",
+      "tick": 10961
+    },
+    {
+      "severity": "minor",
+      "category": "balance",
+      "title": "Hauling 15-17 debris one piece per trip takes most of the first session",
+      "detail": "The Clear step's hauling (15 pieces, 17 once the rafter is sawn) ran from tick ~3300 to ~21900, about 10 game minutes of walking back and forth to the door with one piece at a time. A first 15-minute session is mostly this one chore. Carrying a few small pieces at once, or fewer pieces, would keep the pace up.",
+      "repro": "pt start ... --seed 3141; finish Survey; repeat: pt walkto debris; pt key e; pt walkto door; pt key e",
+      "screenshot": "shots/last.png",
+      "tick": 21888
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Survey step never says what surveying means; 'Grime' is already ticked at spawn",
+      "detail": "At the start the checklist shows 'STEP: Survey' with Grime/Debris/Rotten floorboards/Hole in the roof/Boarded window, and nothing on screen explains that you have to look at each problem. 'Grime' is ticked by tick 134 only because the spawn view faces a grimy wall, so it looks pre-completed. I only worked it out from items ticking as I looked around.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 3141; pt shot start",
+      "screenshot": "shots/survey_unexplained.png",
+      "tick": 134
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E next to debris silently does nothing unless you look steeply down",
+      "detail": "After walkto debris (0.89m ahead, bearing 0), E with a level view did nothing and showed no feedback; I had to tilt about 60 degrees down. The last broken board stopped 24 degrees off the crosshair and E failed the same way. No message such as 'nothing in reach' tells the player to aim.",
+      "repro": "pt start ... --seed 3141; finish Survey; pt walkto debris; pt hold Up 1 (level view); pt key e -> carrying stays nothing",
+      "screenshot": "shots/carry.png",
+      "tick": 2997
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Rotten floorboard survey needs an exact aim, and the patch doesn't read as rot",
+      "detail": "With the crosshair right beside the dark/green checkered patch it still said 'Floorboards'. Only dead on did it name 'Rotten floorboard' and tick the survey item. The patch looks like a shadowed checkerboard rather than rotten wood.",
+      "repro": "pt start ... --seed 3141; pt walkto door; pt hold w 1.5; look at the dark patch to the front-left of the door",
+      "screenshot": "shots/rot5.png",
+      "tick": 1884
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Swept and unswept floorboards look almost the same in the dim cabin",
+      "detail": "The per-spot meter ('71% clean', 'Clean here. Move on.') and the checklist % work well, but you can hardly see which parts of the floor are still dusty, so sweeping turns into hunting with the meter. After about 4 game minutes of sweeping the floor was 42%.",
+      "repro": "pt start ... --seed 3141; reach Clear; pt key 1; sweep the floor with pt mousehold while turning",
+      "screenshot": "shots/final.png",
+      "tick": 26319
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {"Survey": 77.0},
+    "debrisHauled": 17,
+    "secondsToClearAllDebris": 728.0,
+    "floorCleanAtEnd": 0.42,
+    "gameMinutesPlayed": 14.7,
+    "fps": 6
+  },
+  "fun": 3,
+  "verdict": "The tone, the per-tool hints on the crosshair ('Too long to carry. Saw it into pieces (4).') and the status lines are charming and mostly self-explanatory. But a new player's first 15 minutes go almost entirely into hauling debris one piece at a time, with silent failures when E has no valid target (debris buried in snow, or off the crosshair). Explain Survey, give feedback when E has nothing to take, and speed up hauling. Then the opening would feel cozy rather than chore-like."
+}

@@ -65,19 +65,19 @@ std::vector<Item> newItems() {
         it.yaw = yaw;
         items.push_back(it);
     };
-    // The open front of the bed, each thing apart from the next: the lumber
-    // and the shingles in stacks on the left, the furnishings to the right,
-    // and the curtains over the right-hand side board.
+    // The open front of the bed, each thing apart from the next: the planks
+    // in front of the taller stack of shingles on the left, the furnishings
+    // to the right, and the curtains over the right-hand side board.
     constexpr float kBed = 0.86f, kHalfTurn = 3.14159265f;
-    for (int k = 0; k < 3; ++k) add(ItemKind::Plank, 1.6f, kBed + 0.055f * k, 7.8f, 1.5708f);
-    for (int k = 0; k < 4; ++k) add(ItemKind::Shingles, 2.15f, kBed + 0.14f * k, 7.45f);
+    for (int k = 0; k < 3; ++k) add(ItemKind::Plank, 1.6f, kBed + 0.055f * k, 7.6f, 1.5708f);
+    for (int k = 0; k < 4; ++k) add(ItemKind::Shingles, 2.15f, kBed + 0.14f * k, 7.9f);
     add(ItemKind::Rug, 2.95f, kBed, 8.2f);
     add(ItemKind::Quilt, 3.3f, kBed + 0.08f, 7.75f);
     add(ItemKind::Curtains, 3.66f, 1.22f, 7.9f);
     add(ItemKind::Sampler, 2.7f, kBed + 0.11f, 7.85f, kHalfTurn);
     add(ItemKind::Crock, 2.5f, kBed, 7.3f);
     add(ItemKind::Jar, 2.75f, kBed, 7.3f);
-    add(ItemKind::Clock, 2.35f, kBed, 7.85f, kHalfTurn);
+    add(ItemKind::Clock, 2.35f, kBed, 8.25f, kHalfTurn);
     add(ItemKind::Candle, 3.0f, kBed, 7.3f);
     add(ItemKind::Basket, 3.35f, kBed, 7.35f);
     return items;

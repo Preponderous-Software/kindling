@@ -171,7 +171,9 @@ void Scene::sync(const World& w) {
 
 namespace {
 constexpr float kDebrisAssistRadians = 0.21f;  // about 12 degrees
+constexpr float kDebrisAssistMetres = 0.3f;     // or this far to the side, for a piece close by
 constexpr float kRoofHoleAssist = 0.4f;        // metres of ceiling around an open section
+constexpr float kGapAssist = 0.06f;            // metres of floor around a rotten or missing board
 }  // namespace
 
 Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
@@ -211,6 +213,11 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             aim.point = {hit.point[0], hit.point[1], hit.point[2]};
             aim.distance = hit.distance;
             best = hit.distance;
+        } else if (hit.mesh_id == settler_ && w.settler.state != SettlerState::Away) {
+            aim.kind = TargetKind::Settler;
+            aim.point = {hit.point[0], hit.point[1], hit.point[2]};
+            aim.distance = hit.distance;
+            best = hit.distance;
         }
     }
     // A log wall's outer half faces the yard: weathered, not one of the walls
@@ -231,16 +238,25 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
         }
     }
 
+    // The firebox's floor and back are the firebox, not floorboards or
+    // chimney stones.
+    if ((aim.kind == TargetKind::Floor || aim.kind == TargetKind::HearthFace) && aim.point.x > L::kFireboxX0 &&
+        aim.point.x < L::kFireboxX1 && aim.point.z < L::kBreastFront + 0.02f && aim.point.y < L::kFireboxTop) {
+        aim.kind = TargetKind::Firebox;
+        aim.index = -1;
+    }
+
     // Debris lying flat is a thin target from eye height: a ray passing close
     // to a piece counts as on it, unless something clearly nearer is in front.
+    // That includes a piece under the snow when the shovel is not in hand.
     if (aim.kind == TargetKind::None || aim.kind == TargetKind::Floor || aim.kind == TargetKind::Ground ||
-        aim.kind == TargetKind::Debris) {
+        aim.kind == TargetKind::Debris || aim.kind == TargetKind::Snow) {
         float nearest = aim.kind == TargetKind::Debris ? best : maxDistance;
-        // Failing that, the piece within reach nearest the line of sight, a
-        // few degrees off it at most (a shingle at your feet is below the
-        // lowest the view tilts).
+        // Failing that, the piece within reach nearest the line of sight: a
+        // few degrees off it, or about a forearm's width for a piece close by
+        // (a shingle at your feet is below the lowest the view tilts).
         int32_t near = -1;
-        float nearCos = std::cos(kDebrisAssistRadians);
+        float nearOff = 1.0f;  // the angle off the line of sight, as a share of the allowance
         Vec3 nearPoint;
         float nearT = 0;
         for (size_t i = 0; i < w.debris.size(); ++i) {
@@ -261,9 +277,12 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             const Vec3 off = eye + dir * t - c;
             const Vec3 to = c - eye;
             const float dist = std::sqrt(dot(to, to));
-            if (aim.kind != TargetKind::Debris && dist > 1e-4f && dist <= L::kReach && dot(to, dir) / dist > nearCos) {
+            const float share = dist > 1e-4f ? std::acos(clampf(dot(to, dir) / dist, -1, 1)) /
+                                                 std::fmax(kDebrisAssistRadians, std::atan2(kDebrisAssistMetres, dist))
+                                           : 2.0f;
+            if (aim.kind != TargetKind::Debris && dist <= L::kReach && share <= nearOff) {
                 near = static_cast<int32_t>(i);
-                nearCos = dot(to, dir) / dist;
+                nearOff = share;
                 nearPoint = c;
                 nearT = dist;
             }
@@ -281,6 +300,54 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             aim.distance = nearT;
         }
         if (aim.kind == TargetKind::Debris) best = std::fmin(best, aim.distance);
+    }
+
+    // Low, gappy things are their whole footprint: a ray between the logs of
+    // the woodpile, or into a gap in the floor (the ground runs under the
+    // cabin, below the boards), lands on what is there.
+    const bool carryingPlank = w.carry == Carry::Item && w.carryIndex >= 0 &&
+                               static_cast<size_t>(w.carryIndex) < w.items.size() &&
+                               w.items[static_cast<size_t>(w.carryIndex)].kind == ItemKind::Plank;
+    if (dir.y < -1e-4f && (aim.kind == TargetKind::None || aim.kind == TargetKind::Floor || aim.kind == TargetKind::Ground ||
+                           aim.kind == TargetKind::RottenPlank || (aim.kind == TargetKind::Debris && carryingPlank))) {
+        const float t = (L::kFloorY - eye.y) / dir.y;
+        const Vec3 p = eye + dir * t;
+        auto within = [&](float x0, float x1, float z0, float z1, float m) {
+            return p.x > x0 - m && p.x < x1 + m && p.z > z0 - m && p.z < z1 + m;
+        };
+        if (t > 0 && t < best + 0.5f && t < maxDistance && L::kInterior.contains(p.x, p.z)) {
+            for (size_t i = 0; i < L::kRottenSpans.size(); ++i) {
+                const L::RottenSpan& s = L::kRottenSpans[i];
+                if (w.planks[i] == PlankState::New ||
+                    !within(s.x0, s.x1, L::plankZ0(s.row), L::plankZ0(s.row + 1), kGapAssist))
+                    continue;
+                aim.kind = TargetKind::RottenPlank;
+                aim.index = static_cast<int32_t>(i);
+                aim.point = p;
+                aim.distance = t;
+                best = t;
+            }
+            if (aim.kind == TargetKind::Floor && within(-3.62f, -2.62f, -2.78f, -2.02f, 0)) {
+                aim.kind = TargetKind::Woodpile;
+                aim.index = -1;
+            }
+        }
+    }
+    // Kindling and split halves by the chopping block, on the ground.
+    if (dir.y < -1e-4f && (aim.kind == TargetKind::None || aim.kind == TargetKind::Ground)) {
+        const float t = -eye.y / dir.y;
+        const Vec3 p = eye + dir * t;
+        if (t > 0 && t < maxDistance) {
+            if (w.wood.kindlingByBlock > 0 && p.x > -2.6f && p.x < -2.0f && p.z > 6.2f && p.z < 6.85f)
+                aim.kind = TargetKind::Kindling;
+            else if (w.wood.splitByBlock > 0 && p.x > -1.35f && p.x < -0.75f && p.z > 6.1f && p.z < 6.85f)
+                aim.kind = TargetKind::SplitWood;
+            if (aim.kind != TargetKind::None && aim.kind != TargetKind::Ground) {
+                aim.index = -1;
+                aim.point = p;
+                aim.distance = t;
+            }
+        }
     }
 
     // With the shovel in hand the drift keeps its full footprint as a target

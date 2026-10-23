@@ -71,11 +71,11 @@ void updateSettler(World& w, TickEvents* ev) {
             if (!w.kindled) return;
             s.state = SettlerState::Arriving;
             s.waypoint = 1;
-            if (ev) ev->messages.push_back("Ada Lark is here.");
             return;
         case SettlerState::Arriving:
             if (walk(s, kWalkIn[s.waypoint]) && ++s.waypoint >= static_cast<int32_t>(std::size(kWalkIn))) {
                 s.state = SettlerState::LookingAround;
+                if (ev) ev->messages.push_back("Ada Lark is here.");
                 s.briefMet = evaluateBrief(w).met();
                 s.line = 0;
                 s.lineSeconds = 0;
