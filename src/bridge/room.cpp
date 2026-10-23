@@ -846,8 +846,10 @@ MeshData buildTool(Tool tool) {
     const Rgb handle{0.36f, 0.24f, 0.12f}, iron{0.16f, 0.16f, 0.17f}, straw{0.62f, 0.50f, 0.25f};
     switch (tool) {
         case Tool::Broom:
-            m.rod({0, 0.12f, 0.1f}, {-0.05f, -0.3f, -0.42f}, 0.014f, handle, 8);
-            m.frustum({-0.05f, -0.3f, -0.42f}, {-0.065f, -0.46f, -0.56f}, 0.03f, 0.085f, straw, 10);
+            // The handle comes in from below the corner of the view; the head is
+            // out in front, low, where the sweeping is.
+            m.rod({0.1f, -0.1f, 0.35f}, {-0.3f, -0.06f, -0.28f}, 0.014f, handle, 8);
+            m.frustum({-0.3f, -0.06f, -0.28f}, {-0.33f, -0.26f, -0.34f}, 0.025f, 0.08f, straw, 10);
             break;
         case Tool::ScrubBrush:
             m.box({-0.055f, -0.01f, -0.13f}, {0.055f, 0.035f, 0.02f}, handle);

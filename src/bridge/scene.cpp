@@ -358,11 +358,11 @@ void Scene::drawDust(double seconds) {
         pt.position[1] = p.y;
         pt.position[2] = p.z;
         pt.size_pixels = 2;
-        pt.world_diameter = 0.08f + 0.22f * age;
+        pt.world_diameter = 0.12f + 0.3f * age;
         pt.color[0] = m.color.r;
         pt.color[1] = m.color.g;
         pt.color[2] = m.color.b;
-        pt.color[3] = 0.45f * (1 - age);
+        pt.color[3] = 0.6f * (1 - age);
         pt.flags = STRATA_POINT_SOFT;
         points.push_back(pt);
     }
