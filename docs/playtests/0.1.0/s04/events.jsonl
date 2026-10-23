@@ -1,0 +1,30 @@
+{"type":"world","tick":9468,"wallTimeMs":1792726302921,"how":"loaded","seed":1881}
+{"type":"screen","tick":9468,"wallTimeMs":1792726302921,"from":null,"to":"WORLD"}
+{"type":"status","tick":11115,"wallTimeMs":1792726357938,"text":"Split clean in two, with kindling from the splinters."}
+{"type":"status","tick":11841,"wallTimeMs":1792726382164,"text":"Stack it on the woodpile by the hearth, or lay it in the hearth (E)."}
+{"type":"save","tick":13069,"wallTimeMs":1792726423112,"count":1}
+{"type":"status","tick":13485,"wallTimeMs":1792726437081,"text":"Stack it on the woodpile by the hearth, or lay it in the hearth (E)."}
+{"type":"status","tick":15757,"wallTimeMs":1792726512752,"text":"Stack it on the woodpile by the hearth, or lay it in the hearth (E)."}
+{"type":"save","tick":16669,"wallTimeMs":1792726543099,"count":2}
+{"type":"status","tick":19801,"wallTimeMs":1792726647518,"text":"The first frost is settling over the valley."}
+{"type":"save","tick":20269,"wallTimeMs":1792726663121,"count":3}
+{"type":"status","tick":20867,"wallTimeMs":1792726683049,"text":"The firebox is clean."}
+{"type":"save","tick":23870,"wallTimeMs":1792726783117,"count":4}
+{"type":"status","tick":24969,"wallTimeMs":1792726819766,"text":"Kindling laid. Now a split log or two on the andirons."}
+{"type":"save","tick":27470,"wallTimeMs":1792726903143,"count":5}
+{"type":"status","tick":28531,"wallTimeMs":1792726938510,"text":"Laid. Strike a match (8) and hold it till it catches."}
+{"type":"status","tick":28863,"wallTimeMs":1792726949718,"text":"It catches."}
+{"type":"save","tick":31071,"wallTimeMs":1792727023217,"count":6}
+{"type":"status","tick":31877,"wallTimeMs":1792727050071,"text":"Split clean in two, with kindling from the splinters."}
+{"type":"status","tick":34183,"wallTimeMs":1792727129888,"text":"The cabin is warm. Ada's wagon is coming up the trail."}
+{"type":"status","tick":34183,"wallTimeMs":1792727129888,"text":"Ada Lark is here."}
+{"type":"objective_completed","tick":34183,"wallTimeMs":1792727129888,"number":5,"id":"Kindle","title":"Kindle","ticksTaken":24715}
+{"type":"save","tick":34671,"wallTimeMs":1792727146174,"count":7}
+{"type":"screen","tick":34942,"wallTimeMs":1792727155235,"from":"WORLD","to":"REVEAL"}
+{"type":"status","tick":34942,"wallTimeMs":1792727155235,"text":"Ada is home. (T plays back your restoration.)"}
+{"type":"objective_completed","tick":34942,"wallTimeMs":1792727155235,"number":6,"id":"Welcome","title":"Welcome","ticksTaken":759}
+{"type":"screen","tick":34987,"wallTimeMs":1792727188721,"from":"REVEAL","to":"WORLD"}
+{"type":"status","tick":36063,"wallTimeMs":1792727224416,"text":"The fire has burned down to coals. Lay more wood and kindling."}
+{"type":"save","tick":37266,"wallTimeMs":1792727264557,"count":8}
+{"type":"status","tick":40337,"wallTimeMs":1792727366888,"text":"The mare nickers at you, hopefully. She's hungry."}
+{"type":"save","tick":40866,"wallTimeMs":1792727384557,"count":9}

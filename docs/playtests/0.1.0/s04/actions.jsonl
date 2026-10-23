@@ -1,0 +1,647 @@
+{"t": 1792726302144, "cmd": "start", "args": ["--profile", "kindling", "--game-dir", "<kindling checkout>", "--seed", "1881"]}
+{"t": 1792726307298, "cmd": "state", "args": []}
+{"t": 1792726307350, "cmd": "shot", "args": ["start"]}
+{"t": 1792726312841, "cmd": "note", "args": ["--shot", "hud_overlap", "At 640x360 the checklist, help text, aim name/hint and 'Loaded your save' toast all overlap in the middle of the screen; the first checklist line runs past the right edge ('(2 of 4)' clipped against the clock). Hard to read. tick ~9592"]}
+{"t": 1792726313075, "cmd": "key", "args": ["F1"]}
+{"t": 1792726313569, "cmd": "key", "args": ["7"]}
+{"t": 1792726314052, "cmd": "walkto", "args": ["chopping_block"]}
+{"t": 1792726320540, "cmd": "state", "args": []}
+{"t": 1792726320592, "cmd": "shot", "args": ["block"]}
+{"t": 1792726324029, "cmd": "face", "args": ["-8"]}
+{"t": 1792726324769, "cmd": "hold", "args": ["Down", "0.5"]}
+{"t": 1792726325382, "cmd": "shot", "args": ["aim1"]}
+{"t": 1792726328942, "cmd": "key", "args": ["e"]}
+{"t": 1792726329407, "cmd": "wait", "args": ["1"]}
+{"t": 1792726330466, "cmd": "state", "args": []}
+{"t": 1792726330519, "cmd": "shot", "args": ["carry1"]}
+{"t": 1792726334203, "cmd": "state", "args": ["--full"]}
+{"t": 1792726334260, "cmd": "events", "args": ["5"]}
+{"t": 1792726336806, "cmd": "hold", "args": ["w", "0.6"]}
+{"t": 1792726337515, "cmd": "state", "args": ["--full"]}
+{"t": 1792726337575, "cmd": "key", "args": ["e"]}
+{"t": 1792726338038, "cmd": "wait", "args": ["1"]}
+{"t": 1792726339097, "cmd": "state", "args": []}
+{"t": 1792726342284, "cmd": "state", "args": []}
+{"t": 1792726342339, "cmd": "shot", "args": ["carrying"]}
+{"t": 1792726346335, "cmd": "hold", "args": ["s", "0.5"]}
+{"t": 1792726346931, "cmd": "state", "args": []}
+{"t": 1792726349114, "cmd": "face", "args": ["10"]}
+{"t": 1792726350205, "cmd": "state", "args": ["--full"]}
+{"t": 1792726350275, "cmd": "shot", "args": ["cb2"]}
+{"t": 1792726352455, "cmd": "key", "args": ["e"]}
+{"t": 1792726352916, "cmd": "wait", "args": ["1"]}
+{"t": 1792726353977, "cmd": "state", "args": ["--full"]}
+{"t": 1792726354038, "cmd": "shot", "args": ["cb3"]}
+{"t": 1792726356343, "cmd": "mousehold", "args": ["4"]}
+{"t": 1792726360413, "cmd": "state", "args": ["--full"]}
+{"t": 1792726360478, "cmd": "shot", "args": ["split"]}
+{"t": 1792726364719, "cmd": "hold", "args": ["Down", "0.4"]}
+{"t": 1792726365222, "cmd": "state", "args": ["--full"]}
+{"t": 1792726365280, "cmd": "shot", "args": ["split2"]}
+{"t": 1792726369330, "cmd": "look", "args": ["30", "5"]}
+{"t": 1792726369411, "cmd": "state", "args": ["--full"]}
+{"t": 1792726371313, "cmd": "shot", "args": ["split3"]}
+{"t": 1792726375292, "cmd": "key", "args": ["e"]}
+{"t": 1792726375775, "cmd": "wait", "args": ["1"]}
+{"t": 1792726376839, "cmd": "state", "args": []}
+{"t": 1792726376904, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726381971, "cmd": "key", "args": ["e"]}
+{"t": 1792726382457, "cmd": "wait", "args": ["1"]}
+{"t": 1792726383523, "cmd": "state", "args": []}
+{"t": 1792726386227, "cmd": "hold", "args": ["Up", "0.8"]}
+{"t": 1792726387128, "cmd": "walkto", "args": ["hearth"]}
+{"t": 1792726398953, "cmd": "state", "args": []}
+{"t": 1792726399012, "cmd": "shot", "args": ["hearth1"]}
+{"t": 1792726403167, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726407748, "cmd": "state", "args": []}
+{"t": 1792726412085, "cmd": "face", "args": ["-18"]}
+{"t": 1792726412776, "cmd": "hold", "args": ["w", "0.5"]}
+{"t": 1792726413383, "cmd": "state", "args": []}
+{"t": 1792726413439, "cmd": "shot", "args": ["door2"]}
+{"t": 1792726416117, "cmd": "face", "args": ["-78"]}
+{"t": 1792726418317, "cmd": "hold", "args": ["w", "1.2"]}
+{"t": 1792726419617, "cmd": "state", "args": []}
+{"t": 1792726419681, "cmd": "shot", "args": ["door3"]}
+{"t": 1792726422456, "cmd": "walkto", "args": ["hearth"]}
+{"t": 1792726426603, "cmd": "state", "args": ["--full"]}
+{"t": 1792726426668, "cmd": "shot", "args": ["hearth2"]}
+{"t": 1792726430852, "cmd": "hold", "args": ["s", "0.5"]}
+{"t": 1792726431468, "cmd": "hold", "args": ["Down", "0.5"]}
+{"t": 1792726432095, "cmd": "state", "args": ["--full"]}
+{"t": 1792726432161, "cmd": "shot", "args": ["hearth3"]}
+{"t": 1792726436758, "cmd": "key", "args": ["e"]}
+{"t": 1792726437254, "cmd": "wait", "args": ["1"]}
+{"t": 1792726438328, "cmd": "state", "args": []}
+{"t": 1792726438407, "cmd": "shot", "args": ["hearth4"]}
+{"t": 1792726442176, "cmd": "face", "args": ["-45"]}
+{"t": 1792726445207, "cmd": "shot", "args": ["wp1"]}
+{"t": 1792726445551, "cmd": "state", "args": ["--full"]}
+{"t": 1792726449185, "cmd": "face", "args": ["90"]}
+{"t": 1792726450921, "cmd": "shot", "args": ["wp2"]}
+{"t": 1792726451172, "cmd": "state", "args": ["--full"]}
+{"t": 1792726455324, "cmd": "hold", "args": ["s", "0.4"]}
+{"t": 1792726455892, "cmd": "face", "args": ["30"]}
+{"t": 1792726456754, "cmd": "shot", "args": ["wp3"]}
+{"t": 1792726456982, "cmd": "state", "args": ["--full"]}
+{"t": 1792726464066, "cmd": "state", "args": []}
+{"t": 1792726470599, "cmd": "face", "args": ["-84"]}
+{"t": 1792726472368, "cmd": "hold", "args": ["w", "1.3"]}
+{"t": 1792726473813, "cmd": "state", "args": ["--full"]}
+{"t": 1792726473889, "cmd": "shot", "args": ["wp4"]}
+{"t": 1792726478124, "cmd": "key", "args": ["l"]}
+{"t": 1792726478620, "cmd": "hold", "args": ["w", "0.3"]}
+{"t": 1792726479096, "cmd": "hold", "args": ["Down", "0.3"]}
+{"t": 1792726479558, "cmd": "state", "args": ["--full"]}
+{"t": 1792726479627, "cmd": "shot", "args": ["wp5"]}
+{"t": 1792726485304, "cmd": "hold", "args": ["s", "0.4"]}
+{"t": 1792726485831, "cmd": "hold", "args": ["Down", "0.6"]}
+{"t": 1792726486573, "cmd": "state", "args": ["--full"]}
+{"t": 1792726486642, "cmd": "shot", "args": ["wp6"]}
+{"t": 1792726496783, "cmd": "face", "args": ["-11"]}
+{"t": 1792726497912, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792726498372, "cmd": "state", "args": ["--full"]}
+{"t": 1792726498468, "cmd": "shot", "args": ["wp7"]}
+{"t": 1792726501402, "cmd": "hold", "args": ["Up", "0.7"]}
+{"t": 1792726502220, "cmd": "state", "args": ["--full"]}
+{"t": 1792726502323, "cmd": "shot", "args": ["wp8"]}
+{"t": 1792726506564, "cmd": "hold", "args": ["Down", "0.35"]}
+{"t": 1792726507053, "cmd": "state", "args": ["--full"]}
+{"t": 1792726509502, "cmd": "hold", "args": ["Down", "0.2"]}
+{"t": 1792726509835, "cmd": "state", "args": ["--full"]}
+{"t": 1792726509899, "cmd": "shot", "args": ["wp9"]}
+{"t": 1792726512614, "cmd": "key", "args": ["e"]}
+{"t": 1792726513144, "cmd": "wait", "args": ["1"]}
+{"t": 1792726514239, "cmd": "state", "args": []}
+{"t": 1792726514306, "cmd": "shot", "args": ["wp10"]}
+{"t": 1792726518838, "cmd": "state", "args": ["--full"]}
+{"t": 1792726522012, "cmd": "look", "args": ["-40", "-60"]}
+{"t": 1792726522121, "cmd": "wait", "args": ["1"]}
+{"t": 1792726523187, "cmd": "state", "args": ["--full"]}
+{"t": 1792726525446, "cmd": "key", "args": ["e"]}
+{"t": 1792726525959, "cmd": "wait", "args": ["1"]}
+{"t": 1792726527025, "cmd": "state", "args": []}
+{"t": 1792726527107, "cmd": "shot", "args": ["wp11"]}
+{"t": 1792726532706, "cmd": "note", "args": ["--shot", "woodpile_hard_to_find", "Carrying a split log, the hint says 'Stack it on the woodpile by the hearth' but the woodpile is two low rails + logs in the dark back-left corner, left of the hearth and out of view when facing the hearth; it took several turns to find, and when aiming at it the carry message covers it at the bottom of the screen. A visible marker or 'to the left of the hearth' would help. tick ~13300"]}
+{"t": 1792726536562, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726546329, "cmd": "state", "args": []}
+{"t": 1792726548885, "cmd": "face", "args": ["30"]}
+{"t": 1792726550018, "cmd": "hold", "args": ["w", "1.0"]}
+{"t": 1792726551121, "cmd": "walkto", "args": ["chopping_block"]}
+{"t": 1792726555170, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792726555581, "cmd": "shot", "args": ["outside1"]}
+{"t": 1792726555791, "cmd": "state", "args": ["--full"]}
+{"t": 1792726560122, "cmd": "look", "args": ["50", "120"]}
+{"t": 1792726560224, "cmd": "wait", "args": ["1"]}
+{"t": 1792726561294, "cmd": "state", "args": ["--full"]}
+{"t": 1792726561366, "cmd": "shot", "args": ["outside2"]}
+{"t": 1792726566192, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792726566294, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726566903, "cmd": "state", "args": ["--full"]}
+{"t": 1792726566977, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792726567077, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726567635, "cmd": "state", "args": ["--full"]}
+{"t": 1792726567697, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792726567810, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726568373, "cmd": "state", "args": ["--full"]}
+{"t": 1792726568454, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792726568561, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726569129, "cmd": "state", "args": ["--full"]}
+{"t": 1792726569211, "cmd": "shot", "args": ["outside3"]}
+{"t": 1792726573775, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792726573865, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726574442, "cmd": "state", "args": ["--full"]}
+{"t": 1792726574502, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792726574596, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726575175, "cmd": "state", "args": ["--full"]}
+{"t": 1792726575278, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792726575392, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726575957, "cmd": "state", "args": ["--full"]}
+{"t": 1792726576038, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792726576149, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726576719, "cmd": "state", "args": ["--full"]}
+{"t": 1792726579946, "cmd": "look", "args": ["0", "-30"]}
+{"t": 1792726580045, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726580621, "cmd": "state", "args": ["--full"]}
+{"t": 1792726580689, "cmd": "shot", "args": ["splitaim"]}
+{"t": 1792726580913, "cmd": "key", "args": ["e"]}
+{"t": 1792726581374, "cmd": "wait", "args": ["1"]}
+{"t": 1792726582435, "cmd": "state", "args": []}
+{"t": 1792726589028, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726593791, "cmd": "state", "args": []}
+{"t": 1792726598189, "cmd": "face", "args": ["-21"]}
+{"t": 1792726598985, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792726599499, "cmd": "face", "args": ["-40"]}
+{"t": 1792726600601, "cmd": "hold", "args": ["w", "1.0"]}
+{"t": 1792726601714, "cmd": "state", "args": []}
+{"t": 1792726604754, "cmd": "face", "args": ["-38"]}
+{"t": 1792726605890, "cmd": "hold", "args": ["w", "2.0"]}
+{"t": 1792726608005, "cmd": "state", "args": []}
+{"t": 1792726610542, "cmd": "hold", "args": ["w", "0.15"]}
+{"t": 1792726610789, "cmd": "look", "args": ["-40", "30"]}
+{"t": 1792726610889, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726611440, "cmd": "state", "args": ["--full"]}
+{"t": 1792726614721, "cmd": "look", "args": ["-50", "0"]}
+{"t": 1792726614824, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726615391, "cmd": "state", "args": ["--full"]}
+{"t": 1792726617384, "cmd": "shot", "args": ["wp12"]}
+{"t": 1792726621649, "cmd": "look", "args": ["-60", "0"]}
+{"t": 1792726621744, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726622324, "cmd": "state", "args": ["--full"]}
+{"t": 1792726624744, "cmd": "key", "args": ["e"]}
+{"t": 1792726625257, "cmd": "wait", "args": ["1"]}
+{"t": 1792726626388, "cmd": "state", "args": []}
+{"t": 1792726626508, "cmd": "events", "args": ["10"]}
+{"t": 1792726626719, "cmd": "shot", "args": ["wp13"]}
+{"t": 1792726629810, "cmd": "state", "args": ["--full"]}
+{"t": 1792726632542, "cmd": "key", "args": ["3"]}
+{"t": 1792726633051, "cmd": "walkto", "args": ["hearth"]}
+{"t": 1792726633622, "cmd": "hold", "args": ["s", "0.3"]}
+{"t": 1792726634022, "cmd": "look", "args": ["0", "150"]}
+{"t": 1792726634162, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726634756, "cmd": "state", "args": ["--full"]}
+{"t": 1792726634848, "cmd": "shot", "args": ["ash1"]}
+{"t": 1792726638084, "cmd": "state", "args": []}
+{"t": 1792726640836, "cmd": "face", "args": ["118"]}
+{"t": 1792726644025, "cmd": "hold", "args": ["s", "0.3"]}
+{"t": 1792726644433, "cmd": "look", "args": ["0", "-150"]}
+{"t": 1792726644551, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726645118, "cmd": "state", "args": ["--full"]}
+{"t": 1792726645193, "cmd": "shot", "args": ["ash2"]}
+{"t": 1792726650010, "cmd": "face", "args": ["60"]}
+{"t": 1792726651644, "cmd": "hold", "args": ["w", "0.5"]}
+{"t": 1792726652293, "cmd": "state", "args": []}
+{"t": 1792726654869, "cmd": "hold", "args": ["w", "0.2"]}
+{"t": 1792726655198, "cmd": "face", "args": ["-105"]}
+{"t": 1792726657524, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726658114, "cmd": "state", "args": ["--full"]}
+{"t": 1792726658220, "cmd": "shot", "args": ["ash3"]}
+{"t": 1792726663190, "cmd": "look", "args": ["0", "-200"]}
+{"t": 1792726663357, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726663937, "cmd": "state", "args": ["--full"]}
+{"t": 1792726664024, "cmd": "shot", "args": ["ash4"]}
+{"t": 1792726666646, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792726667183, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726667772, "cmd": "state", "args": ["--full"]}
+{"t": 1792726670294, "cmd": "look", "args": ["0", "100"]}
+{"t": 1792726670415, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726671002, "cmd": "state", "args": ["--full"]}
+{"t": 1792726671106, "cmd": "shot", "args": ["ash5"]}
+{"t": 1792726679553, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792726684679, "cmd": "state", "args": ["--full"]}
+{"t": 1792726684782, "cmd": "shot", "args": ["ash6"]}
+{"t": 1792726689956, "cmd": "key", "args": ["grave"]}
+{"t": 1792726690528, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726697380, "cmd": "state", "args": []}
+{"t": 1792726700541, "cmd": "face", "args": ["22"]}
+{"t": 1792726701467, "cmd": "hold", "args": ["w", "1.0"]}
+{"t": 1792726702613, "cmd": "walkto", "args": ["chopping_block"]}
+{"t": 1792726715585, "cmd": "state", "args": ["--full"]}
+{"t": 1792726715687, "cmd": "shot", "args": ["kind1"]}
+{"t": 1792726719832, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726724042, "cmd": "state", "args": []}
+{"t": 1792726727214, "cmd": "face", "args": ["21"]}
+{"t": 1792726728148, "cmd": "hold", "args": ["w", "1.2"]}
+{"t": 1792726729513, "cmd": "state", "args": []}
+{"t": 1792726729615, "cmd": "walkto", "args": ["chopping_block"]}
+{"t": 1792726736065, "cmd": "state", "args": ["--full"]}
+{"t": 1792726739601, "cmd": "look", "args": ["0", "60"]}
+{"t": 1792726739733, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726740320, "cmd": "state", "args": ["--full"]}
+{"t": 1792726740433, "cmd": "shot", "args": ["kind2"]}
+{"t": 1792726746028, "cmd": "hold", "args": ["a", "0.5"]}
+{"t": 1792726746701, "cmd": "hold", "args": ["w", "0.5"]}
+{"t": 1792726747375, "cmd": "state", "args": []}
+{"t": 1792726747495, "cmd": "state", "args": ["--full"]}
+{"t": 1792726747605, "cmd": "shot", "args": ["kind3"]}
+{"t": 1792726754108, "cmd": "face", "args": ["56"]}
+{"t": 1792726755284, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792726755822, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726756419, "cmd": "state", "args": ["--full"]}
+{"t": 1792726756508, "cmd": "shot", "args": ["kind4"]}
+{"t": 1792726760776, "cmd": "face", "args": ["52"]}
+{"t": 1792726762262, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726762884, "cmd": "state", "args": ["--full"]}
+{"t": 1792726762984, "cmd": "shot", "args": ["kind5"]}
+{"t": 1792726766110, "cmd": "key", "args": ["e"]}
+{"t": 1792726766635, "cmd": "wait", "args": ["1"]}
+{"t": 1792726767713, "cmd": "state", "args": []}
+{"t": 1792726772460, "cmd": "state", "args": []}
+{"t": 1792726772549, "cmd": "note", "args": ["--shot", "kindling_hidden", "Lay-kindling hint says 'from the chopping block' but the kindling is a tiny pale stack on the far side of the block (around x-2.3,z6.5), hidden by the block when you stand where you split; at night it is only visible in lantern light. Took several moves to find. tick ~23550"]}
+{"t": 1792726772969, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726778458, "cmd": "state", "args": []}
+{"t": 1792726782490, "cmd": "face", "args": ["-18"]}
+{"t": 1792726783220, "cmd": "hold", "args": ["w", "0.5"]}
+{"t": 1792726783871, "cmd": "state", "args": []}
+{"t": 1792726786325, "cmd": "face", "args": ["-45"]}
+{"t": 1792726787555, "cmd": "hold", "args": ["w", "1.0"]}
+{"t": 1792726788680, "cmd": "state", "args": []}
+{"t": 1792726791724, "cmd": "face", "args": ["-39"]}
+{"t": 1792726792807, "cmd": "hold", "args": ["w", "1.4"]}
+{"t": 1792726794370, "cmd": "state", "args": []}
+{"t": 1792726797142, "cmd": "face", "args": ["43"]}
+{"t": 1792726798207, "cmd": "look", "args": ["0", "-60"]}
+{"t": 1792726798340, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726798925, "cmd": "state", "args": ["--full"]}
+{"t": 1792726799025, "cmd": "shot", "args": ["kind6"]}
+{"t": 1792726801616, "cmd": "hold", "args": ["w", "0.2"]}
+{"t": 1792726801932, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726802525, "cmd": "state", "args": ["--full"]}
+{"t": 1792726805729, "cmd": "look", "args": ["0", "80"]}
+{"t": 1792726805891, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726806488, "cmd": "state", "args": ["--full"]}
+{"t": 1792726808483, "cmd": "shot", "args": ["kind7"]}
+{"t": 1792726813025, "cmd": "hold", "args": ["s", "0.15"]}
+{"t": 1792726813370, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726814009, "cmd": "state", "args": ["--full"]}
+{"t": 1792726816457, "cmd": "look", "args": ["0", "-80"]}
+{"t": 1792726816571, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726817161, "cmd": "state", "args": ["--full"]}
+{"t": 1792726819621, "cmd": "key", "args": ["e"]}
+{"t": 1792726820126, "cmd": "wait", "args": ["1"]}
+{"t": 1792726821227, "cmd": "state", "args": ["--full"]}
+{"t": 1792726824775, "cmd": "face", "args": ["-72"]}
+{"t": 1792726826180, "cmd": "hold", "args": ["w", "0.75"]}
+{"t": 1792726827164, "cmd": "state", "args": []}
+{"t": 1792726829770, "cmd": "state", "args": ["--full"]}
+{"t": 1792726829893, "cmd": "look", "args": ["0", "40"]}
+{"t": 1792726830055, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726830539, "cmd": "state", "args": ["--full"]}
+{"t": 1792726830637, "cmd": "look", "args": ["0", "40"]}
+{"t": 1792726830796, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726831290, "cmd": "state", "args": ["--full"]}
+{"t": 1792726831382, "cmd": "look", "args": ["0", "40"]}
+{"t": 1792726831514, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726835762, "cmd": "shot", "args": ["wp14"]}
+{"t": 1792726841385, "cmd": "look", "args": ["-140", "0"]}
+{"t": 1792726841531, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726842159, "cmd": "state", "args": ["--full"]}
+{"t": 1792726845539, "cmd": "look", "args": ["0", "-50"]}
+{"t": 1792726845732, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726846349, "cmd": "state", "args": ["--full"]}
+{"t": 1792726846473, "cmd": "shot", "args": ["wp15"]}
+{"t": 1792726853421, "cmd": "face", "args": ["-38"]}
+{"t": 1792726854357, "cmd": "hold", "args": ["w", "0.45"]}
+{"t": 1792726855032, "cmd": "state", "args": []}
+{"t": 1792726857811, "cmd": "face", "args": ["135"]}
+{"t": 1792726860215, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726860820, "cmd": "state", "args": ["--full"]}
+{"t": 1792726860926, "cmd": "shot", "args": ["wp16"]}
+{"t": 1792726864204, "cmd": "look", "args": ["0", "-30"]}
+{"t": 1792726864375, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726865016, "cmd": "state", "args": ["--full"]}
+{"t": 1792726868100, "cmd": "look", "args": ["0", "-50"]}
+{"t": 1792726868257, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726868991, "cmd": "state", "args": ["--full"]}
+{"t": 1792726869126, "cmd": "shot", "args": ["wp17"]}
+{"t": 1792726873831, "cmd": "look", "args": ["0", "30"]}
+{"t": 1792726874004, "cmd": "wait", "args": ["0.5"]}
+{"t": 1792726874603, "cmd": "state", "args": ["--full"]}
+{"t": 1792726881030, "cmd": "look", "args": ["0", "25"]}
+{"t": 1792726881180, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726881711, "cmd": "state", "args": ["--full"]}
+{"t": 1792726881840, "cmd": "look", "args": ["0", "25"]}
+{"t": 1792726882019, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726882504, "cmd": "state", "args": ["--full"]}
+{"t": 1792726882581, "cmd": "look", "args": ["0", "25"]}
+{"t": 1792726882726, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726883204, "cmd": "state", "args": ["--full"]}
+{"t": 1792726883282, "cmd": "look", "args": ["0", "25"]}
+{"t": 1792726883406, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726883890, "cmd": "state", "args": ["--full"]}
+{"t": 1792726883971, "cmd": "look", "args": ["0", "25"]}
+{"t": 1792726884079, "cmd": "wait", "args": ["0.4"]}
+{"t": 1792726884540, "cmd": "state", "args": ["--full"]}
+{"t": 1792726891940, "cmd": "look", "args": ["0", "-120"]}
+{"t": 1792726892090, "cmd": "wait", "args": ["2"]}
+{"t": 1792726894169, "cmd": "state", "args": ["--full"]}
+{"t": 1792726894255, "cmd": "shot", "args": ["wp18"]}
+{"t": 1792726900868, "cmd": "look", "args": ["-20", "25"]}
+{"t": 1792726900986, "cmd": "wait", "args": ["1.5"]}
+{"t": 1792726902556, "cmd": "state", "args": ["--full"]}
+{"t": 1792726902643, "cmd": "shot", "args": ["wp19"]}
+{"t": 1792726907878, "cmd": "note", "args": ["--shot", "woodpile_no_take_hint", "Aiming at the full woodpile with empty hands, the hint line is blank ('Woodpile (4 logs)' only). The next step is 'Lay a split log on the andirons', so the player needs to take a log from here, but nothing says E takes one. Also the crosshair registers 'Floorboards' through the gaps between the four thin logs, so the pile is fiddly to target. tick ~26200"]}
+{"t": 1792726908291, "cmd": "key", "args": ["e"]}
+{"t": 1792726908828, "cmd": "wait", "args": ["1"]}
+{"t": 1792726909975, "cmd": "state", "args": ["--full"]}
+{"t": 1792726913515, "cmd": "face", "args": ["86"]}
+{"t": 1792726915260, "cmd": "hold", "args": ["w", "1.0"]}
+{"t": 1792726916473, "cmd": "state", "args": []}
+{"t": 1792726919813, "cmd": "hold", "args": ["w", "0.35"]}
+{"t": 1792726920327, "cmd": "face", "args": ["-84"]}
+{"t": 1792726921652, "cmd": "look", "args": ["0", "-50"]}
+{"t": 1792726921802, "cmd": "wait", "args": ["1"]}
+{"t": 1792726922874, "cmd": "state", "args": ["--full"]}
+{"t": 1792726928868, "cmd": "look", "args": ["-40", "0"]}
+{"t": 1792726928999, "cmd": "wait", "args": ["1"]}
+{"t": 1792726930080, "cmd": "state", "args": ["--full"]}
+{"t": 1792726930154, "cmd": "note", "args": ["--shot", "checklist_unticks", "Took a split log from the full woodpile (4 of 4, ticked) to lay on the andirons, as the next checklist line asks. The first line un-ticks back to '[ ] ... (3 of 4)', so the step the player just finished reopens and they must go back out to split another round. The checklist says 4 but the real need is 5; either count the log on the andirons or say 'stack 4 and lay 1'. tick ~28000"]}
+{"t": 1792726933810, "cmd": "hold", "args": ["a", "0.25"]}
+{"t": 1792726934175, "cmd": "hold", "args": ["s", "0.1"]}
+{"t": 1792726934427, "cmd": "wait", "args": ["1"]}
+{"t": 1792726935518, "cmd": "state", "args": ["--full"]}
+{"t": 1792726935589, "cmd": "shot", "args": ["andiron1"]}
+{"t": 1792726938361, "cmd": "key", "args": ["e"]}
+{"t": 1792726938865, "cmd": "wait", "args": ["1"]}
+{"t": 1792726939967, "cmd": "state", "args": ["--full"]}
+{"t": 1792726940064, "cmd": "shot", "args": ["andiron2"]}
+{"t": 1792726944943, "cmd": "key", "args": ["8"]}
+{"t": 1792726945481, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792726950602, "cmd": "wait", "args": ["1"]}
+{"t": 1792726951695, "cmd": "state", "args": ["--full"]}
+{"t": 1792726951778, "cmd": "events", "args": ["6"]}
+{"t": 1792726951854, "cmd": "shot", "args": ["match1"]}
+{"t": 1792726957539, "cmd": "wait", "args": ["5"]}
+{"t": 1792726962619, "cmd": "state", "args": ["--full"]}
+{"t": 1792726962713, "cmd": "hold", "args": ["s", "0.4"]}
+{"t": 1792726963253, "cmd": "look", "args": ["0", "-60"]}
+{"t": 1792726963372, "cmd": "shot", "args": ["fire2"]}
+{"t": 1792726970099, "cmd": "note", "args": ["--shot", "fire_lit_unticked", "Struck a match and held it on the laid fire: 'It catches.', flames visible and the room lit, state hearthLit=true, but the checklist line 'Strike a match and hold it till it catches' stays unticked (progress.burning=false) and the Kindle step does not complete, apparently because the woodpile line dropped to 3 of 4 when I took a log for the andirons. Nothing on screen tells the player why the visibly burning fire does not count. tick 29250"]}
+{"t": 1792726984754, "cmd": "state", "args": ["--full"]}
+{"t": 1792726989869, "cmd": "note", "args": ["--shot", "match_ticks_late", "Correction to fire_lit_unticked: the 'Strike a match' line did tick at about tick 29900, ~35 game seconds after 'It catches.' (fire must grow to 0.6). So it is a delay with no feedback (no 'the fire is taking hold' meter), not a hard block. The Kindle step is still held open by the woodpile line at 3 of 4."]}
+{"t": 1792726990280, "cmd": "key", "args": ["7"]}
+{"t": 1792726990800, "cmd": "walkto", "args": ["door"]}
+{"t": 1792726998028, "cmd": "state", "args": []}
+{"t": 1792727000632, "cmd": "face", "args": ["-10"]}
+{"t": 1792727001447, "cmd": "hold", "args": ["w", "1.2"]}
+{"t": 1792727002796, "cmd": "state", "args": []}
+{"t": 1792727002869, "cmd": "walkto", "args": ["chopping_block"]}
+{"t": 1792727008192, "cmd": "state", "args": []}
+{"t": 1792727012333, "cmd": "face", "args": ["-20"]}
+{"t": 1792727012988, "cmd": "wait", "args": ["1"]}
+{"t": 1792727014077, "cmd": "state", "args": ["--full"]}
+{"t": 1792727014158, "cmd": "shot", "args": ["rounds1"]}
+{"t": 1792727019204, "cmd": "hold", "args": ["a", "0.4"]}
+{"t": 1792727019733, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792727020263, "cmd": "wait", "args": ["1"]}
+{"t": 1792727021334, "cmd": "state", "args": ["--full"]}
+{"t": 1792727021425, "cmd": "shot", "args": ["rounds2"]}
+{"t": 1792727029770, "cmd": "face", "args": ["55"]}
+{"t": 1792727031328, "cmd": "hold", "args": ["w", "0.55"]}
+{"t": 1792727032018, "cmd": "wait", "args": ["1"]}
+{"t": 1792727033088, "cmd": "state", "args": ["--full"]}
+{"t": 1792727033181, "cmd": "shot", "args": ["rounds3"]}
+{"t": 1792727036396, "cmd": "key", "args": ["e"]}
+{"t": 1792727036882, "cmd": "wait", "args": ["1"]}
+{"t": 1792727037950, "cmd": "state", "args": []}
+{"t": 1792727038021, "cmd": "walkto", "args": ["chopping_block"]}
+{"t": 1792727038365, "cmd": "state", "args": []}
+{"t": 1792727041773, "cmd": "face", "args": ["88"]}
+{"t": 1792727043166, "cmd": "wait", "args": ["1"]}
+{"t": 1792727044223, "cmd": "state", "args": ["--full"]}
+{"t": 1792727046956, "cmd": "key", "args": ["e"]}
+{"t": 1792727047437, "cmd": "wait", "args": ["1"]}
+{"t": 1792727048493, "cmd": "mousehold", "args": ["4"]}
+{"t": 1792727052563, "cmd": "wait", "args": ["1"]}
+{"t": 1792727053645, "cmd": "state", "args": ["--full"]}
+{"t": 1792727053714, "cmd": "events", "args": ["3"]}
+{"t": 1792727053782, "cmd": "shot", "args": ["split4"]}
+{"t": 1792727057524, "cmd": "face", "args": ["20"]}
+{"t": 1792727058690, "cmd": "hold", "args": ["w", "0.35"]}
+{"t": 1792727059148, "cmd": "look", "args": ["0", "100"]}
+{"t": 1792727059251, "cmd": "wait", "args": ["1"]}
+{"t": 1792727060330, "cmd": "state", "args": ["--full"]}
+{"t": 1792727060417, "cmd": "shot", "args": ["split5"]}
+{"t": 1792727065356, "cmd": "look", "args": ["-60", "25"]}
+{"t": 1792727065482, "cmd": "wait", "args": ["1"]}
+{"t": 1792727066553, "cmd": "state", "args": ["--full"]}
+{"t": 1792727069535, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792727069640, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727070308, "cmd": "state", "args": ["--full"]}
+{"t": 1792727070384, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792727070493, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727071170, "cmd": "state", "args": ["--full"]}
+{"t": 1792727071252, "cmd": "look", "args": ["-15", "0"]}
+{"t": 1792727071341, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727072011, "cmd": "state", "args": ["--full"]}
+{"t": 1792727074226, "cmd": "key", "args": ["e"]}
+{"t": 1792727074722, "cmd": "wait", "args": ["1"]}
+{"t": 1792727075781, "cmd": "state", "args": []}
+{"t": 1792727079675, "cmd": "walkto", "args": ["door"]}
+{"t": 1792727083843, "cmd": "state", "args": []}
+{"t": 1792727083911, "cmd": "face", "args": ["-3"]}
+{"t": 1792727084310, "cmd": "hold", "args": ["w", "0.5"]}
+{"t": 1792727084913, "cmd": "state", "args": []}
+{"t": 1792727088200, "cmd": "face", "args": ["-69"]}
+{"t": 1792727089915, "cmd": "hold", "args": ["w", "0.8"]}
+{"t": 1792727090829, "cmd": "state", "args": []}
+{"t": 1792727093960, "cmd": "face", "args": ["-28"]}
+{"t": 1792727095013, "cmd": "hold", "args": ["w", "2.5"]}
+{"t": 1792727097643, "cmd": "state", "args": []}
+{"t": 1792727101748, "cmd": "face", "args": ["16"]}
+{"t": 1792727103247, "cmd": "look", "args": ["0", "0"]}
+{"t": 1792727103481, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727104200, "cmd": "state", "args": ["--full"]}
+{"t": 1792727104296, "cmd": "look", "args": ["-10", "0"]}
+{"t": 1792727104480, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727105177, "cmd": "state", "args": ["--full"]}
+{"t": 1792727105268, "cmd": "look", "args": ["-10", "0"]}
+{"t": 1792727105421, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727106130, "cmd": "state", "args": ["--full"]}
+{"t": 1792727106280, "cmd": "look", "args": ["0", "15"]}
+{"t": 1792727106433, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727107217, "cmd": "state", "args": ["--full"]}
+{"t": 1792727107374, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792727107651, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727108391, "cmd": "state", "args": ["--full"]}
+{"t": 1792727108529, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792727108961, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727109791, "cmd": "state", "args": ["--full"]}
+{"t": 1792727110028, "cmd": "look", "args": ["15", "0"]}
+{"t": 1792727110277, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727110996, "cmd": "state", "args": ["--full"]}
+{"t": 1792727113684, "cmd": "state", "args": []}
+{"t": 1792727113888, "cmd": "shot", "args": ["wp20"]}
+{"t": 1792727117974, "cmd": "face", "args": ["28"]}
+{"t": 1792727120261, "cmd": "hold", "args": ["s", "0.4"]}
+{"t": 1792727120897, "cmd": "wait", "args": ["1"]}
+{"t": 1792727122032, "cmd": "state", "args": []}
+{"t": 1792727125717, "cmd": "look", "args": ["0", "0"]}
+{"t": 1792727125879, "cmd": "wait", "args": ["0.6"]}
+{"t": 1792727126631, "cmd": "state", "args": ["--full"]}
+{"t": 1792727129503, "cmd": "key", "args": ["e"]}
+{"t": 1792727130053, "cmd": "wait", "args": ["2"]}
+{"t": 1792727132157, "cmd": "events", "args": ["6"]}
+{"t": 1792727132238, "cmd": "state", "args": ["--full"]}
+{"t": 1792727132325, "cmd": "shot", "args": ["stacked"]}
+{"t": 1792727135794, "cmd": "state", "args": []}
+{"t": 1792727135881, "cmd": "shot", "args": ["welcome1"]}
+{"t": 1792727143897, "cmd": "note", "args": ["--shot", "welcome_hud_overlap", "On Kindle completion the Welcome checklist plus 'ADA'S BRIEF' (9 lines) runs down to the middle of the screen and overprints the aim label ('Woodpile (4 logs)') and Ada's first line of dialogue ('Oh... it's warm.'), making both unreadable at 640x360. tick ~34200"]}
+{"t": 1792727144401, "cmd": "face", "args": ["130"]}
+{"t": 1792727147842, "cmd": "look", "args": ["0", "-150"]}
+{"t": 1792727148038, "cmd": "wait", "args": ["2"]}
+{"t": 1792727150131, "cmd": "shot", "args": ["welcome2"]}
+{"t": 1792727150606, "cmd": "state", "args": ["--full"]}
+{"t": 1792727155356, "cmd": "await", "args": ["REVEAL", "30"]}
+{"t": 1792727155841, "cmd": "events", "args": ["5"]}
+{"t": 1792727155924, "cmd": "shot", "args": ["reveal1"]}
+{"t": 1792727161094, "cmd": "wait", "args": ["4"]}
+{"t": 1792727165201, "cmd": "shot", "args": ["reveal2"]}
+{"t": 1792727165695, "cmd": "wait", "args": ["5"]}
+{"t": 1792727170780, "cmd": "shot", "args": ["reveal3"]}
+{"t": 1792727171130, "cmd": "state", "args": ["--full"]}
+{"t": 1792727173826, "cmd": "status", "args": []}
+{"t": 1792727173938, "cmd": "state", "args": []}
+{"t": 1792727180562, "cmd": "note", "args": ["--shot", "reveal_title_cut", "Reveal (timelapse) title 'Ada's cabin, from ruin to ho...' runs off the right edge at 640x360; the last word is cut. Also the replay is very dark at this point (5:20 pm frame): the room is mostly black apart from the window. tick 34983 (tps 0 during reveal)"]}
+{"t": 1792727180887, "cmd": "wait", "args": ["6"]}
+{"t": 1792727187015, "cmd": "shot", "args": ["reveal_t1"]}
+{"t": 1792727187422, "cmd": "state", "args": []}
+{"t": 1792727187527, "cmd": "wait", "args": ["6"]}
+{"t": 1792727193642, "cmd": "shot", "args": ["reveal_t2"]}
+{"t": 1792727194153, "cmd": "state", "args": []}
+{"t": 1792727194253, "cmd": "wait", "args": ["6"]}
+{"t": 1792727200348, "cmd": "shot", "args": ["reveal_t3"]}
+{"t": 1792727200814, "cmd": "state", "args": []}
+{"t": 1792727200894, "cmd": "wait", "args": ["6"]}
+{"t": 1792727206967, "cmd": "shot", "args": ["reveal_t4"]}
+{"t": 1792727207330, "cmd": "state", "args": []}
+{"t": 1792727207413, "cmd": "wait", "args": ["6"]}
+{"t": 1792727213482, "cmd": "shot", "args": ["reveal_t5"]}
+{"t": 1792727213815, "cmd": "state", "args": []}
+{"t": 1792727213887, "cmd": "wait", "args": ["6"]}
+{"t": 1792727219952, "cmd": "shot", "args": ["reveal_t6"]}
+{"t": 1792727220260, "cmd": "state", "args": []}
+{"t": 1792727230707, "cmd": "key", "args": ["F1"]}
+{"t": 1792727231182, "cmd": "state", "args": []}
+{"t": 1792727233825, "cmd": "face", "args": ["-10"]}
+{"t": 1792727234835, "cmd": "look", "args": ["0", "-40"]}
+{"t": 1792727234929, "cmd": "wait", "args": ["1"]}
+{"t": 1792727236018, "cmd": "shot", "args": ["look1"]}
+{"t": 1792727236294, "cmd": "state", "args": []}
+{"t": 1792727243933, "cmd": "key", "args": ["F1"]}
+{"t": 1792727244405, "cmd": "wait", "args": ["1"]}
+{"t": 1792727245468, "cmd": "state", "args": []}
+{"t": 1792727245529, "cmd": "note", "args": ["--shot", "done_checklist_covers_view", "After the reveal (STEP: Done), the finished checklist + 'ADA'S BRIEF: ALL MET' list (9 lines) stays on screen permanently and covers the top two-thirds of the view; F1 only toggles the controls help, not this list. For the post-game 'walk around and admire the cabin' phase there is no way to clear the screen. Expected the checklist to fade or collapse once Done (or F1 to hide it). tick ~36400"]}
+{"t": 1792727251950, "cmd": "state", "args": []}
+{"t": 1792727252014, "cmd": "face", "args": ["-55"]}
+{"t": 1792727253150, "cmd": "hold", "args": ["s", "0.5"]}
+{"t": 1792727253751, "cmd": "look", "args": ["0", "60"]}
+{"t": 1792727253839, "cmd": "wait", "args": ["1"]}
+{"t": 1792727254899, "cmd": "shot", "args": ["look2"]}
+{"t": 1792727259242, "cmd": "state", "args": []}
+{"t": 1792727262959, "cmd": "face", "args": ["47"]}
+{"t": 1792727264572, "cmd": "hold", "args": ["w", "2.3"]}
+{"t": 1792727266968, "cmd": "key", "args": ["1", "grave"]}
+{"t": 1792727267848, "cmd": "state", "args": []}
+{"t": 1792727270336, "cmd": "face", "args": ["-165"]}
+{"t": 1792727273482, "cmd": "hold", "args": ["Up", "0.5"]}
+{"t": 1792727274081, "cmd": "wait", "args": ["1"]}
+{"t": 1792727275143, "cmd": "state", "args": []}
+{"t": 1792727275217, "cmd": "shot", "args": ["room1"]}
+{"t": 1792727280276, "cmd": "state", "args": ["--full"]}
+{"t": 1792727283495, "cmd": "events", "args": ["8"]}
+{"t": 1792727283551, "cmd": "face", "args": ["17"]}
+{"t": 1792727284540, "cmd": "wait", "args": ["1"]}
+{"t": 1792727285600, "cmd": "shot", "args": ["fire_out"]}
+{"t": 1792727292949, "cmd": "note", "args": ["--shot", "fire_burns_out", "The hearth fire lit at tick 28863 (one split log + kindling) burned out at tick 36063, only ~36 real/game seconds after the reveal ended (tick 34987): 'The fire has burned down to coals. Lay more wood and kindling.' Ada has just 'settled by the fire' and the cabin is now dark at 6 am; the warm ending scene lasts about 4 game minutes total. Expected the welcome fire to keep burning (or Ada to tend it) through the post-game; the HUD still asks for kindling 'from the chopping block' after Done."]}
+{"t": 1792727296376, "cmd": "hold", "args": ["w", "0.8"]}
+{"t": 1792727297278, "cmd": "face", "args": ["30"]}
+{"t": 1792727298241, "cmd": "wait", "args": ["1"]}
+{"t": 1792727299299, "cmd": "shot", "args": ["ada1"]}
+{"t": 1792727299505, "cmd": "state", "args": []}
+{"t": 1792727303390, "cmd": "hold", "args": ["s", "0.4"]}
+{"t": 1792727303879, "cmd": "face", "args": ["45"]}
+{"t": 1792727305545, "cmd": "wait", "args": ["1"]}
+{"t": 1792727306600, "cmd": "shot", "args": ["ada2"]}
+{"t": 1792727311119, "cmd": "hold", "args": ["s", "0.4"]}
+{"t": 1792727311616, "cmd": "face", "args": ["-15"]}
+{"t": 1792727312535, "cmd": "look", "args": ["0", "60"]}
+{"t": 1792727312658, "cmd": "wait", "args": ["1"]}
+{"t": 1792727313735, "cmd": "shot", "args": ["ada3"]}
+{"t": 1792727313967, "cmd": "state", "args": []}
+{"t": 1792727330815, "cmd": "face", "args": ["-28"]}
+{"t": 1792727331916, "cmd": "hold", "args": ["w", "0.75"]}
+{"t": 1792727332764, "cmd": "state", "args": []}
+{"t": 1792727335749, "cmd": "face", "args": ["50"]}
+{"t": 1792727337075, "cmd": "wait", "args": ["1"]}
+{"t": 1792727338136, "cmd": "shot", "args": ["ada4"]}
+{"t": 1792727338362, "cmd": "state", "args": ["--full"]}
+{"t": 1792727344332, "cmd": "face", "args": ["12"]}
+{"t": 1792727344957, "cmd": "hold", "args": ["w", "0.3"]}
+{"t": 1792727345351, "cmd": "look", "args": ["0", "20"]}
+{"t": 1792727345440, "cmd": "wait", "args": ["1"]}
+{"t": 1792727346491, "cmd": "shot", "args": ["ada5"]}
+{"t": 1792727352716, "cmd": "walkto", "args": ["door"]}
+{"t": 1792727358561, "cmd": "state", "args": []}
+{"t": 1792727358640, "cmd": "face", "args": ["+14"]}
+{"t": 1792727359602, "cmd": "hold", "args": ["w", "1.2"]}
+{"t": 1792727360897, "cmd": "state", "args": []}
+{"t": 1792727363384, "cmd": "face", "args": ["-42"]}
+{"t": 1792727364382, "cmd": "look", "args": ["0", "-40"]}
+{"t": 1792727364472, "cmd": "wait", "args": ["1"]}
+{"t": 1792727365532, "cmd": "shot", "args": ["yard1"]}
+{"t": 1792727365749, "cmd": "walkto", "args": ["mare"]}
+{"t": 1792727372861, "cmd": "shot", "args": ["mare1"]}
+{"t": 1792727384120, "cmd": "hold", "args": ["s", "0.6"]}
+{"t": 1792727384814, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792727385213, "cmd": "wait", "args": ["1"]}
+{"t": 1792727386278, "cmd": "shot", "args": ["mare2"]}
+{"t": 1792727386468, "cmd": "state", "args": []}
+{"t": 1792727391654, "cmd": "hold", "args": ["d", "0.6"]}
+{"t": 1792727392354, "cmd": "state", "args": []}
+{"t": 1792727394469, "cmd": "face", "args": ["-13"]}
+{"t": 1792727395192, "cmd": "look", "args": ["0", "60"]}
+{"t": 1792727395305, "cmd": "wait", "args": ["1"]}
+{"t": 1792727396371, "cmd": "shot", "args": ["mare3"]}
+{"t": 1792727400688, "cmd": "state", "args": []}
+{"t": 1792727405405, "cmd": "hold", "args": ["s", "0.5"]}
+{"t": 1792727406001, "cmd": "look", "args": ["0", "-150"]}
+{"t": 1792727406110, "cmd": "wait", "args": ["1"]}
+{"t": 1792727407172, "cmd": "state", "args": []}
+{"t": 1792727407232, "cmd": "shot", "args": ["mare4"]}
+{"t": 1792727413136, "cmd": "hold", "args": ["Down", "0.15"]}
+{"t": 1792727413384, "cmd": "state", "args": []}
+{"t": 1792727413446, "cmd": "face", "args": ["-148"]}
+{"t": 1792727416365, "cmd": "wait", "args": ["1"]}
+{"t": 1792727417422, "cmd": "state", "args": []}
+{"t": 1792727417484, "cmd": "shot", "args": ["cabin_ext1"]}
+{"t": 1792727423562, "cmd": "hold", "args": ["s", "1.2"]}
+{"t": 1792727424864, "cmd": "look", "args": ["0", "-40"]}
+{"t": 1792727424955, "cmd": "wait", "args": ["1"]}
+{"t": 1792727426010, "cmd": "shot", "args": ["cabin_ext2"]}
+{"t": 1792727426217, "cmd": "state", "args": []}
+{"t": 1792727433956, "cmd": "note", "args": ["--shot", "exterior_dawn", "Exterior at dawn (8:23 am, day 2) looks good: snowy ground, sunrise sky, lantern glow on the wagon cover; no floating or clipping seen on the cabin, lean-to, fence or mare. The finished checklist still covers the middle of every view. No chimney smoke now the fire is out."]}
+{"t": 1792727434176, "cmd": "status", "args": []}
+{"t": 1792727434247, "cmd": "events", "args": ["50"]}
+{"t": 1792727434315, "cmd": "stop", "args": []}
+{"t": 1792727465241, "cmd": "report", "args": []}
+{"t": 1792728058598, "cmd": "stop", "args": []}

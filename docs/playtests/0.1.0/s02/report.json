@@ -1,0 +1,98 @@
+{
+  "session": "s02",
+  "goal": "Finish the whole Clear step (haul the debris, shovel the snow, sweep the floor, scrub the walls and the chimney) using only what the screen tells you; record the game time each checklist line completes, and note every moment the on-screen feedback (the progress meter under the crosshair, the 'Too far to reach' note, dust, the done messages) left you unsure what to do or whether it was working.",
+  "build": {"version": "0.1.0", "commit": "cfae820"},
+  "seed": 202,
+  "durationSec": 1708,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "ux",
+      "title": "Exterior log walls answer 'Clean here. Move on.' to the scrub brush but never count toward 'Scrub the walls'",
+      "detail": "Scrubbing along the walls, I drifted out the door and kept scrubbing the outside of the cabin. Aim showed 'Log wall' / 'Clean here. Move on.', exactly what a finished interior wall shows, while the checklist stayed at 'Scrub the walls (31%)' for about 6 real minutes (ticks ~36100-49600). Expected: the outside wall either has no scrub interaction, or a note like 'Only the inside walls need scrubbing'. Wasting minutes here is what kept me from finishing the Clear step in time.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 202; finish Survey; walk outside; pt key 2; aim at any outside log wall; pt mousehold 3",
+      "screenshot": "shots/now.png",
+      "tick": 49600
+    },
+    {
+      "severity": "minor",
+      "category": "bug",
+      "title": "Short key taps (E, tool keys) are dropped at low frame rates",
+      "detail": "At about 7 fps, 'pt key e' on an in-reach Broken board did nothing, three times, with no message. Holding E for 0.4 s picked it up. The same thing happened with the tool keys: pressing 4 and then holding the mouse sometimes left the saw meter at 0%. Input looks like it is sampled once per frame, so a press shorter than a frame is lost. Expected: key-down events are queued so that every tap counts.",
+      "repro": "pt start ... --seed 202 (with other sessions loading the machine); pt walkto debris; aim at the board; pt key e; pt state shows carrying: nothing",
+      "screenshot": "shots/e1.png",
+      "tick": 5358
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "'Shovel out the snow' shows no percentage, and the last small drift hides behind the checklist",
+      "detail": "Sweep and Scrub show (NN%) on the checklist, but the snow line doesn't. With 8% of the snow left, the remaining drift was small and sat behind the top-left checklist text from most angles, and nothing on screen said there was still snow left or where it was. The meter under the crosshair turned out to be overall snow progress (74%, then 92%), not progress on that one drift, and nothing tells you that.",
+      "repro": "shovel most of the snow near the hearth with pt key 3 + pt mousehold; at snow ~0.08 look around from the hearth",
+      "screenshot": "shots/s12.png",
+      "tick": 24345
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Fallen shingles lying on the snow drift take the crosshair while you shovel",
+      "detail": "While I held the shovel on the drift, the aim kept switching to 'Fallen shingle' (a debris piece on top of the drift), so shoveling stopped partway through without any message. It works once you haul the shingles out first, but the order isn't explained.",
+      "repro": "after Survey, walk to the drift by the hearth; pt key 3; look down; pt mousehold 3",
+      "screenshot": "shots/snow4.png",
+      "tick": 10885
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Sawing the rafter raises the debris count (5 left -> 7 left) with no explanation",
+      "detail": "E on the Fallen rafter gives a good message ('Too long to carry. Saw it into pieces (4)'). After sawing, though, the checklist jumps from 5 left to 7 left without saying why, and the pieces have two names ('Length of rafter' at the crosshair, 'Piece of rafter' elsewhere).",
+      "repro": "pt walkto debris until 'Fallen rafter'; pt key 4; pt mousehold 4",
+      "screenshot": "shots/saw3.png",
+      "tick": 16021
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Survey 'Hole in the roof' only registers when the crosshair is exactly on the small hole",
+      "detail": "The hole was plainly visible on screen just below the crosshair, but the aim still read 'Ceiling boards'. Finding the angle that ticked the line took several minutes of nudging. A bigger hit area, or a hint on the line, would help.",
+      "repro": "pt walkto hearth; look up toward the blue sky patch; nudge until the aim reads 'Hole in the roof'",
+      "screenshot": "shots/h4.png",
+      "tick": 3819
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Sweep completes at 85% without ever saying 85% is the target",
+      "detail": "'Sweep the floor' ticked at 85% ('The floor is swept.'). The checklist shows a percentage that looks like it should reach 100, so a player can't tell how much sweeping is left.",
+      "repro": "pt key 1; sweep the interior floor while holding the mouse",
+      "screenshot": "shots/sweepdone.png",
+      "tick": 34162
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "At the start, the aim hint draws over the help text, and the clock's 'am' is clipped",
+      "detail": "On the first frame, 'Grimy. Scrub it (2).' under 'Log wall' is drawn on top of the controls help and can't be read until F1 hides the help. The 'am' of the clock is cut off at the right edge.",
+      "repro": "pt start ... --seed 202; pt shot start",
+      "screenshot": "shots/help_overlap.png",
+      "tick": 140
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Survey": 127.5,
+      "Clear: Haul out the debris": 657.0,
+      "Clear: Shovel out the snow": 812.9,
+      "Clear: Sweep the floor": 1138.7
+    },
+    "wallsCleanAtStop": 0.31,
+    "chimneyCleanAtStop": 0.31,
+    "debrisPiecesHauled": 17,
+    "gameDaysElapsed": 1.5
+  },
+  "fun": 3,
+  "verdict": "The Clear step mostly reads well on screen: the per-patch meter, 'Clean here. Move on.', 'Too long to carry. Saw it (4)' and the 'Tossed out the door... N pieces left' messages are clear and satisfying. Where it falls down is on unclear targets: snow has no overall percentage and its last drift hides behind the HUD, sweeping finishes at an unstated 85%, and the exterior walls say 'Clean here' but don't count, which cost me the walls and chimney lines in this session. I also found dropped key taps at low fps."
+}

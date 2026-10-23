@@ -169,20 +169,31 @@ void Scene::sync(const World& w) {
     }
 }
 
+namespace {
+constexpr float kDebrisAssistRadians = 0.21f;  // about 12 degrees
+}  // namespace
+
 Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
     Aim aim;
     float best = maxDistance;
 
     float origin[3] = {eye.x, eye.y, eye.z};
     const float direction[3] = {dir.x, dir.y, dir.z};
+    // The tool in hand and whatever is carried are never the target: look
+    // past them (a plank in hand sits right across the crosshair).
+    uint32_t carried = 0;
+    if (w.carry == Carry::Item && w.carryIndex >= 0 && static_cast<size_t>(w.carryIndex) < items_.size())
+        carried = items_[static_cast<size_t>(w.carryIndex)].id;
+    if (w.carry == Carry::Debris && w.carryIndex >= 0 && static_cast<size_t>(w.carryIndex) < debris_.size())
+        carried = debris_[static_cast<size_t>(w.carryIndex)].id;
     StrataRayHit hit = engine_.raycastMeshes(origin, direction, maxDistance);
-    if (hit.mesh_id && hit.mesh_id == tool_) {
-        // The tool in hand is never the target: look past it.
+    float skipped = 0;
+    for (int pass = 0; pass < 4 && hit.mesh_id && (hit.mesh_id == tool_ || hit.mesh_id == carried); ++pass) {
         for (int k = 0; k < 3; ++k) origin[k] = hit.point[k] + direction[k] * 1e-3f;
-        const float skipped = hit.distance;
+        skipped += hit.distance + 1e-3f;
         hit = engine_.raycastMeshes(origin, direction, maxDistance - skipped);
-        if (hit.mesh_id) hit.distance += skipped;
     }
+    if (hit.mesh_id) hit.distance += skipped;
     if (hit.mesh_id) {
         const auto it = byId_.find(hit.mesh_id);
         if (it != byId_.end()) {
@@ -197,12 +208,27 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             best = hit.distance;
         }
     }
+    // A log wall's outer half faces the yard: weathered, not one of the walls
+    // to scrub.
+    if (aim.kind == TargetKind::Wall) {
+        const float out = L::kWallThickness * 0.5f;
+        if (aim.point.x < L::kInnerX0 - out || aim.point.x > L::kInnerX1 + out || aim.point.z < L::kInnerZ0 - out ||
+            aim.point.z > L::kInnerZ1 + out)
+            aim.kind = TargetKind::OutsideWall;
+    }
 
     // Debris lying flat is a thin target from eye height: a ray passing close
     // to a piece counts as on it, unless something clearly nearer is in front.
     if (aim.kind == TargetKind::None || aim.kind == TargetKind::Floor || aim.kind == TargetKind::Ground ||
         aim.kind == TargetKind::Debris) {
         float nearest = aim.kind == TargetKind::Debris ? best : maxDistance;
+        // Failing that, the piece within reach nearest the line of sight, a
+        // few degrees off it at most (a shingle at your feet is below the
+        // lowest the view tilts).
+        int32_t near = -1;
+        float nearCos = std::cos(kDebrisAssistRadians);
+        Vec3 nearPoint;
+        float nearT = 0;
         for (size_t i = 0; i < w.debris.size(); ++i) {
             const Debris& d = w.debris[i];
             if (d.hauled || (w.carry == Carry::Debris && w.carryIndex == static_cast<int32_t>(i))) continue;
@@ -219,6 +245,14 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             const Vec3 c = a + ab * u;
             t = std::fmax(0.0f, dot(c - eye, dir));
             const Vec3 off = eye + dir * t - c;
+            const Vec3 to = c - eye;
+            const float dist = std::sqrt(dot(to, to));
+            if (aim.kind != TargetKind::Debris && dist > 1e-4f && dist <= L::kReach && dot(to, dir) / dist > nearCos) {
+                near = static_cast<int32_t>(i);
+                nearCos = dot(to, dir) / dist;
+                nearPoint = c;
+                nearT = dist;
+            }
             if (dot(off, off) > r * r || t >= nearest || t > best + 0.35f) continue;
             nearest = t;
             aim.kind = TargetKind::Debris;
@@ -226,7 +260,30 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             aim.point = c;
             aim.distance = t;
         }
+        if (aim.kind != TargetKind::Debris && near >= 0 && w.carry == Carry::Nothing) {
+            aim.kind = TargetKind::Debris;
+            aim.index = near;
+            aim.point = nearPoint;
+            aim.distance = nearT;
+        }
         if (aim.kind == TargetKind::Debris) best = std::fmin(best, aim.distance);
+    }
+
+    // With the shovel in hand the drift keeps its full footprint as a target
+    // however far it has been shovelled down, and wins over shingles on it.
+    if (w.tool == Tool::Shovel && w.carry == Carry::Nothing && w.snow > 0 && dir.y < -1e-4f &&
+        (aim.kind == TargetKind::None || aim.kind == TargetKind::Floor || aim.kind == TargetKind::Debris ||
+         aim.kind == TargetKind::Snow)) {
+        const float t = (L::kFloorY - eye.y) / dir.y;
+        const Vec3 p = eye + dir * t;
+        const float ex = (p.x - L::kSnowX) / L::kSnowRX, ez = (p.z - L::kSnowZ) / L::kSnowRZ;
+        if (t > 0 && t < maxDistance && ex * ex + ez * ez <= 1.0f) {
+            aim.kind = TargetKind::Snow;
+            aim.index = -1;
+            aim.point = p;
+            aim.distance = t;
+            best = t;
+        }
     }
 
     // The roof hole has no mesh to hit: test the ray against the ceiling plane.

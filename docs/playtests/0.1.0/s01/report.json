@@ -1,0 +1,113 @@
+{
+  "session": "s01",
+  "goal": "Play the first 15 minutes as a brand-new player who has never seen the game; note every moment of confusion.",
+  "build": {"version": "0.1.0", "commit": "cfae820"},
+  "seed": 1881,
+  "durationSec": 893,
+  "outcome": "achieved",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "ux",
+      "title": "Picking up debris needs pixel-exact aim; E does nothing on debris that is nearby but not under the crosshair",
+      "detail": "Clear step, first haul: it took ~110 game seconds to pick up the first piece. Fallen shingles are thin, flat slivers; E only works when the crosshair names the piece and it is in reach. Pitch stops at about -75 deg, so a piece right at your feet (0.2 m, where walking up to it leaves you) cannot be aimed at at all; you have to step back. At 6-7 fps the arrow keys overshoot (a 0.2 s tap turned ~48 deg), so lining up a 1-pixel-thick shingle is a chore. After 15 minutes, 8 of 15 debris pieces were still inside. Expected: E picks up the nearest debris in front within reach, or a bigger hit volume for small pieces.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 1881; finish Survey; pt walkto debris; pt key e (nothing happens); try to put the crosshair on the shingle at your feet",
+      "screenshot": "shots/debris_aim.png",
+      "tick": 9860
+    },
+    {
+      "severity": "major",
+      "category": "ux",
+      "title": "Snow drift shrinks away from the crosshair; last few percent take over a minute of re-aiming",
+      "detail": "Shovelling the single snow drift (3): the drift shrinks toward its centre as it is cleared, so the crosshair keeps falling off it and the aim label silently switches to 'Floorboards'. The meter read 90%, 96%, then 99% while there was still snow left (state snow 0.04, then 0.01). The job started at tick ~3280 and finished at tick 6440; most of that was chasing a tiny blob. Expected: a stable hit area, or the drift to finish at about 95%.",
+      "repro": "pt start ... --seed 1881; pt key 3; aim at the snow drift by the hearth; pt mousehold 4; pt mousehold 3 (aim now 'Floorboards' with snow left)",
+      "screenshot": "shots/snow_chase.png",
+      "tick": 5730
+    },
+    {
+      "severity": "minor",
+      "category": "balance",
+      "title": "Night falls within the first 13 minutes and the cabin goes pitch black, with no lantern hint",
+      "detail": "The clock runs from 9:04 am to 9:37 pm in about 12.5 game minutes. By then the cabin is nearly black and the debris can't be seen (screenshot). Nothing on screen suggests the lantern (L). It is only listed in the help, which I had hidden with F1 at the start, as the help suggests. The lantern works well once it is on. Expected: a 'It's getting dark - L for your lantern' status line, or a longer first day.",
+      "repro": "pt start ... --seed 1881; play inside the cabin until about tick 22000",
+      "screenshot": "shots/dark_night.png",
+      "tick": 22600
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Survey step never says that it is done by looking at each problem",
+      "detail": "The game opens on 'STEP: Survey' with 'Grime' already ticked and four unticked items. Nothing explains that you tick them by pointing the crosshair at each one. I worked it out by trial. The window wouldn't tick because a fallen rafter was in the way, and the rotten floorboards were hidden behind the checklist overlay. Survey finished at tick 2541 (85 s), which is fine once you understand it. Expected: one line such as 'Look over the cabin: aim at each problem'.",
+      "repro": "pt start ... --seed 1881; read the checklist; walk in through the door",
+      "screenshot": "shots/survey_unclear.png",
+      "tick": 120
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Checklist overlay covers the upper-left quarter of the view and hides debris and floor targets",
+      "detail": "The checklist is drawn opaque-ish over a large part of the screen. When looking down at the floor, the pieces of debris that are in reach (1.2-1.5 m) and the rotten patch often sit right under the checklist text. Several of my failed pickups were on pieces I could not see. Expected: a smaller or more transparent checklist, or one that can be collapsed separately from F1 help.",
+      "repro": "pt start ... --seed 1881; walk inside; tilt view down toward debris to the left",
+      "screenshot": "shots/shingle_try.png",
+      "tick": 24712
+    },
+    {
+      "severity": "minor",
+      "category": "text",
+      "title": "Aim hint overlaps the help text at game start, and 'am' is clipped at the right edge",
+      "detail": "On the first frame the centre aim text ('Log wall / Grimy. Scrub it (2).') is drawn on top of the controls help block, and both are unreadable where they overlap. The 'am' after the clock is tiny and cut off at the right edge in the first screenshot. A new player's first look at the controls is garbled.",
+      "repro": "pt start ... --seed 1881; pt shot start",
+      "screenshot": "shots/overlap.png",
+      "tick": 120
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E on an out-of-reach item fails silently; reach only shown by label colour",
+      "detail": "Aiming at a Fallen shingle about 1.6 m away shows its name in a slightly dimmer grey. Pressing E does nothing, with no message. Expected: a 'Too far' note, or a clearer in-reach cue.",
+      "repro": "pt start ... --seed 1881; stand ~1.6 m from a shingle, aim at it, pt key e",
+      "screenshot": "shots/out_of_reach.png",
+      "tick": 11760
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Nothing is shown in hand while carrying debris",
+      "detail": "After picking up a broken board, the only sign is the orange 'Carrying: E to put down (outside to haul out)' line. The board doesn't appear in view. Tools like the broom and shovel do show in hand.",
+      "repro": "pick up any debris with E; pt shot",
+      "screenshot": "shots/carry2.png",
+      "tick": 9900
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Furnishings at the wagon can be taken during the Clear step without guidance",
+      "detail": "Walking past the wagon during Clear, the crosshair offers 'Braided rug - Take it (E)'. A new player can't tell whether to bring furniture in before the floor is swept.",
+      "repro": "during Clear, pt walkto wagon; look at the rug",
+      "screenshot": "shots/sweep.png",
+      "tick": 25736
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Frame rate 6-7 fps for most of the session makes fine aiming hard",
+      "detail": "pt state showed 6-7 fps from the start and 18 fps at the end, with tps steady around 29-30. At 6-7 fps, holding a turn key overshoots badly. Mouse look via relative motion sometimes had no effect (pt look -150 -60 at tick ~2180 left yaw unchanged). The machine was shared with other sessions, so this is partly the environment.",
+      "repro": "pt start ... --seed 1881; pt status; pt hold Left 0.2 (turned ~48 deg)",
+      "screenshot": "shots/rot5.png",
+      "tick": 2308
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {"Survey": 84.7},
+    "secondsToShovelSnow": 214.7,
+    "debrisHauledIn15Min": 7,
+    "debrisTotal": 15,
+    "floorCleanAtEnd": 0.11,
+    "gameTicksPlayed": 26600,
+    "saves": 8
+  },
+  "fun": 2,
+  "verdict": "The premise and the feedback text are warm and clear ('Tossed out the door: a broken board. 9 pieces left inside.', 'Clean here. Move on.'), and the lantern and survey reveal are nice touches. But a new player's first 15 minutes are mostly spent fighting the crosshair: picking up thin shingles and chasing a shrinking snow drift needs pixel-exact aim, so I finished only Survey and about half of the debris before night fell. A more forgiving E pickup (nearest item in front, within reach) and stable hit areas would change the feel of the opening more than anything else."
+}

@@ -320,7 +320,7 @@ void snow(MeshData& m, const World& w) {
     m.beginTag(TargetKind::Snow);
     // Shrinks to nothing as it is shovelled out.
     const float r = std::sqrt(s);
-    m.ellipsoid({0.1f, L::kFloorY, -0.9f}, {0.8f * r, 0.17f * s, 0.65f * r}, kSnow);
+    m.ellipsoid({L::kSnowX, L::kFloorY, L::kSnowZ}, {L::kSnowRX * r, 0.17f * s, L::kSnowRZ * r}, kSnow);
     if (s > 0.4f) m.ellipsoid({0.35f, L::kFloorY, -0.6f}, {0.45f * s, 0.1f * s, 0.4f * s}, kSnow);
     m.endTag();
 }

@@ -1,0 +1,83 @@
+{
+  "session": "s03",
+  "goal": "Your save starts at the Repair step (the cabin is already cleared): finish Repair and then Furnish (planks, roof shingles, window boards, the chair, the table, bringing furnishings in from the wagon and turning them with R); record the game time of each checklist line and note anything about carrying, placing or turning things that was confusing or fiddly.",
+  "build": {"version": "0.1.0", "commit": "cfae820"},
+  "seed": 1881,
+  "durationSec": 1690,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "bug",
+      "title": "Rotten floorboard gap by the window accepts no plank and has no aim name",
+      "detail": "Carrying a New plank from the wagon, standing at the window (x -3.16, z -0.82) and aiming at the dark gap in the floor (pitch about -39 to -44): the centre label is empty (no name, no hint, aim null in state) and holding the left button for 5 s twice did nothing; planksLeft stayed 3. A few degrees either side the aim reads plain 'Floorboards' with no hint. Expected the gap to be named (e.g. 'Rotten floorboard') with a meter, as roof holes are. Repair could not be finished in the time box, so Furnish was never reached.",
+      "repro": "pt start --profile kindling --seed 1881 (Repair save); take 'New plank' from the wagon (E); enter cabin; pt walkto window; tilt down to the dark gap in the floor; pt mousehold 5",
+      "screenshot": "shots/gap_noaim.png",
+      "tick": 55908
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Held plank covers the crosshair and the floor gap you are trying to aim at",
+      "detail": "While carrying a New plank, the plank model is drawn right across the centre of the screen, hiding the crosshair and the target gap; the player cannot see where the plank will go.",
+      "repro": "Take 'New plank' at the wagon; walk into the cabin; tilt down toward the floor near the window",
+      "screenshot": "shots/plank_occludes.png",
+      "tick": 55001
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Roof holes are invisible at night and their hint ignores what you carry",
+      "detail": "After dark (the clock runs about one game hour per real minute, so night falls within ~8 minutes of play), the roof holes are black on a dark ceiling even with the lantern lit; only the centre label reveals them, so finding them means sweeping the view blindly. While carrying a bundle, the hint still says 'Bring shingles from the wagon and work them in.' instead of telling you to hold the button.",
+      "repro": "Play past ~9 pm game time; take Bundle of shingles; go to hearth; look up at the ceiling",
+      "screenshot": "shots/hole_night.png",
+      "tick": 27637
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Wagon items overlap: hard to pick the bundle/plank, easy to grab the rug by mistake",
+      "detail": "The shingles, plank, rug, quilt and curtains sit in one pile; each item is only targetable in a 3-4 degree band, and the aim label can lag a frame at low fps, so I picked up the Braided rug instead of the shingles once. Each roof section needs its own bundle, so this is repeated 4x for the roof and 3x for planks.",
+      "repro": "pt walkto wagon; tilt slowly from -10 to -30 pitch and watch the label switch between Your wagon / Bundle of shingles / Braided rug",
+      "screenshot": "shots/wagon5.png",
+      "tick": 53000
+    },
+    {
+      "severity": "minor",
+      "category": "text",
+      "title": "HUD text overlaps at 640x360: help over the aim label, carry line wraps into toolbar",
+      "detail": "With help shown, the help lines draw on top of the aim name/hint/meter at screen centre making 'Pry it off...' unreadable; the checklist covers the top half of the view. The 'Carrying Bundle of shingles: hold the left button where it goes' line wraps 'goes' onto a second line that collides with the tool bar. While carrying, the aim still offers 'Braided rug - Take it (E)'.",
+      "repro": "pt start (Repair save); pt shot; take shingles at the wagon; pt shot",
+      "screenshot": "shots/overlap_hud.png",
+      "tick": 5688
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Prying window boards silently re-opens the completed 'Haul out the old wood' line",
+      "detail": "Each pried board drops as debris and the haul line grew from 1 to 4 pieces; reasonable, but no message says the boards became debris to haul.",
+      "repro": "Pry the three window boards with the pry bar (5); watch the haul line count",
+      "screenshot": "shots/pry1.png",
+      "tick": 5818
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 0,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Take the boards off the window": 244.0,
+      "Haul out the old wood": 405.3,
+      "Patch the roof": 1218.4,
+      "Mend the rocking chair": 1469.9,
+      "Set the table right": 1692.6
+    },
+    "repairLinesDone": 5,
+    "repairLinesTotal": 6,
+    "planksLeft": 3,
+    "wagonTripsForRoof": 4,
+    "startTick": 5394,
+    "endTick": 55926
+  },
+  "fun": 2,
+  "verdict": "Repair is readable and the per-line status messages are satisfying, but one-bundle-per-roof-section trips to a cluttered wagon, fast nightfall that hides the roof holes, and a held plank that hides its own target make it a slog; I could not get a plank to take at the window gap at all (no aim name), which blocked Repair and so Furnish. No objective_completed events were logged for checklist lines, only status text."
+}

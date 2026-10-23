@@ -23,6 +23,11 @@ bool dirtyAt(const World& w, Surface s, Vec3 p) {
     return texelAt(s, p, i, j) && w.grime.at(s, i, j) > kCleanThreshold;
 }
 
+bool carrying(const World& w, ItemKind k) {
+    return w.carry == Carry::Item && validIndex(w.carryIndex, w.items.size()) &&
+           w.items[static_cast<size_t>(w.carryIndex)].kind == k;
+}
+
 }  // namespace
 
 Description describe(const World& w, const Aim& aim) {
@@ -60,8 +65,14 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::RottenPlank: {
             if (!validIndex(aim.index, w.planks.size())) return {};
             switch (w.planks[aim.index]) {
-                case PlankState::Rotten: return {"Rotten floorboard", "Pry it up with the pry bar (5)."};
-                case PlankState::Removed: return {"Gap in the floor", "Bring a new plank from the wagon and work it in."};
+                case PlankState::Rotten:
+                    return {"Rotten floorboard", carrying(w, ItemKind::Plank)
+                                                     ? "Put the plank down and pry this up first (5)."
+                                                     : "Pry it up with the pry bar (5)."};
+                case PlankState::Removed:
+                    return {"Gap in the floor", carrying(w, ItemKind::Plank)
+                                                    ? "Hold the left button to work the plank in."
+                                                    : "Bring a new plank from the wagon and work it in."};
                 case PlankState::New: return {"New floorboard", ""};
             }
             return {};
@@ -71,7 +82,9 @@ Description describe(const World& w, const Aim& aim) {
             return {"Board nailed over the window", "Pry it off to let the light in (5)."};
         case TargetKind::RoofHole:
             if (w.roofPatched == kRoofAllPatched) return {"Patched roof", ""};
-            return {"Hole in the roof", "Bring shingles from the wagon and work them in."};
+            return {"Hole in the roof", carrying(w, ItemKind::Shingles)
+                                            ? "Hold the left button to work the shingles in."
+                                            : "Bring shingles from the wagon and work them in."};
         case TargetKind::Snow:
             if (w.snow <= 0) return {};
             return {"Snow drift", "Shovel it out (3) before it melts into the floor."};
@@ -81,6 +94,7 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Table:
             return w.table == TableState::Toppled ? Description{"Overturned table", "Set it back on its legs (E)."}
                                                   : Description{"Table", ""};
+        case TargetKind::OutsideWall: return {"Log wall, outside", "Weathered, not dirty: the inside needs scrubbing."};
         case TargetKind::Ceiling: return {"Ceiling boards", ""};
         case TargetKind::Ground: return {};
         case TargetKind::Wagon: return {"Your wagon", "Tools, planks, shingles and furnishings."};

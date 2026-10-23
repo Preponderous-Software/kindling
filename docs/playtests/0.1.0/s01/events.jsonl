@@ -1,0 +1,22 @@
+{"type":"world","tick":0,"wallTimeMs":1792726302314,"how":"created","seed":1881}
+{"type":"screen","tick":0,"wallTimeMs":1792726302314,"from":null,"to":"WORLD"}
+{"type":"status","tick":2541,"wallTimeMs":1792726387216,"text":"You've seen the worst of it. Time to clear the place out."}
+{"type":"objective_completed","tick":2541,"wallTimeMs":1792726387216,"number":1,"id":"Survey","title":"Survey","ticksTaken":2541}
+{"type":"save","tick":3604,"wallTimeMs":1792726422651,"count":1}
+{"type":"status","tick":6411,"wallTimeMs":1792726516645,"text":"The snow is out. Patch that hole before the next fall."}
+{"type":"save","tick":7205,"wallTimeMs":1792726543107,"count":2}
+{"type":"status","tick":10141,"wallTimeMs":1792726641683,"text":"Tossed out the door: a broken board. 14 pieces left inside."}
+{"type":"save","tick":10806,"wallTimeMs":1792726663878,"count":3}
+{"type":"save","tick":14406,"wallTimeMs":1792726784300,"count":4}
+{"type":"status","tick":16809,"wallTimeMs":1792726864377,"text":"Tossed out the door: a broken board. 13 pieces left inside."}
+{"type":"status","tick":17256,"wallTimeMs":1792726879273,"text":"Tossed out the door: a broken board. 12 pieces left inside."}
+{"type":"status","tick":17740,"wallTimeMs":1792726895374,"text":"Tossed out the door: a broken board. 11 pieces left inside."}
+{"type":"save","tick":18007,"wallTimeMs":1792726904284,"count":5}
+{"type":"status","tick":18148,"wallTimeMs":1792726908987,"text":"Tossed out the door: a broken board. 10 pieces left inside."}
+{"type":"status","tick":18773,"wallTimeMs":1792726929816,"text":"Tossed out the door: a broken board. 9 pieces left inside."}
+{"type":"status","tick":19801,"wallTimeMs":1792726964097,"text":"The first frost is settling over the valley."}
+{"type":"save","tick":21607,"wallTimeMs":1792727024298,"count":6}
+{"type":"save","tick":25208,"wallTimeMs":1792727144365,"count":7}
+{"type":"status","tick":25373,"wallTimeMs":1792727149831,"text":"Tossed out the door: a fallen shingle. 8 pieces left inside."}
+{"type":"save","tick":26542,"wallTimeMs":1792727188822,"count":8}
+{"type":"status","tick":26542,"wallTimeMs":1792727188822,"text":"Saved."}
