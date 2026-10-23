@@ -214,12 +214,21 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
         }
     }
     // A log wall's outer half faces the yard: weathered, not one of the walls
-    // to scrub.
+    // to scrub. The window's frame, set into the wall, is the window; the
+    // sides of the door opening are inside wall.
     if (aim.kind == TargetKind::Wall) {
-        const float out = L::kWallThickness * 0.5f;
-        if (aim.point.x < L::kInnerX0 - out || aim.point.x > L::kInnerX1 + out || aim.point.z < L::kInnerZ0 - out ||
-            aim.point.z > L::kInnerZ1 + out)
+        const float out = L::kWallThickness * 0.5f, e = 0.05f;
+        const Vec3& q = aim.point;
+        const bool inWindow = q.x < L::kInnerX0 && q.z > L::kWindowZ0 - e && q.z < L::kWindowZ1 + e &&
+                              q.y > L::kWindowY0 - e && q.y < L::kWindowY1 + e;
+        const bool inDoor = q.z > L::kInnerZ1 && q.x > L::kDoorX0 - e && q.x < L::kDoorX1 + e && q.y < L::kDoorTop + e;
+        if (inWindow) {
+            aim.kind = TargetKind::WindowBoard;  // the frame: named "Window", nothing to do
+            aim.index = -1;
+        } else if (!inDoor && (q.x < L::kInnerX0 - out || q.x > L::kInnerX1 + out || q.z < L::kInnerZ0 - out ||
+                               q.z > L::kInnerZ1 + out)) {
             aim.kind = TargetKind::OutsideWall;
+        }
     }
 
     // Debris lying flat is a thin target from eye height: a ray passing close
