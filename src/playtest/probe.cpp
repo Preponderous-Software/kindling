@@ -212,7 +212,7 @@ std::string stateJson(const World& w, const HostView& v, int64_t wallTimeMs, dou
     if (v.aim.empty()) s << "null";
     else
         s << "{\"name\":" << quote(v.aim) << ",\"hint\":" << quote(v.aimHint) << ",\"inReach\":" << boolean(v.aimInReach)
-          << "}";
+          << ",\"note\":" << quote(v.aimNote) << ",\"meter\":" << quote(v.aimMeter) << "}";
     s << ",\"status\":" << (v.carrying.empty() ? std::string("null") : quote(v.carrying));
     s << ",\"settler\":" << quote(settlerName(w.settler.state)) << ",\"hearthLit\":" << boolean(w.hearth.lit)
       << ",\"mare\":{\"hunger\":" << number(w.horse.hunger) << ",\"dirt\":" << number(w.horse.dirt) << "}";

@@ -35,6 +35,8 @@ struct HostView {
     std::string aim;               // what the crosshair is on, when near enough to name
     std::string aimHint;
     bool aimInReach = false;
+    std::string aimNote;           // "Too far to reach. Step closer." when out of reach of work to do
+    std::string aimMeter;          // the work meter under the crosshair, as the HUD shows it
     std::vector<std::pair<bool, std::string>> checklist;  // the HUD's rows: done?, text
     std::string carrying;          // the carry line, empty when hands are free
 };

@@ -34,6 +34,15 @@ public:
     // hand. Flickers with `seconds` like the flames.
     void lights(const World& w, double seconds, float daylight, std::vector<StrataPointLight>& out) const;
 
+    // The tool in hand, in the corner of the view, swinging while it works.
+    // `working` is whether the work under the crosshair is going on.
+    void animateTool(const World& w, double seconds, bool working);
+
+    // A puff of dust (or snow, or ash) where a tool is working; drawn by
+    // drawDust between begin and end frame. Real time, like the flicker.
+    void puff(Vec3 at, Rgb color, double seconds);
+    void drawDust(double seconds);
+
     // Show the player's own figure (in the reveal, seen from outside).
     void showPlayer(bool on) { showPlayer_ = on; }
 
@@ -71,6 +80,16 @@ private:
     uint32_t settler_ = 0, homesteader_ = 0;  // figures, not pickable
     Held horseBody_, horseHead_, horseTail_;  // the mare, pickable
     int horseCoat_ = -1;                       // the dirt level her meshes were built with (tenths)
+    uint32_t tool_ = 0;                        // the tool in hand, not pickable
+    Tool toolBuilt_ = Tool::None;
+    struct Mote {
+        Vec3 pos, vel;
+        Rgb color;
+        double born = 0;
+    };
+    std::vector<Mote> dust_;
+    double lastPuff_ = 0;
+    uint32_t rng_ = 0x2545f491u;
     bool showPlayer_ = false;
     std::unordered_map<uint32_t, const Held*> byId_;
     std::array<uint32_t, kSurfaceCount> grimeTextures_{};

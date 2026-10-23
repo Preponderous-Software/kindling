@@ -128,7 +128,7 @@ const Vec3 kKindlingPoint{-2.3f, 0.05f, 6.5f};
 const Vec2 kKindlingStand{-2.3f, 5.8f};
 const Vec3 kWoodpilePoint{-3.1f, 0.3f, -2.4f};
 const Vec2 kWoodpileStand{-3.0f, -1.5f};
-const Vec2 kHaulStand{2.5f, 5.8f};
+const Vec2 kHaulStand{2.5f, 3.3f};  // inside, by the door: the debris is tossed out through it
 const Vec3 kHayPoint{5.4f, 0.4f, 8.25f};
 const Vec2 kHayStand{5.4f, 7.4f};
 const Vec3 kHorseHeadPoint{L::kHorse.x, 1.5f, L::kHorse.z - 1.0f};
@@ -153,7 +153,7 @@ Autopilot::Goal Autopilot::choose(const World& w) {
     };
 
     // ---- hands full: take it where it goes
-    if (w.carry == Carry::Debris) return go(kHaulStand, TargetKind::None, -1, {2.5f, 0.5f, 7.0f}, Tool::None, false, true, "hauling debris out");
+    if (w.carry == Carry::Debris) return go(kHaulStand, TargetKind::None, -1, {2.5f, 0.5f, 7.0f}, Tool::None, false, true, "tossing debris out the door");
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
         const Vec3 wagon{2.5f, 0.86f, 7.1f};

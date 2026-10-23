@@ -97,9 +97,25 @@ int main() {
     CHECK(partVersion(Part::Floor, changed) != partVersion(Part::Floor, w));
     CHECK(!hasTag(buildPart(Part::Boards, changed), TargetKind::WindowBoard, 2));
 
-    // Snow disappears once shovelled out.
+    // Snow disappears once shovelled out: the last scrap of a drift and none
+    // at all have different versions, so the mesh is rebuilt (#18).
+    World scrap = w;
+    scrap.snow = 0.02f;
     changed.snow = 0;
     CHECK(buildPart(Part::Snow, changed).empty());
+    CHECK(partVersion(Part::Snow, scrap) != partVersion(Part::Snow, changed));
+    CHECK(partVersion(Part::Snow, scrap) != partVersion(Part::Snow, w));
+
+    // Every tool but none has something to hold.
+    for (int t = 1; t < kToolCount; ++t) CHECK(!buildTool(static_cast<Tool>(t)).empty());
+    CHECK(buildTool(Tool::None).empty());
+
+    // A board's pick capsule lies along it, on the floor, round its centre.
+    Vec3 ca, cb;
+    float cr;
+    debrisCapsule(w.debris[0], ca, cb, cr);
+    CHECK(std::fabs((ca.x + cb.x) / 2 - w.debris[0].pos.x) < 1e-4f && std::fabs((ca.z + cb.z) / 2 - w.debris[0].pos.z) < 1e-4f);
+    CHECK(ca.y == w.debris[0].pos.y && cr > 0.1f);
 
     // Debris pieces are built round the origin and placed by their transform.
     float model[16];

@@ -251,6 +251,8 @@ void Session::record(double dt) {
     v.aim = at.name;
     v.aimHint = at.hint;
     v.aimInReach = at.inReach;
+    v.aimNote = at.note;
+    v.aimMeter = meterText(w_, at);
     for (const HudRow& row : checklist(w_)) v.checklist.emplace_back(row.done, row.text);
     v.carrying = carryLine(w_);
     for (const Message& m : messages_)

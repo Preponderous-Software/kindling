@@ -80,6 +80,14 @@ void itemTransform(const Item& item, float out[16]);
 // the placement outline.
 void itemFootprint(ItemKind kind, float& halfX, float& halfZ);
 
+// The tool in the player's hand, built around the hand in view space (x right,
+// y up, +z toward the eye); empty for no tool.
+MeshData buildTool(Tool tool);
+
+// One piece of debris as a capsule along its length (world space), for a
+// forgiving pick: a flat board is a thin target from eye height.
+void debrisCapsule(const Debris& d, Vec3& a, Vec3& b, float& radius);
+
 // One piece of debris, built around the origin; place it with debrisTransform.
 MeshData buildDebris(const Debris& d, int32_t index);
 // Column-major model matrix for a piece of debris.

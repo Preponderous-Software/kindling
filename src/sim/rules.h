@@ -46,6 +46,18 @@ void moveCircle(float& x, float& z, float dx, float dz, float r);
 // How far from the player's eye things can be reached and worked on.
 bool inReach(const World& w, const Aim& aim);
 
+// How far along the work under the crosshair is, 0..1, for the meter at the
+// crosshair: a timed job (prying, sawing, mending), how much of the drift or
+// the ash is out, or how clean the patch under the broom or brush is.
+// Negative when the tool in hand does nothing there, or it is out of reach.
+float workMeter(const World& w, const Aim& aim);
+// Whether the tool (or material) in hand has work to do on the target, near
+// enough or not: for saying it is too far away.
+bool toolApplies(const World& w, const Aim& aim);
+
+// Whether debris put down here goes out through the door: indoors, near it.
+bool byTheDoor(const World& w);
+
 // Where carried things ride: low and to the right, clear of the crosshair.
 Vec3 carryPosition(const Player& p);
 

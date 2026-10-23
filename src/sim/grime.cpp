@@ -159,4 +159,31 @@ float cleanFraction(const Grime& g, Surface s) {
     return static_cast<float>(clean) / static_cast<float>(t.size());
 }
 
+float cleanFraction(const Grime& g, std::initializer_list<Surface> surfaces) {
+    size_t clean = 0, total = 0;
+    for (Surface s : surfaces) {
+        for (uint8_t v : g.texels[static_cast<size_t>(s)]) clean += v <= kCleanThreshold;
+        total += g.texels[static_cast<size_t>(s)].size();
+    }
+    return total ? static_cast<float>(clean) / static_cast<float>(total) : 0;
+}
+
+float patchClean(const Grime& g, Surface s, Vec3 p, float radius) {
+    const SurfaceDef& d = surfaceDef(s);
+    const Vec3 r = p - d.origin;
+    const float cu = dot(r, d.u) / d.uLength * d.width, cv = dot(r, d.v) / d.vLength * d.height;
+    const float ru = radius / d.uLength * d.width, rv = radius / d.vLength * d.height;
+    const int i0 = std::max(0, static_cast<int>(std::floor(cu - ru))), i1 = std::min(d.width - 1, static_cast<int>(cu + ru));
+    const int j0 = std::max(0, static_cast<int>(std::floor(cv - rv))), j1 = std::min(d.height - 1, static_cast<int>(cv + rv));
+    int clean = 0, total = 0;
+    for (int j = j0; j <= j1; ++j)
+        for (int i = i0; i <= i1; ++i) {
+            const float du = (i + 0.5f - cu) / ru, dv = (j + 0.5f - cv) / rv;
+            if (du * du + dv * dv >= 1) continue;
+            ++total;
+            clean += g.at(s, i, j) <= kCleanThreshold;
+        }
+    return total ? static_cast<float>(clean) / static_cast<float>(total) : 1.0f;
+}
+
 }  // namespace kindling
