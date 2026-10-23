@@ -59,6 +59,8 @@ constexpr float kEyeHeight = 1.62f;
 constexpr float kWalkSpeed = 2.6f;    // m/s
 constexpr float kSprintSpeed = 4.6f;  // m/s
 constexpr float kReach = 2.2f;        // how far the player can work or pick things up
+// The snow drift under the roof hole, at its full size: centre and radii.
+constexpr float kSnowX = 0.1f, kSnowZ = -0.9f, kSnowRX = 0.8f, kSnowRZ = 0.65f;
 constexpr float kNameRange = 10.5f;   // how far things are named (and surveyed): across the room, corner to corner
 constexpr float kTossRange = 1.6f;    // debris carried this near the door can be tossed out through it
 

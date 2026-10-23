@@ -59,6 +59,11 @@ StrataCamera playerCamera(const Player& p, float aspect) {
 
 namespace {
 std::string percent(float f) { return std::to_string(static_cast<int>(f * 100.0f + 0.5f)) + "%"; }
+// How far toward a goal, so the line reads 100% exactly when it ticks.
+std::string toward(float value, float goal) {
+    return std::to_string(static_cast<int>(std::min(1.0f, value / goal) * 100.0f)) + "%";
+}
+std::string count(int n, const char* one, const char* many) { return std::to_string(n) + " " + (n == 1 ? one : many); }
 }  // namespace
 
 std::vector<HudRow> checklist(const World& w) {
@@ -74,10 +79,10 @@ std::vector<HudRow> checklist(const World& w) {
         row((w.surveyed & kSurveyBoardedWindow) != 0, "Boarded window");
     } else if (p.step == Step::Clear) {
         row(p.debrisLeft == 0, "Haul out the debris (" + std::to_string(p.debrisLeft) + " left)");
-        row(p.snow <= 0, "Shovel out the snow");
-        row(p.floorClean >= kFloorCleanGoal, "Sweep the floor (" + percent(p.floorClean) + ")");
-        row(p.wallsClean >= kWallCleanGoal, "Scrub the walls (" + percent(p.wallsClean) + ")");
-        row(p.hearthClean >= kWallCleanGoal, "Scrub the chimney (" + percent(p.hearthClean) + ")");
+        row(p.snow <= 0, p.snow <= 0 ? "Shovel out the snow" : "Shovel out the snow (" + percent(1.0f - p.snow) + ")");
+        row(p.floorClean >= kFloorCleanGoal, "Sweep the floor (" + toward(p.floorClean, kFloorCleanGoal) + ")");
+        row(p.wallsClean >= kWallCleanGoal, "Scrub the walls (" + toward(p.wallsClean, kWallCleanGoal) + ")");
+        row(p.hearthClean >= kWallCleanGoal, "Scrub the chimney (" + toward(p.hearthClean, kWallCleanGoal) + ")");
     } else if (p.step == Step::Kindle) {
         row(p.woodStacked, "Split firewood and stack it by the hearth (" + std::to_string(w.wood.woodpile) + " of " +
                                std::to_string(kWoodpileGoal) + ")");
@@ -87,21 +92,22 @@ std::vector<HudRow> checklist(const World& w) {
         row(p.burning, "Strike a match and hold it till it catches");
     } else if (p.step == Step::Repair) {
         row(p.planksLeft == 0, "Replace the rotten floorboards (" + std::to_string(p.planksLeft) + " left)");
-        row(p.roofLeft == 0, "Patch the roof (" + std::to_string(p.roofLeft) + " sections open)");
+        row(p.roofLeft == 0, "Patch the roof (" + count(p.roofLeft, "section", "sections") + " open)");
         row(p.boardsLeft == 0, "Take the boards off the window");
         row(p.chairMended, "Mend the rocking chair");
         row(p.tableUpright, "Set the table right");
-        row(p.debrisLeft == 0, "Haul out the old wood (" + std::to_string(p.debrisLeft) + " pieces)");
+        row(p.debrisLeft == 0, "Haul out the old wood (" + count(p.debrisLeft, "piece", "pieces") + ")");
     } else if (p.step == Step::Furnish || p.step >= Step::Welcome) {
         if (p.step == Step::Furnish) {
             row(p.furnished >= kFurnishGoal, "Bring in furnishings (" + std::to_string(p.furnished) + " of " +
                                                  std::to_string(kFurnishGoal) + ")");
+        } else if (p.step == Step::Done) {
+            // Ada is home: the list steps aside so the cabin can be seen.
+            rows.push_back({HudRow::Note, false, "Ada is home. T plays back your restoration."});
+            return rows;
         } else {
             row(w.settler.state != SettlerState::Away, "Ada arrives");
             row(w.settler.state == SettlerState::Seated, "She settles by the fire");
-            if (p.step == Step::Done) {
-                rows.push_back({HudRow::Note, false, "T plays back your restoration."});
-            }
         }
         const Brief b = evaluateBrief(w);
         rows.push_back({HudRow::Brief, false, b.met() ? "ADA'S BRIEF: ALL MET" : "ADA'S BRIEF"});
@@ -196,48 +202,55 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
     storage.reserve(48);
     if (compact) return;  // the page shows the words, the crosshair included
     const float cx = width * 0.5f, cy = height * 0.5f;
-    text(texts, cx - 6, cy - 8, 16, kWhite, "+", storage);
+    // Sizes are for a 720-pixel-high window and scale with it, so a small
+    // window keeps the middle of the view clear.
+    const float u = std::clamp(static_cast<float>(height) / 720.0f, 0.6f, 2.0f);
+    auto px = [u](float v) { return std::round(v * u); };
+    text(texts, cx - px(6), cy - px(8), px(16), kWhite, "+", storage);
 
     const float wide = static_cast<float>(width) - 40;  // what centred words may span
     const AimText at = aimText(w, aim);
-    float ay = cy + 28;
+    float ay = cy + px(28);
     if (!at.name.empty()) {
-        ay += block(texts, cx, ay, 18, at.inReach ? kWhite : kDim, at.name, wide, storage) + 4;
-        if (!at.hint.empty()) ay += block(texts, cx, ay, 14, kDim, at.hint, wide, storage);
-        if (!at.note.empty()) ay += block(texts, cx, ay, 14, kEmber, at.note, wide, storage);
+        ay += block(texts, cx, ay, px(18), at.inReach ? kWhite : kDim, at.name, wide, storage) + px(4);
+        if (!at.hint.empty()) ay += block(texts, cx, ay, px(14), kDim, at.hint, wide, storage);
+        if (!at.note.empty()) ay += block(texts, cx, ay, px(14), kEmber, at.note, wide, storage);
     }
     const std::string meter = meterText(w, at);
-    if (!meter.empty()) ay += block(texts, cx, ay + 4, 14, at.meter >= 1 ? kEmber : kWhite, meter, wide, storage) + 4;
+    if (!meter.empty()) ay += block(texts, cx, ay + px(4), px(14), at.meter >= 1 ? kEmber : kWhite, meter, wide, storage) + px(4);
 
     // The checklist for the step the player is on.
-    float y = 20;
+    const float left = px(20);
+    float y = px(20);
     for (const HudRow& r : checklist(w)) {
         switch (r.kind) {
             case HudRow::Step:
-                text(texts, 20, y, 18, kEmber, r.text, storage);
-                y += 30;
+                text(texts, left, y, px(18), kEmber, r.text, storage);
+                y += px(30);
                 break;
             case HudRow::Item: {
                 const std::string line = std::string(r.done ? "[x] " : "[ ] ") + r.text;
-                const float size = std::max(10.0f, std::min(16.0f, std::floor(wide / static_cast<float>(line.size()))));
-                text(texts, 20, y, size, r.done ? kWhite : kDim, line, storage);
-                y += size + 8;
+                const float size =
+                    std::max(8.0f, std::min(px(16), std::floor((wide * 0.6f) / static_cast<float>(line.size()))));
+                text(texts, left, y, size, r.done ? kWhite : kDim, line, storage);
+                y += size + px(8);
                 break;
             }
             case HudRow::Note:
-                text(texts, 20, y, 16, kDim, r.text, storage);
-                y += 24;
+                text(texts, left, y, px(16), kDim, r.text, storage);
+                y += px(24);
                 break;
             case HudRow::Brief:
-                y += 8;
-                text(texts, 20, y, 16, kEmber, r.text, storage);
-                y += 26;
+                y += px(8);
+                text(texts, left, y, px(16), kEmber, r.text, storage);
+                y += px(26);
                 break;
         }
     }
 
     const std::string clock = clockText(w);
-    text(texts, static_cast<float>(width) - 16.0f * static_cast<float>(clock.size()) - 20, 20, 16, kDim, clock, storage);
+    text(texts, static_cast<float>(width) - px(16) * static_cast<float>(clock.size()) - left, px(20), px(16), kDim, clock,
+         storage);
 
     // The tool belt, and what is in hand.
     std::string belt;
@@ -245,36 +258,40 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         const bool held = static_cast<int>(w.tool) == t;
         belt += (held ? "[" : " ") + std::to_string(t) + " " + toolName(static_cast<Tool>(t)) + (held ? "]" : " ") + " ";
     }
-    const float beltSize = std::min(12.0f, static_cast<float>(width - 40) / static_cast<float>(belt.size()));
-    text(texts, centred(cx, beltSize, belt), static_cast<float>(height) - 36, beltSize, kWhite, belt, storage);
+    const float beltSize = std::min(px(12), static_cast<float>(width - 40) / static_cast<float>(belt.size()));
+    text(texts, centred(cx, beltSize, belt), static_cast<float>(height) - px(36), beltSize, kWhite, belt, storage);
     const std::string carrying = carryLine(w);
-    if (!carrying.empty()) block(texts, cx, static_cast<float>(height) - 64, 14, kEmber, carrying, wide, storage);
+    if (!carrying.empty()) block(texts, cx, static_cast<float>(height) - px(64), px(14), kEmber, carrying, wide, storage);
 
-    const std::string speech = settlerSpeech(w);
-    if (!speech.empty())
-        block(texts, cx, static_cast<float>(height) - 120, 18, kWhite, "Ada: \"" + speech + "\"", wide, storage);
-
-    float my = std::max(cy + 90, ay + 8);
-    for (const Message& m : messages) my += block(texts, cx, my, 14, kEmber, m.text, wide, storage) + 2;
-
+    // A strip of keys above the tool belt, clear of the checklist and the
+    // crosshair's words; each line shrinks to the window's width.
+    float helpTop = static_cast<float>(height) - px(76);
     if (help != Help::Hidden) {
-        // A strip of keys above the tool belt, clear of the checklist and the
-        // crosshair's words; each line shrinks to the window's width.
         std::vector<std::string> lines = {"Mouse / arrows look   W A S D walk   Shift hurry",
                                           "1-9 take a tool   Left mouse work with it",
                                           "E pick up / put down   R turn it   L lantern"};
         lines.push_back(help == Help::Browser ? "F5 save   F9 load   Esc free the mouse   F1 hide these"
                                               : "F5 save   F9 load   Esc free the mouse / quit   F1 hide these   F12 screenshot");
-        float size = 14;
+        float size = px(14);
         for (const std::string& l : lines) size = std::min(size, std::floor(wide / static_cast<float>(l.size())));
         size = std::max(8.0f, size);
         const float step = std::round(size * 1.5f);
-        float hy = static_cast<float>(height) - 76 - step * static_cast<float>(lines.size());
+        float hy = static_cast<float>(height) - px(76) - step * static_cast<float>(lines.size());
+        helpTop = hy;
         for (const std::string& l : lines) {
             text(texts, centred(cx, size, l), hy, size, kDim, l, storage);
             hy += step;
         }
     }
+
+    // Ada's words sit above the key strip when it is showing.
+    const std::string speech = settlerSpeech(w);
+    if (!speech.empty())
+        block(texts, cx, std::min(static_cast<float>(height) - px(120), helpTop - px(30)), px(18), kWhite,
+              "Ada: \"" + speech + "\"", wide, storage);
+
+    float my = std::max(cy + px(90), ay + px(8));
+    for (const Message& m : messages) my += block(texts, cx, my, px(14), kEmber, m.text, wide, storage) + px(2);
     for (size_t i = 0; i < texts.size(); ++i) texts[i].utf8 = storage[i].c_str();
     engine.submitText(texts.data(), texts.size());
 }
@@ -402,10 +419,19 @@ bool Reveal::frame(strata::Engine& engine, bridge::Scene& scene, const World& w,
     std::vector<StrataText> texts;
     std::vector<std::string> storage;
     storage.reserve(4);
-    text(texts, 30, 30, 22, kEmber, "Ada's cabin, from ruin to home", storage);
-    text(texts, 30, 62, 16, kWhite,
-         clockText(ghost_) + "   " + stepName(static_cast<Step>(w.history[index_].step)), storage);
-    text(texts, 30, static_cast<float>(height) - 40, 14, kDim, "Esc to skip", storage);
+    // Scaled with the window, and shrunk to fit a narrow one.
+    const float u = std::clamp(static_cast<float>(height) / 720.0f, 0.6f, 2.0f);
+    const float margin = std::round(30 * u), room = static_cast<float>(width) - 2 * margin;
+    auto fit = [&](float size, const std::string& s) {
+        return std::max(8.0f, std::min(std::round(size * u), std::floor(room / static_cast<float>(s.size()))));
+    };
+    const std::string title = "Ada's cabin, from ruin to home";
+    const std::string when = clockText(ghost_) + "   " + stepName(static_cast<Step>(w.history[index_].step));
+    const float titleSize = fit(22, title);
+    text(texts, margin, margin, titleSize, kEmber, title, storage);
+    text(texts, margin, margin + titleSize + std::round(10 * u), fit(16, when), kWhite, when, storage);
+    text(texts, margin, static_cast<float>(height) - std::round(40 * u), fit(14, "Esc to skip"), kDim, "Esc to skip",
+         storage);
     for (size_t j = 0; j < texts.size(); ++j) texts[j].utf8 = storage[j].c_str();
     engine.submitText(texts.data(), texts.size());
     engine.endFrame();

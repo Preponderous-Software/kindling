@@ -20,10 +20,11 @@ namespace kindling {
 constexpr int kTickRate = 30;                 // simulation ticks per real second
 constexpr float kTickSeconds = 1.0f / kTickRate;
 
-// The clock: one game minute per real second, from nine in the morning on
-// 11 November (late autumn) of the first year.
+// The clock: a game hour every three real minutes, from nine in the morning
+// on 11 November (late autumn) of the first year, so a first restoration (half
+// an hour to an hour) ends around dusk and the first frost.
 constexpr int kStartMinute = 9 * 60;
-constexpr float kGameMinutesPerSecond = 1.0f;
+constexpr float kGameMinutesPerSecond = 1.0f / 3.0f;
 
 // ---- what the ruin starts with
 
@@ -197,6 +198,8 @@ double timeOfDay(const World& w);
 int32_t dayNumber(const World& w);
 // The first frost settles after dark on the first night.
 bool frosted(const World& w);
+// From half past four in the afternoon until seven in the morning.
+bool dusk(const World& w);
 
 // A new game: the ruin as the player finds it, the player in the yard.
 World newWorld(uint64_t seed);

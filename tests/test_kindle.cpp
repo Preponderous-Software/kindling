@@ -106,8 +106,9 @@ int main() {
         idle(w, 30.0f);
         CHECK(w.hearth.fire > 0.9f);
         CHECK(w.hearth.fuelMinutes > 0);
-        // It burns its fuel and dies down to coals.
-        idle(w, 260.0f);
+        // It burns its fuel (a log is four game hours: twelve minutes) and dies
+        // down to coals.
+        idle(w, 760.0f);
         CHECK(!w.hearth.lit);
         CHECK(w.hearth.fire == 0.0f);
     }
@@ -144,11 +145,29 @@ int main() {
         CHECK(timeOfDay(w) > 0.37 && timeOfDay(w) < 0.38);  // 9:00
         CHECK(!frosted(w));
         TickEvents ev;
-        idle(w, 11 * 60.0f + 1.0f, &ev);  // to 20:00
+        idle(w, 7.5f * 180.0f + 1.0f, &ev);  // to 16:30, three real minutes a game hour
+        CHECK(dusk(w) && !frosted(w));
+        bool lantern = false;
+        for (const std::string& m : ev.messages) lantern = lantern || m.find("lantern") != std::string::npos;
+        CHECK(lantern);
+        idle(w, 3.5f * 180.0f, &ev);  // to 20:00
         CHECK(frosted(w));
         bool told = false;
         for (const std::string& m : ev.messages) told = told || m.find("frost") != std::string::npos;
         CHECK(told);
+    }
+
+    // ---- once Ada is settled by the fire, she keeps it burning
+    {
+        World w = newWorld(9);
+        w.hearth.ash = 0;
+        w.hearth.lit = true;
+        w.hearth.fire = 1.0f;
+        w.hearth.fuelMinutes = 10;
+        w.settler.state = SettlerState::Seated;
+        idle(w, 3 * 760.0f);
+        CHECK(w.hearth.lit);
+        CHECK(w.hearth.fire > 0.9f);
     }
 
     // ---- the Kindle step ends with a fire burning and wood stacked by the hearth

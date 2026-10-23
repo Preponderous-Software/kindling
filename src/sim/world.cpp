@@ -64,6 +64,10 @@ double timeOfDay(const World& w) {
 int32_t dayNumber(const World& w) { return static_cast<int32_t>(gameMinutes(w) / 1440.0); }
 
 bool frosted(const World& w) { return gameMinutes(w) >= 20.0 * 60.0; }
+bool dusk(const World& w) {
+    const double t = timeOfDay(w);
+    return t >= 16.5 / 24.0 || t < 7.0 / 24.0;
+}
 
 const char* woodName(Wood k) {
     switch (k) {

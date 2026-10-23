@@ -1,0 +1,103 @@
+{
+  "session": "s04",
+  "goal": "Your save starts at the Kindle step: lay and light the fire, welcome the settler and watch the reveal (do not skip it); then spend the rest of your time walking around inside and outside the cabin as evening falls, judging how it looks (light, models, the fire, the people and the mare) and noting anything ugly, broken, floating, clipping or hard to read.",
+  "build": {"version": "0.1.0", "commit": "cfae820"},
+  "seed": 1881,
+  "durationSec": 1132,
+  "outcome": "achieved",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "ux",
+      "title": "Finished checklist + Ada's brief permanently cover two-thirds of the screen after Done; nothing hides them",
+      "detail": "After the reveal (STEP: Done) the 9-line checklist/'ADA'S BRIEF: ALL MET' list stays drawn from the top down to about y=260 of 360 and overprints the aim label in the middle. F1 only toggles the controls help. During the post-game walk around the cabin, Ada and the mare were mostly hidden behind the text. I had to tilt the view up so models showed in the bottom strip. Expected the list to collapse or fade once Done, or F1 to hide it too.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 1881; finish Kindle; pt await REVEAL 30; wait for WORLD; pt key F1; pt shot x",
+      "screenshot": "shots/done_checklist_covers_view.png",
+      "tick": 36686
+    },
+    {
+      "severity": "major",
+      "category": "balance",
+      "title": "Welcome fire burns out ~36 s after the reveal ends, leaving Ada in a dark cabin",
+      "detail": "Fire lit at tick 28863 (kindling + one split log on the andirons) went out at tick 36063: 'The fire has burned down to coals. Lay more wood and kindling.' The reveal ended at tick 34987, so the cosy ending, with Ada 'settled by the fire', lasts about 36 game seconds before the room goes dark. The HUD then asks for kindling 'from the chopping block' again. Expected the welcome fire to keep burning through the ending (or Ada to tend it).",
+      "repro": "finish Kindle with a single log on the andirons; watch the reveal; pt wait 40; pt state (hearthLit=false); pt events 5",
+      "screenshot": "shots/fire_burns_out.png",
+      "tick": 36063
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Taking a log from the woodpile for the andirons un-ticks 'stack it by the hearth (4 of 4)' and reopens the step",
+      "detail": "The Kindle checklist asks for 4 logs stacked, then 'Lay a split log on the andirons'. The obvious source is the woodpile. Taking one drops the line back to '[ ] (3 of 4)', so Kindle cannot complete until you go back out, split another round and stack it. The real requirement is 5 logs, but the list says 4. Either count the andiron log or say 'stack 4, and one more for the fire'.",
+      "repro": "stack 4 split logs on the woodpile (line ticks); E on woodpile with empty hands; pt state --full -> checklist[1] done=false '(3 of 4)'",
+      "screenshot": "shots/checklist_unticks.png",
+      "tick": 28274
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "HUD text overlaps itself at 640x360: checklist, help, aim label, Ada's dialogue and toasts collide in the centre",
+      "detail": "At load, the checklist, the controls help, the aim name/hint and the 'Loaded your save' toast all overprint each other mid-screen, and the first checklist line runs into the clock. On Kindle completion the Welcome list overprints Ada's first line ('Oh... it's warm.') and the aim label, so her dialogue is hard to read.",
+      "repro": "pt start ... --seed 1881; pt shot a (load); complete Kindle; pt shot b",
+      "screenshot": "shots/welcome_hud_overlap.png",
+      "tick": 34610
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Woodpile is hard to find: dark corner left of the hearth, out of view when facing the hearth",
+      "detail": "The carry hint says 'Stack it on the woodpile by the hearth'. The woodpile is two low rails in the dark back-left corner, out of view when you face the hearth, and the bottom carry message covers it when you look down. It took several turns to find. The thin logs also let the crosshair hit 'Floorboards' through the gaps. With empty hands, the full pile shows no hint that E takes a log.",
+      "repro": "carry a split log in; pt walkto hearth; look around for the woodpile",
+      "screenshot": "shots/woodpile_hard_to_find.png",
+      "tick": 16364
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Kindling at the chopping block is hidden behind the block and only visible in lantern light",
+      "detail": "The hearth hint says to bring kindling 'from the chopping block', but the splinter pile sits on the far side of the block (about x=-2.3, z=6.5) and is hidden from where you split. At night it is only visible in lantern light. Split logs on the ground are also a thin pick target: they register only in a 2-3 degree band of pitch.",
+      "repro": "split a round; pt walkto chopping_block; look for 'Kindling'",
+      "screenshot": "shots/kindling_hidden.png",
+      "tick": 23550
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "'Strike a match' line ticks ~35 s after 'It catches.' with no progress feedback",
+      "detail": "After 'It catches.' the flames show but the checklist line stays unticked until the fire grows (~tick 29900, ~35 game s later). No 'taking hold' meter or text says why, so it looks like the fire did not count.",
+      "repro": "lay kindling + log; pt key 8; pt mousehold 5; pt state --full every few seconds",
+      "screenshot": "shots/fire_lit_unticked.png",
+      "tick": 29250
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Reveal title 'Ada's cabin, from ruin to ho...' cut off at the right edge",
+      "detail": "The timelapse title runs off the window at 640x360. Its 5:20 pm frames are also nearly black apart from the window.",
+      "repro": "finish Kindle; pt await REVEAL 30; pt shot r",
+      "screenshot": "shots/reveal_title_cut.png",
+      "tick": 34983
+    },
+    {
+      "severity": "polish",
+      "category": "balance",
+      "title": "Day clock runs ~1 game minute per second: evening passes during the Kindle chores, so Ada arrives at 4 am",
+      "detail": "Load was at 2:19 pm. Evening had passed by the time the fire was laid, and 'Ada's wagon is coming up the trail' at 4:05 am in full dark. The post-game walk then happens at dawn, not 'as evening falls'. An arrival in the small hours reads oddly for the cosy beat.",
+      "repro": "pt start ...; play Kindle normally; pt events (tick 34183 clock 4:05 am)",
+      "screenshot": "shots/welcome_hud_overlap.png",
+      "tick": 34183
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 2,
+    "deaths": 0,
+    "secondsToObjective": {"Kindle": 1139.4, "Welcome": 1164.7},
+    "kindleTicksTaken": 24715,
+    "roundsSplit": 2,
+    "fireBurnSeconds": 240,
+    "secondsFireLastedAfterReveal": 36,
+    "revealRealSeconds": 33
+  },
+  "fun": 3,
+  "verdict": "The Kindle chores (split, haul, shovel, lay, strike) feel tactile, and the lit hearth, the timelapse reveal, the snowy dawn yard and seated Ada are charming. But the ending is undercut. The finished checklist never leaves the screen, so you can't see the cabin you made, and the welcome fire dies within a minute of the reveal. Fix those two, and make the woodpile/kindling easier to find and the '4 logs' count honest, and the finale would land."
+}

@@ -1,0 +1,32 @@
+{"type":"world","tick":5394,"wallTimeMs":1792726301844,"how":"loaded","seed":1881}
+{"type":"screen","tick":5394,"wallTimeMs":1792726301845,"from":null,"to":"WORLD"}
+{"type":"status","tick":5774,"wallTimeMs":1792726314668,"text":"Light comes through the gap."}
+{"type":"status","tick":6733,"wallTimeMs":1792726346605,"text":"Light comes through the gap."}
+{"type":"status","tick":7320,"wallTimeMs":1792726366164,"text":"Daylight floods in."}
+{"type":"status","tick":8630,"wallTimeMs":1792726409873,"text":"Tossed out the door: a broken board. 3 pieces left inside."}
+{"type":"save","tick":8999,"wallTimeMs":1792726422217,"count":1}
+{"type":"status","tick":9436,"wallTimeMs":1792726436840,"text":"Tossed out the door: a broken board. 2 pieces left inside."}
+{"type":"status","tick":11126,"wallTimeMs":1792726493442,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":12159,"wallTimeMs":1792726527976,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":12602,"wallTimeMs":1792726542800,"count":2}
+{"type":"status","tick":13790,"wallTimeMs":1792726582692,"text":"One more section patched."}
+{"type":"save","tick":16202,"wallTimeMs":1792726663057,"count":3}
+{"type":"status","tick":19800,"wallTimeMs":1792726782940,"text":"The first frost is settling over the valley."}
+{"type":"save","tick":19802,"wallTimeMs":1792726783011,"count":4}
+{"type":"save","tick":23402,"wallTimeMs":1792726903049,"count":5}
+{"type":"save","tick":27002,"wallTimeMs":1792727023040,"count":6}
+{"type":"status","tick":27559,"wallTimeMs":1792727041591,"text":"One more section patched."}
+{"type":"save","tick":30602,"wallTimeMs":1792727143092,"count":7}
+{"type":"status","tick":31840,"wallTimeMs":1792727184311,"text":"One more section patched."}
+{"type":"save","tick":34203,"wallTimeMs":1792727263084,"count":8}
+{"type":"status","tick":36553,"wallTimeMs":1792727341390,"text":"The roof is whole again."}
+{"type":"save","tick":37804,"wallTimeMs":1792727383099,"count":9}
+{"type":"save","tick":41404,"wallTimeMs":1792727503924,"count":10}
+{"type":"status","tick":44098,"wallTimeMs":1792727593701,"text":"The rocking chair is sound again."}
+{"type":"save","tick":45005,"wallTimeMs":1792727623920,"count":11}
+{"type":"save","tick":48605,"wallTimeMs":1792727743918,"count":12}
+{"type":"status","tick":50779,"wallTimeMs":1792727816379,"text":"You set the table back on its legs."}
+{"type":"save","tick":52206,"wallTimeMs":1792727863955,"count":13}
+{"type":"save","tick":55807,"wallTimeMs":1792727983975,"count":14}
+{"type":"save","tick":55926,"wallTimeMs":1792727987941,"count":15}
+{"type":"status","tick":55926,"wallTimeMs":1792727987941,"text":"Saved."}

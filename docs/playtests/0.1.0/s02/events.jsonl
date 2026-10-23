@@ -1,0 +1,93 @@
+{"type":"world","tick":0,"wallTimeMs":1792726302598,"how":"created","seed":202}
+{"type":"screen","tick":0,"wallTimeMs":1792726302598,"from":null,"to":"WORLD"}
+{"type":"save","tick":3600,"wallTimeMs":1792726422791,"count":1}
+{"type":"status","tick":3824,"wallTimeMs":1792726430308,"text":"You've seen the worst of it. Time to clear the place out."}
+{"type":"objective_completed","tick":3824,"wallTimeMs":1792726430308,"number":1,"id":"Survey","title":"Survey","ticksTaken":3824}
+{"type":"status","tick":5570,"wallTimeMs":1792726488762,"text":"Tossed out the door: a broken board. 14 pieces left inside."}
+{"type":"status","tick":5711,"wallTimeMs":1792726493470,"text":"Tossed out the door: a broken board. 13 pieces left inside."}
+{"type":"status","tick":5834,"wallTimeMs":1792726497530,"text":"Tossed out the door: a broken board. 12 pieces left inside."}
+{"type":"status","tick":6003,"wallTimeMs":1792726503240,"text":"Tossed out the door: a broken board. 11 pieces left inside."}
+{"type":"status","tick":6998,"wallTimeMs":1792726536750,"text":"Tossed out the door: a broken board. 10 pieces left inside."}
+{"type":"save","tick":7200,"wallTimeMs":1792726543439,"count":2}
+{"type":"status","tick":7629,"wallTimeMs":1792726557851,"text":"Tossed out the door: a broken board. 9 pieces left inside."}
+{"type":"status","tick":8039,"wallTimeMs":1792726571513,"text":"Tossed out the door: a broken board. 8 pieces left inside."}
+{"type":"status","tick":8945,"wallTimeMs":1792726601866,"text":"Tossed out the door: a fallen shingle. 7 pieces left inside."}
+{"type":"save","tick":10804,"wallTimeMs":1792726664834,"count":3}
+{"type":"status","tick":12454,"wallTimeMs":1792726720091,"text":"Tossed out the door: a fallen shingle. 6 pieces left inside."}
+{"type":"status","tick":13362,"wallTimeMs":1792726750343,"text":"Tossed out the door: a fallen shingle. 5 pieces left inside."}
+{"type":"status","tick":13604,"wallTimeMs":1792726758418,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13629,"wallTimeMs":1792726759258,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13655,"wallTimeMs":1792726760134,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13683,"wallTimeMs":1792726761052,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13711,"wallTimeMs":1792726762017,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13734,"wallTimeMs":1792726762815,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13795,"wallTimeMs":1792726764784,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13820,"wallTimeMs":1792726765636,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13841,"wallTimeMs":1792726766348,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13868,"wallTimeMs":1792726767162,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13890,"wallTimeMs":1792726767920,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13914,"wallTimeMs":1792726768685,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13970,"wallTimeMs":1792726770567,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":13994,"wallTimeMs":1792726771383,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14019,"wallTimeMs":1792726772204,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14041,"wallTimeMs":1792726772949,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14067,"wallTimeMs":1792726773792,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14089,"wallTimeMs":1792726774560,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14169,"wallTimeMs":1792726777299,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14195,"wallTimeMs":1792726778082,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14223,"wallTimeMs":1792726779044,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14252,"wallTimeMs":1792726780004,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14277,"wallTimeMs":1792726780800,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14304,"wallTimeMs":1792726781761,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14375,"wallTimeMs":1792726784095,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14402,"wallTimeMs":1792726784974,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"save","tick":14405,"wallTimeMs":1792726785095,"count":4}
+{"type":"status","tick":14427,"wallTimeMs":1792726785798,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14452,"wallTimeMs":1792726786649,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14476,"wallTimeMs":1792726787452,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14500,"wallTimeMs":1792726788247,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14564,"wallTimeMs":1792726790378,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14590,"wallTimeMs":1792726791261,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14616,"wallTimeMs":1792726792132,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14639,"wallTimeMs":1792726792896,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14667,"wallTimeMs":1792726793813,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14690,"wallTimeMs":1792726794599,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14746,"wallTimeMs":1792726796445,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14771,"wallTimeMs":1792726797287,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14797,"wallTimeMs":1792726798166,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14822,"wallTimeMs":1792726798995,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14845,"wallTimeMs":1792726799734,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14869,"wallTimeMs":1792726800542,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14923,"wallTimeMs":1792726802283,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14948,"wallTimeMs":1792726803099,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14972,"wallTimeMs":1792726803898,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":14996,"wallTimeMs":1792726804709,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15023,"wallTimeMs":1792726805644,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15048,"wallTimeMs":1792726806435,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15113,"wallTimeMs":1792726808620,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15139,"wallTimeMs":1792726809472,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15167,"wallTimeMs":1792726810413,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15191,"wallTimeMs":1792726811222,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15217,"wallTimeMs":1792726812098,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15242,"wallTimeMs":1792726812918,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15440,"wallTimeMs":1792726819510,"text":"The rafter is too long to carry. Saw it into pieces (4)."}
+{"type":"status","tick":15864,"wallTimeMs":1792726833652,"text":"Sawn into three lengths. Haul them out."}
+{"type":"status","tick":16505,"wallTimeMs":1792726855028,"text":"Tossed out the door: a length of rafter. 6 pieces left inside."}
+{"type":"status","tick":17310,"wallTimeMs":1792726881834,"text":"Tossed out the door: a length of rafter. 5 pieces left inside."}
+{"type":"status","tick":17777,"wallTimeMs":1792726897422,"text":"Tossed out the door: a length of rafter. 4 pieces left inside."}
+{"type":"save","tick":18005,"wallTimeMs":1792726905034,"count":5}
+{"type":"status","tick":18294,"wallTimeMs":1792726914626,"text":"Tossed out the door: a fallen shingle. 3 pieces left inside."}
+{"type":"status","tick":18763,"wallTimeMs":1792726930280,"text":"Tossed out the door: a fallen shingle. 2 pieces left inside."}
+{"type":"status","tick":19236,"wallTimeMs":1792726946044,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":19710,"wallTimeMs":1792726961859,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":19800,"wallTimeMs":1792726964853,"text":"The first frost is settling over the valley."}
+{"type":"save","tick":21605,"wallTimeMs":1792727025023,"count":6}
+{"type":"status","tick":24386,"wallTimeMs":1792727117806,"text":"The snow is out. Patch that hole before the next fall."}
+{"type":"save","tick":25206,"wallTimeMs":1792727145144,"count":7}
+{"type":"save","tick":28807,"wallTimeMs":1792727265148,"count":8}
+{"type":"save","tick":32407,"wallTimeMs":1792727385159,"count":9}
+{"type":"status","tick":34162,"wallTimeMs":1792727443649,"text":"The floor is swept."}
+{"type":"save","tick":36007,"wallTimeMs":1792727505560,"count":10}
+{"type":"save","tick":39607,"wallTimeMs":1792727625544,"count":11}
+{"type":"save","tick":43208,"wallTimeMs":1792727745691,"count":12}
+{"type":"save","tick":46808,"wallTimeMs":1792727865688,"count":13}

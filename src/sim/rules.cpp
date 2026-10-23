@@ -332,7 +332,7 @@ void sawRafter(World& w, int32_t index, TickEvents* ev) {
         piece.yaw = rafter.yaw + 0.2f * static_cast<float>(k - 1);
         w.debris.push_back(piece);
     }
-    say(ev, "Sawn into three lengths. Haul them out.");
+    say(ev, "Sawn into three lengths, each light enough to carry: three pieces to haul out instead of one.");
 }
 
 // Holding the primary action: work on the target with the tool in hand.
@@ -462,7 +462,8 @@ void work(World& w, const Input& in, TickEvents* ev) {
                     if (w.workSeconds <= kTickSeconds)
                         say(ev, h.ash > 0 ? "Shovel the old ash out first (3)."
                                           : !h.kindlingLaid ? "Lay kindling first: split a round at the chopping block."
-                                                            : "Lay a split log on the andirons first.");
+                                                            : "Lay a split log on the andirons first: split another at the chopping "
+                                                              "block, and keep the stack.");
                     w.workSeconds = 0;
                     w.workKind = TargetKind::None;
                 } else if (w.workSeconds >= kShieldSeconds) {
@@ -608,6 +609,8 @@ Vec3 carryPosition(const Player& p) {
 void burn(World& w, TickEvents* ev) {
     Hearth& h = w.hearth;
     if (!h.lit) return;
+    // Once Ada is settled by the fire she keeps it fed.
+    if (w.settler.state == SettlerState::Seated && h.fuelMinutes < 60) h.fuelMinutes += kFuelPerLog;
     h.fuelMinutes -= kGameMinutesPerSecond * kTickSeconds;
     if (h.fuelMinutes < 0) h.fuelMinutes = 0;
     const float target = h.fuelMinutes >= 30 ? 1.0f : h.fuelMinutes / 30.0f;
@@ -625,6 +628,7 @@ void tick(World& w, const Input& in, TickEvents* ev) {
     const Progress was = progress(w);
     const Step before = was.step;
     const bool frostBefore = frosted(w);
+    const bool duskBefore = dusk(w);
     if (in.toggleLantern) w.lantern = !w.lantern;
 
     if (in.selectTool >= 0 && in.selectTool < kToolCount) w.tool = static_cast<Tool>(in.selectTool);
@@ -681,6 +685,7 @@ void tick(World& w, const Input& in, TickEvents* ev) {
     ++w.tick;
     if (after != before || w.tick % kKeyframeEveryTicks == 0) w.history.push_back(snapshot(w));
     if (!frostBefore && frosted(w)) say(ev, "The first frost is settling over the valley.");
+    if (!duskBefore && dusk(w) && !w.lantern) say(ev, "The light is going. L lights your lantern.");
 }
 
 }  // namespace kindling

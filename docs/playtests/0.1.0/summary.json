@@ -1,0 +1,811 @@
+{
+  "runDir": ".",
+  "generated": "2026-10-22 22:00",
+  "sessions": [
+    {
+      "session": "s01",
+      "profile": "kindling",
+      "goal": "Play the first 15 minutes as a brand-new player who has never seen the game; note every moment of confusion.",
+      "outcome": "achieved",
+      "fun": 2,
+      "durationSec": 893,
+      "seed": 1881,
+      "build": {
+        "version": "0.1.0",
+        "commit": "cfae820"
+      },
+      "verdict": "The premise and the feedback text are warm and clear ('Tossed out the door: a broken board. 9 pieces left inside.', 'Clean here. Move on.'), and the lantern and survey reveal are nice touches. But a new player's first 15 minutes are mostly spent fighting the crosshair: picking up thin shingles and chasing a shrinking snow drift needs pixel-exact aim, so I finished only Survey and about half of the debris before night fell. A more forgiving E pickup (nearest item in front, within reach) and stable hit areas would change the feel of the opening more than anything else.",
+      "reportValid": true,
+      "reported": {
+        "objectivesCompleted": 1,
+        "deaths": 0,
+        "secondsToObjective": {
+          "Survey": 84.7
+        },
+        "secondsToShovelSnow": 214.7,
+        "debrisHauledIn15Min": 7,
+        "debrisTotal": 15,
+        "floorCleanAtEnd": 0.11,
+        "gameTicksPlayed": 26600,
+        "saves": 8
+      },
+      "derived": {
+        "objectivesCompleted": 1,
+        "objectives": [
+          {
+            "number": 1,
+            "title": "Survey",
+            "seconds": 84.7,
+            "wallSeconds": 84.9,
+            "tick": 2541
+          }
+        ],
+        "progressReached": null,
+        "deaths": 0,
+        "saves": 8,
+        "loads": 0,
+        "eventCounts": {
+          "world": 1,
+          "screen": 1,
+          "status": 11,
+          "objective_completed": 1,
+          "save": 8
+        },
+        "lastTick": 26542
+      },
+      "ticksPerSecond": 30,
+      "notes": 8,
+      "crash": null
+    },
+    {
+      "session": "s02",
+      "profile": "kindling",
+      "goal": "Finish the whole Clear step (haul the debris, shovel the snow, sweep the floor, scrub the walls and the chimney) using only what the screen tells you; record the game time each checklist line completes, and note every moment the on-screen feedback (the progress meter under the crosshair, the 'Too far to reach' note, dust, the done messages) left you unsure what to do or whether it was working.",
+      "outcome": "partial",
+      "fun": 3,
+      "durationSec": 1708,
+      "seed": 202,
+      "build": {
+        "version": "0.1.0",
+        "commit": "cfae820"
+      },
+      "verdict": "The Clear step mostly reads well on screen: the per-patch meter, 'Clean here. Move on.', 'Too long to carry. Saw it (4)' and the 'Tossed out the door... N pieces left' messages are clear and satisfying. Where it falls down is on unclear targets: snow has no overall percentage and its last drift hides behind the HUD, sweeping finishes at an unstated 85%, and the exterior walls say 'Clean here' but don't count, which cost me the walls and chimney lines in this session. I also found dropped key taps at low fps.",
+      "reportValid": true,
+      "reported": {
+        "objectivesCompleted": 1,
+        "deaths": 0,
+        "secondsToObjective": {
+          "Survey": 127.5,
+          "Clear: Haul out the debris": 657.0,
+          "Clear: Shovel out the snow": 812.9,
+          "Clear: Sweep the floor": 1138.7
+        },
+        "wallsCleanAtStop": 0.31,
+        "chimneyCleanAtStop": 0.31,
+        "debrisPiecesHauled": 17,
+        "gameDaysElapsed": 1.5
+      },
+      "derived": {
+        "objectivesCompleted": 1,
+        "objectives": [
+          {
+            "number": 1,
+            "title": "Survey",
+            "seconds": 127.5,
+            "wallSeconds": 127.7,
+            "tick": 3824
+          }
+        ],
+        "progressReached": null,
+        "deaths": 0,
+        "saves": 13,
+        "loads": 0,
+        "eventCounts": {
+          "world": 1,
+          "screen": 1,
+          "save": 13,
+          "status": 77,
+          "objective_completed": 1
+        },
+        "lastTick": 46808
+      },
+      "ticksPerSecond": 30,
+      "notes": 7,
+      "crash": null
+    },
+    {
+      "session": "s03",
+      "profile": "kindling",
+      "goal": "Your save starts at the Repair step (the cabin is already cleared): finish Repair and then Furnish (planks, roof shingles, window boards, the chair, the table, bringing furnishings in from the wagon and turning them with R); record the game time of each checklist line and note anything about carrying, placing or turning things that was confusing or fiddly.",
+      "outcome": "partial",
+      "fun": 2,
+      "durationSec": 1690,
+      "seed": 1881,
+      "build": {
+        "version": "0.1.0",
+        "commit": "cfae820"
+      },
+      "verdict": "Repair is readable and the per-line status messages are satisfying, but one-bundle-per-roof-section trips to a cluttered wagon, fast nightfall that hides the roof holes, and a held plank that hides its own target make it a slog; I could not get a plank to take at the window gap at all (no aim name), which blocked Repair and so Furnish. No objective_completed events were logged for checklist lines, only status text.",
+      "reportValid": true,
+      "reported": {
+        "objectivesCompleted": 0,
+        "deaths": 0,
+        "secondsToObjective": {
+          "Take the boards off the window": 244.0,
+          "Haul out the old wood": 405.3,
+          "Patch the roof": 1218.4,
+          "Mend the rocking chair": 1469.9,
+          "Set the table right": 1692.6
+        },
+        "repairLinesDone": 5,
+        "repairLinesTotal": 6,
+        "planksLeft": 3,
+        "wagonTripsForRoof": 4,
+        "startTick": 5394,
+        "endTick": 55926
+      },
+      "derived": {
+        "objectivesCompleted": 0,
+        "objectives": [],
+        "progressReached": null,
+        "deaths": 0,
+        "saves": 15,
+        "loads": 1,
+        "eventCounts": {
+          "world": 1,
+          "screen": 1,
+          "status": 15,
+          "save": 15
+        },
+        "lastTick": 55926
+      },
+      "ticksPerSecond": 30,
+      "notes": 5,
+      "crash": null
+    },
+    {
+      "session": "s04",
+      "profile": "kindling",
+      "goal": "Your save starts at the Kindle step: lay and light the fire, welcome the settler and watch the reveal (do not skip it); then spend the rest of your time walking around inside and outside the cabin as evening falls, judging how it looks (light, models, the fire, the people and the mare) and noting anything ugly, broken, floating, clipping or hard to read.",
+      "outcome": "achieved",
+      "fun": 3,
+      "durationSec": 1132,
+      "seed": 1881,
+      "build": {
+        "version": "0.1.0",
+        "commit": "cfae820"
+      },
+      "verdict": "The Kindle chores (split, haul, shovel, lay, strike) feel tactile, and the lit hearth, the timelapse reveal, the snowy dawn yard and seated Ada are charming. But the ending is undercut. The finished checklist never leaves the screen, so you can't see the cabin you made, and the welcome fire dies within a minute of the reveal. Fix those two, and make the woodpile/kindling easier to find and the '4 logs' count honest, and the finale would land.",
+      "reportValid": true,
+      "reported": {
+        "objectivesCompleted": 2,
+        "deaths": 0,
+        "secondsToObjective": {
+          "Kindle": 1139.4,
+          "Welcome": 1164.7
+        },
+        "kindleTicksTaken": 24715,
+        "roundsSplit": 2,
+        "fireBurnSeconds": 240,
+        "secondsFireLastedAfterReveal": 36,
+        "revealRealSeconds": 33
+      },
+      "derived": {
+        "objectivesCompleted": 2,
+        "objectives": [
+          {
+            "number": 5,
+            "title": "Kindle",
+            "seconds": 1139.4,
+            "wallSeconds": 827.0,
+            "tick": 34183
+          },
+          {
+            "number": 6,
+            "title": "Welcome",
+            "seconds": 1164.7,
+            "wallSeconds": 852.3,
+            "tick": 34942
+          }
+        ],
+        "progressReached": null,
+        "deaths": 0,
+        "saves": 9,
+        "loads": 1,
+        "eventCounts": {
+          "world": 1,
+          "screen": 3,
+          "status": 15,
+          "save": 9,
+          "objective_completed": 2
+        },
+        "lastTick": 40866
+      },
+      "ticksPerSecond": 30,
+      "notes": 12,
+      "crash": null
+    }
+  ],
+  "severityCounts": {
+    "blocker": 0,
+    "major": 6,
+    "minor": 20,
+    "polish": 7
+  },
+  "findingReports": 33,
+  "findings": [
+    {
+      "title": "Exterior log walls answer 'Clean here. Move on.' to the scrub brush but never count toward 'Scrub the walls'",
+      "severity": "major",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "Scrubbing along the walls, I drifted out the door and kept scrubbing the outside of the cabin. Aim showed 'Log wall' / 'Clean here. Move on.', exactly what a finished interior wall shows, while the checklist stayed at 'Scrub the walls (31%)' for about 6 real minutes (ticks ~36100-49600). Expected: the outside wall either has no scrub interaction, or a note like 'Only the inside walls need scrubbing'. Wasting minutes here is what kept me from finishing the Clear step in time.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 202; finish Survey; walk outside; pt key 2; aim at any outside log wall; pt mousehold 3",
+      "screenshots": [
+        "s02/shots/now.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Finished checklist + Ada's brief permanently cover two-thirds of the screen after Done; nothing hides them",
+      "severity": "major",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "After the reveal (STEP: Done) the 9-line checklist/'ADA'S BRIEF: ALL MET' list stays drawn from the top down to about y=260 of 360 and overprints the aim label in the middle. F1 only toggles the controls help. During the post-game walk around the cabin, Ada and the mare were mostly hidden behind the text. I had to tilt the view up so models showed in the bottom strip. Expected the list to collapse or fade once Done, or F1 to hide it too.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 1881; finish Kindle; pt await REVEAL 30; wait for WORLD; pt key F1; pt shot x",
+      "screenshots": [
+        "s04/shots/done_checklist_covers_view.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Picking up debris needs pixel-exact aim; E does nothing on debris that is nearby but not under the crosshair",
+      "severity": "major",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "Clear step, first haul: it took ~110 game seconds to pick up the first piece. Fallen shingles are thin, flat slivers; E only works when the crosshair names the piece and it is in reach. Pitch stops at about -75 deg, so a piece right at your feet (0.2 m, where walking up to it leaves you) cannot be aimed at at all; you have to step back. At 6-7 fps the arrow keys overshoot (a 0.2 s tap turned ~48 deg), so lining up a 1-pixel-thick shingle is a chore. After 15 minutes, 8 of 15 debris pieces were still inside. Expected: E picks up the nearest debris in front within reach, or a bigger hit volume for small pieces.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 1881; finish Survey; pt walkto debris; pt key e (nothing happens); try to put the crosshair on the shingle at your feet",
+      "screenshots": [
+        "s01/shots/debris_aim.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Rotten floorboard gap by the window accepts no plank and has no aim name",
+      "severity": "major",
+      "categories": [
+        "bug"
+      ],
+      "sessions": [
+        "s03"
+      ],
+      "reports": 1,
+      "detail": "Carrying a New plank from the wagon, standing at the window (x -3.16, z -0.82) and aiming at the dark gap in the floor (pitch about -39 to -44): the centre label is empty (no name, no hint, aim null in state) and holding the left button for 5 s twice did nothing; planksLeft stayed 3. A few degrees either side the aim reads plain 'Floorboards' with no hint. Expected the gap to be named (e.g. 'Rotten floorboard') with a meter, as roof holes are. Repair could not be finished in the time box, so Furnish was never reached.",
+      "repro": "pt start --profile kindling --seed 1881 (Repair save); take 'New plank' from the wagon (E); enter cabin; pt walkto window; tilt down to the dark gap in the floor; pt mousehold 5",
+      "screenshots": [
+        "s03/shots/gap_noaim.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Snow drift shrinks away from the crosshair; last few percent take over a minute of re-aiming",
+      "severity": "major",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "Shovelling the single snow drift (3): the drift shrinks toward its centre as it is cleared, so the crosshair keeps falling off it and the aim label silently switches to 'Floorboards'. The meter read 90%, 96%, then 99% while there was still snow left (state snow 0.04, then 0.01). The job started at tick ~3280 and finished at tick 6440; most of that was chasing a tiny blob. Expected: a stable hit area, or the drift to finish at about 95%.",
+      "repro": "pt start ... --seed 1881; pt key 3; aim at the snow drift by the hearth; pt mousehold 4; pt mousehold 3 (aim now 'Floorboards' with snow left)",
+      "screenshots": [
+        "s01/shots/snow_chase.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Welcome fire burns out ~36 s after the reveal ends, leaving Ada in a dark cabin",
+      "severity": "major",
+      "categories": [
+        "balance"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "Fire lit at tick 28863 (kindling + one split log on the andirons) went out at tick 36063: 'The fire has burned down to coals. Lay more wood and kindling.' The reveal ended at tick 34987, so the cosy ending, with Ada 'settled by the fire', lasts about 36 game seconds before the room goes dark. The HUD then asks for kindling 'from the chopping block' again. Expected the welcome fire to keep burning through the ending (or Ada to tend it).",
+      "repro": "finish Kindle with a single log on the andirons; watch the reveal; pt wait 40; pt state (hearthLit=false); pt events 5",
+      "screenshots": [
+        "s04/shots/fire_burns_out.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Aim hint overlaps the help text at game start, and 'am' is clipped at the right edge",
+      "severity": "minor",
+      "categories": [
+        "text"
+      ],
+      "sessions": [
+        "s01",
+        "s02"
+      ],
+      "reports": 2,
+      "detail": "On the first frame the centre aim text ('Log wall / Grimy. Scrub it (2).') is drawn on top of the controls help block, and both are unreadable where they overlap. The 'am' after the clock is tiny and cut off at the right edge in the first screenshot. A new player's first look at the controls is garbled.",
+      "repro": "pt start ... --seed 1881; pt shot start",
+      "screenshots": [
+        "s01/shots/overlap.png",
+        "s02/shots/help_overlap.png"
+      ],
+      "alsoTitled": [
+        "At the start, the aim hint draws over the help text, and the clock's 'am' is clipped"
+      ]
+    },
+    {
+      "title": "HUD text overlaps at 640x360: help over the aim label, carry line wraps into toolbar",
+      "severity": "minor",
+      "categories": [
+        "text",
+        "ux"
+      ],
+      "sessions": [
+        "s03",
+        "s04"
+      ],
+      "reports": 2,
+      "detail": "With help shown, the help lines draw on top of the aim name/hint/meter at screen centre making 'Pry it off...' unreadable; the checklist covers the top half of the view. The 'Carrying Bundle of shingles: hold the left button where it goes' line wraps 'goes' onto a second line that collides with the tool bar. While carrying, the aim still offers 'Braided rug - Take it (E)'.",
+      "repro": "pt start (Repair save); pt shot; take shingles at the wagon; pt shot",
+      "screenshots": [
+        "s03/shots/overlap_hud.png",
+        "s04/shots/welcome_hud_overlap.png"
+      ],
+      "alsoTitled": [
+        "HUD text overlaps itself at 640x360: checklist, help, aim label, Ada's dialogue and toasts collide in the centre"
+      ]
+    },
+    {
+      "title": "'Shovel out the snow' shows no percentage, and the last small drift hides behind the checklist",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "Sweep and Scrub show (NN%) on the checklist, but the snow line doesn't. With 8% of the snow left, the remaining drift was small and sat behind the top-left checklist text from most angles, and nothing on screen said there was still snow left or where it was. The meter under the crosshair turned out to be overall snow progress (74%, then 92%), not progress on that one drift, and nothing tells you that.",
+      "repro": "shovel most of the snow near the hearth with pt key 3 + pt mousehold; at snow ~0.08 look around from the hearth",
+      "screenshots": [
+        "s02/shots/s12.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Checklist overlay covers the upper-left quarter of the view and hides debris and floor targets",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "The checklist is drawn opaque-ish over a large part of the screen. When looking down at the floor, the pieces of debris that are in reach (1.2-1.5 m) and the rotten patch often sit right under the checklist text. Several of my failed pickups were on pieces I could not see. Expected: a smaller or more transparent checklist, or one that can be collapsed separately from F1 help.",
+      "repro": "pt start ... --seed 1881; walk inside; tilt view down toward debris to the left",
+      "screenshots": [
+        "s01/shots/shingle_try.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "E on an out-of-reach item fails silently; reach only shown by label colour",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "Aiming at a Fallen shingle about 1.6 m away shows its name in a slightly dimmer grey. Pressing E does nothing, with no message. Expected: a 'Too far' note, or a clearer in-reach cue.",
+      "repro": "pt start ... --seed 1881; stand ~1.6 m from a shingle, aim at it, pt key e",
+      "screenshots": [
+        "s01/shots/out_of_reach.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Fallen shingles lying on the snow drift take the crosshair while you shovel",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "While I held the shovel on the drift, the aim kept switching to 'Fallen shingle' (a debris piece on top of the drift), so shoveling stopped partway through without any message. It works once you haul the shingles out first, but the order isn't explained.",
+      "repro": "after Survey, walk to the drift by the hearth; pt key 3; look down; pt mousehold 3",
+      "screenshots": [
+        "s02/shots/snow4.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Frame rate 6-7 fps for most of the session makes fine aiming hard",
+      "severity": "minor",
+      "categories": [
+        "perf"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "pt state showed 6-7 fps from the start and 18 fps at the end, with tps steady around 29-30. At 6-7 fps, holding a turn key overshoots badly. Mouse look via relative motion sometimes had no effect (pt look -150 -60 at tick ~2180 left yaw unchanged). The machine was shared with other sessions, so this is partly the environment.",
+      "repro": "pt start ... --seed 1881; pt status; pt hold Left 0.2 (turned ~48 deg)",
+      "screenshots": [
+        "s01/shots/rot5.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Held plank covers the crosshair and the floor gap you are trying to aim at",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s03"
+      ],
+      "reports": 1,
+      "detail": "While carrying a New plank, the plank model is drawn right across the centre of the screen, hiding the crosshair and the target gap; the player cannot see where the plank will go.",
+      "repro": "Take 'New plank' at the wagon; walk into the cabin; tilt down toward the floor near the window",
+      "screenshots": [
+        "s03/shots/plank_occludes.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Kindling at the chopping block is hidden behind the block and only visible in lantern light",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "The hearth hint says to bring kindling 'from the chopping block', but the splinter pile sits on the far side of the block (about x=-2.3, z=6.5) and is hidden from where you split. At night it is only visible in lantern light. Split logs on the ground are also a thin pick target: they register only in a 2-3 degree band of pitch.",
+      "repro": "split a round; pt walkto chopping_block; look for 'Kindling'",
+      "screenshots": [
+        "s04/shots/kindling_hidden.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Night falls within the first 13 minutes and the cabin goes pitch black, with no lantern hint",
+      "severity": "minor",
+      "categories": [
+        "balance"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "The clock runs from 9:04 am to 9:37 pm in about 12.5 game minutes. By then the cabin is nearly black and the debris can't be seen (screenshot). Nothing on screen suggests the lantern (L). It is only listed in the help, which I had hidden with F1 at the start, as the help suggests. The lantern works well once it is on. Expected: a 'It's getting dark - L for your lantern' status line, or a longer first day.",
+      "repro": "pt start ... --seed 1881; play inside the cabin until about tick 22000",
+      "screenshots": [
+        "s01/shots/dark_night.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Roof holes are invisible at night and their hint ignores what you carry",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s03"
+      ],
+      "reports": 1,
+      "detail": "After dark (the clock runs about one game hour per real minute, so night falls within ~8 minutes of play), the roof holes are black on a dark ceiling even with the lantern lit; only the centre label reveals them, so finding them means sweeping the view blindly. While carrying a bundle, the hint still says 'Bring shingles from the wagon and work them in.' instead of telling you to hold the button.",
+      "repro": "Play past ~9 pm game time; take Bundle of shingles; go to hearth; look up at the ceiling",
+      "screenshots": [
+        "s03/shots/hole_night.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Sawing the rafter raises the debris count (5 left -> 7 left) with no explanation",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "E on the Fallen rafter gives a good message ('Too long to carry. Saw it into pieces (4)'). After sawing, though, the checklist jumps from 5 left to 7 left without saying why, and the pieces have two names ('Length of rafter' at the crosshair, 'Piece of rafter' elsewhere).",
+      "repro": "pt walkto debris until 'Fallen rafter'; pt key 4; pt mousehold 4",
+      "screenshots": [
+        "s02/shots/saw3.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Short key taps (E, tool keys) are dropped at low frame rates",
+      "severity": "minor",
+      "categories": [
+        "bug"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "At about 7 fps, 'pt key e' on an in-reach Broken board did nothing, three times, with no message. Holding E for 0.4 s picked it up. The same thing happened with the tool keys: pressing 4 and then holding the mouse sometimes left the saw meter at 0%. Input looks like it is sampled once per frame, so a press shorter than a frame is lost. Expected: key-down events are queued so that every tap counts.",
+      "repro": "pt start ... --seed 202 (with other sessions loading the machine); pt walkto debris; aim at the board; pt key e; pt state shows carrying: nothing",
+      "screenshots": [
+        "s02/shots/e1.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Survey 'Hole in the roof' only registers when the crosshair is exactly on the small hole",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "The hole was plainly visible on screen just below the crosshair, but the aim still read 'Ceiling boards'. Finding the angle that ticked the line took several minutes of nudging. A bigger hit area, or a hint on the line, would help.",
+      "repro": "pt walkto hearth; look up toward the blue sky patch; nudge until the aim reads 'Hole in the roof'",
+      "screenshots": [
+        "s02/shots/h4.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Survey step never says that it is done by looking at each problem",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "The game opens on 'STEP: Survey' with 'Grime' already ticked and four unticked items. Nothing explains that you tick them by pointing the crosshair at each one. I worked it out by trial. The window wouldn't tick because a fallen rafter was in the way, and the rotten floorboards were hidden behind the checklist overlay. Survey finished at tick 2541 (85 s), which is fine once you understand it. Expected: one line such as 'Look over the cabin: aim at each problem'.",
+      "repro": "pt start ... --seed 1881; read the checklist; walk in through the door",
+      "screenshots": [
+        "s01/shots/survey_unclear.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Sweep completes at 85% without ever saying 85% is the target",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s02"
+      ],
+      "reports": 1,
+      "detail": "'Sweep the floor' ticked at 85% ('The floor is swept.'). The checklist shows a percentage that looks like it should reach 100, so a player can't tell how much sweeping is left.",
+      "repro": "pt key 1; sweep the interior floor while holding the mouse",
+      "screenshots": [
+        "s02/shots/sweepdone.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Taking a log from the woodpile for the andirons un-ticks 'stack it by the hearth (4 of 4)' and reopens the step",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "The Kindle checklist asks for 4 logs stacked, then 'Lay a split log on the andirons'. The obvious source is the woodpile. Taking one drops the line back to '[ ] (3 of 4)', so Kindle cannot complete until you go back out, split another round and stack it. The real requirement is 5 logs, but the list says 4. Either count the andiron log or say 'stack 4, and one more for the fire'.",
+      "repro": "stack 4 split logs on the woodpile (line ticks); E on woodpile with empty hands; pt state --full -> checklist[1] done=false '(3 of 4)'",
+      "screenshots": [
+        "s04/shots/checklist_unticks.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Wagon items overlap: hard to pick the bundle/plank, easy to grab the rug by mistake",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s03"
+      ],
+      "reports": 1,
+      "detail": "The shingles, plank, rug, quilt and curtains sit in one pile; each item is only targetable in a 3-4 degree band, and the aim label can lag a frame at low fps, so I picked up the Braided rug instead of the shingles once. Each roof section needs its own bundle, so this is repeated 4x for the roof and 3x for planks.",
+      "repro": "pt walkto wagon; tilt slowly from -10 to -30 pitch and watch the label switch between Your wagon / Bundle of shingles / Braided rug",
+      "screenshots": [
+        "s03/shots/wagon5.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Woodpile is hard to find: dark corner left of the hearth, out of view when facing the hearth",
+      "severity": "minor",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "The carry hint says 'Stack it on the woodpile by the hearth'. The woodpile is two low rails in the dark back-left corner, out of view when you face the hearth, and the bottom carry message covers it when you look down. It took several turns to find. The thin logs also let the crosshair hit 'Floorboards' through the gaps. With empty hands, the full pile shows no hint that E takes a log.",
+      "repro": "carry a split log in; pt walkto hearth; look around for the woodpile",
+      "screenshots": [
+        "s04/shots/woodpile_hard_to_find.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "'Strike a match' line ticks ~35 s after 'It catches.' with no progress feedback",
+      "severity": "polish",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "After 'It catches.' the flames show but the checklist line stays unticked until the fire grows (~tick 29900, ~35 game s later). No 'taking hold' meter or text says why, so it looks like the fire did not count.",
+      "repro": "lay kindling + log; pt key 8; pt mousehold 5; pt state --full every few seconds",
+      "screenshots": [
+        "s04/shots/fire_lit_unticked.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Day clock runs ~1 game minute per second: evening passes during the Kindle chores, so Ada arrives at 4 am",
+      "severity": "polish",
+      "categories": [
+        "balance"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "Load was at 2:19 pm. Evening had passed by the time the fire was laid, and 'Ada's wagon is coming up the trail' at 4:05 am in full dark. The post-game walk then happens at dawn, not 'as evening falls'. An arrival in the small hours reads oddly for the cosy beat.",
+      "repro": "pt start ...; play Kindle normally; pt events (tick 34183 clock 4:05 am)",
+      "screenshots": [
+        "s04/shots/welcome_hud_overlap.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Furnishings at the wagon can be taken during the Clear step without guidance",
+      "severity": "polish",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "Walking past the wagon during Clear, the crosshair offers 'Braided rug - Take it (E)'. A new player can't tell whether to bring furniture in before the floor is swept.",
+      "repro": "during Clear, pt walkto wagon; look at the rug",
+      "screenshots": [
+        "s01/shots/sweep.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Nothing is shown in hand while carrying debris",
+      "severity": "polish",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s01"
+      ],
+      "reports": 1,
+      "detail": "After picking up a broken board, the only sign is the orange 'Carrying: E to put down (outside to haul out)' line. The board doesn't appear in view. Tools like the broom and shovel do show in hand.",
+      "repro": "pick up any debris with E; pt shot",
+      "screenshots": [
+        "s01/shots/carry2.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Prying window boards silently re-opens the completed 'Haul out the old wood' line",
+      "severity": "polish",
+      "categories": [
+        "ux"
+      ],
+      "sessions": [
+        "s03"
+      ],
+      "reports": 1,
+      "detail": "Each pried board drops as debris and the haul line grew from 1 to 4 pieces; reasonable, but no message says the boards became debris to haul.",
+      "repro": "Pry the three window boards with the pry bar (5); watch the haul line count",
+      "screenshots": [
+        "s03/shots/pry1.png"
+      ],
+      "alsoTitled": []
+    },
+    {
+      "title": "Reveal title 'Ada's cabin, from ruin to ho...' cut off at the right edge",
+      "severity": "polish",
+      "categories": [
+        "text"
+      ],
+      "sessions": [
+        "s04"
+      ],
+      "reports": 1,
+      "detail": "The timelapse title runs off the window at 640x360. Its 5:20 pm frames are also nearly black apart from the window.",
+      "repro": "finish Kindle; pt await REVEAL 30; pt shot r",
+      "screenshots": [
+        "s04/shots/reveal_title_cut.png"
+      ],
+      "alsoTitled": []
+    }
+  ],
+  "objectiveTimings": [
+    {
+      "number": 1,
+      "title": "Survey",
+      "seconds": {
+        "s01": 84.7,
+        "s02": 127.5
+      },
+      "sessions": 2,
+      "min": 84.7,
+      "median": 106.1,
+      "max": 127.5
+    },
+    {
+      "number": 5,
+      "title": "Kindle",
+      "seconds": {
+        "s04": 1139.4
+      },
+      "sessions": 1,
+      "min": 1139.4,
+      "median": 1139.4,
+      "max": 1139.4
+    },
+    {
+      "number": 6,
+      "title": "Welcome",
+      "seconds": {
+        "s04": 1164.7
+      },
+      "sessions": 1,
+      "min": 1164.7,
+      "median": 1164.7,
+      "max": 1164.7
+    }
+  ],
+  "problems": []
+}
