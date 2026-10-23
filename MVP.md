@@ -75,7 +75,7 @@ depends on it.
 - **Saves.** Save, corrupt a byte, reload: the damaged save must be refused and the previous one
   loaded.
 - **Playtests.** AI agents play the real build with the
-  [playtester](https://github.com/dmccoystephenson/playtester) kit, and each release's evidence (the
+  [playtester](https://github.com/Preponderous-Software/playtester) kit, and each release's evidence (the
   summary, every agent's report and the screenshots its findings cite) is committed under
   `docs/playtests/<version>/`.
 
