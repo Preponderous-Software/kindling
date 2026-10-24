@@ -1,1 +1,3 @@
 *.bat text eol=crlf
+# Frozen save fixtures: byte for byte as the release wrote them.
+tests/fixtures/*.save binary
