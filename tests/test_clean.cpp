@@ -182,13 +182,19 @@ int main() {
         tick(w, in, &ev);
         CHECK(w.carry == Carry::Nothing);
         CHECK(!ev.messages.empty());
-        // Sawing stops short if you let go, and finishes after four seconds.
+        // Sawing takes four seconds; letting go part way keeps the cut so
+        // far, and putting the saw down loses it.
         hold(w, Tool::Saw, in.aim, 2 * kTickRate);
         CHECK(!w.debris[static_cast<size_t>(rafter)].hauled);
         tick(w, Input{});  // let go
-        hold(w, Tool::Saw, in.aim, 3 * kTickRate);
+        hold(w, Tool::Saw, in.aim, kTickRate);
         CHECK(!w.debris[static_cast<size_t>(rafter)].hauled);
-        hold(w, Tool::Saw, in.aim, kTickRate + 2);
+        Input swap;
+        swap.selectTool = static_cast<int32_t>(Tool::Broom);
+        tick(w, swap);
+        hold(w, Tool::Saw, in.aim, 2 * kTickRate);
+        CHECK(!w.debris[static_cast<size_t>(rafter)].hauled);
+        hold(w, Tool::Saw, in.aim, 2 * kTickRate + 2);
         CHECK(w.debris[static_cast<size_t>(rafter)].hauled);
         CHECK(w.debris.size() == 18);
         CHECK(w.debris.back().kind == DebrisKind::RafterPiece);

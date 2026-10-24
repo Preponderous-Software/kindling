@@ -851,7 +851,13 @@ void itemTransform(const Item& item, float out[16]) {
                      item.kind == ItemKind::Quilt;
     const float k = (item.place == ItemPlace::Carried || item.place == ItemPlace::Wagon) && big ? 0.3f : 1.0f;
     const float c = std::cos(item.yaw) * k, s = std::sin(item.yaw) * k;
-    const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, item.pos.x, item.pos.y, item.pos.z, 1};
+    Vec3 at = item.pos;
+    // The quilt over the rocking chair hangs down the back of it, behind the
+    // back rail, where it is clear of whoever sits there.
+    if (item.kind == ItemKind::Quilt && item.place == ItemPlace::Placed &&
+        std::fabs(at.x - kChairSeatX) < 0.3f && std::fabs(at.z - (kChairSeatZ + 0.2f)) < 0.3f)
+        at = {kChairSeatX, 1.0f, kChairSeatZ + 0.31f};
+    const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, at.x, at.y, at.z, 1};
     for (int i = 0; i < 16; ++i) out[i] = m[i];
 }
 

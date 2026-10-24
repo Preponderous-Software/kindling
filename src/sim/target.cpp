@@ -48,7 +48,9 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Firebox: {
             const Hearth& h = w.hearth;
             if (h.lit) return {"The fire", h.fuelMinutes < 60 ? "Burning low. Lay another split log (E)." : ""};
-            if (h.ash > 0) return {"Cold hearth", "Full of old ash. Shovel it out (3)."};
+            if (h.ash > 0)
+                return {"Cold hearth", w.repaired ? "Full of old ash. Shovel it out (3)."
+                                                  : "Full of old ash: shovel it out (3) when you come to lay the fire."};
             if (!h.kindlingLaid) return {"Clean hearth", "Lay kindling here (E), from the chopping block."};
             if (h.logsLaid == 0) return {"Kindling laid", "Lay a split log on the andirons (E)."};
             return {"A fire laid", "Strike a match and hold it to the kindling (8, hold)."};
@@ -95,7 +97,8 @@ Description describe(const World& w, const Aim& aim) {
         case TargetKind::Table:
             return w.table == TableState::Toppled ? Description{"Overturned table", "Set it back on its legs (E)."}
                                                   : Description{"Table", ""};
-        case TargetKind::OutsideWall: return {"Log wall, outside", "Weathered, not dirty: the inside needs scrubbing."};
+        case TargetKind::OutsideWall:
+            return {"Log wall, outside", w.cleared ? "" : "Weathered, not dirty: the inside needs scrubbing."};
         case TargetKind::Ceiling: return {"Ceiling boards", ""};
         case TargetKind::Ground: return {};
         case TargetKind::Wagon: return {"Your wagon", "Tools, planks, shingles and furnishings."};

@@ -281,6 +281,7 @@ void drawHud(strata::Engine& engine, const World& w, const Aim& aim, int width, 
         const bool held = static_cast<int>(w.tool) == t;
         belt += (held ? "[" : " ") + std::to_string(t) + " " + toolName(static_cast<Tool>(t)) + (held ? "]" : " ") + " ";
     }
+    if (help == Help::Hidden) belt += "  F1 keys";
     const float beltSize = std::min(px(12), static_cast<float>(width - 40) / static_cast<float>(belt.size()));
     text(texts, centred(cx, beltSize, belt), static_cast<float>(height) - px(36), beltSize, kWhite, belt, storage);
     const std::string carrying = carryLine(w);

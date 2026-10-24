@@ -91,6 +91,7 @@ private:
     bool tapped_[kMaxScancode] = {};  // went down since the last tick
     bool held(int scancode) const { return keys_[scancode] || tapped_[scancode]; }
     bool captured_ = false, help_ = true, running_ = true, mouseDown_ = false, touchUse_ = false;
+    bool helpToggled_ = false;  // F1 or the page chose; otherwise it tucks away after the Survey
     bool interactPressed_ = false, lanternPressed_ = false;
     int32_t toolPressed_ = -1, rotatePressed_ = 0;
     float yaw_ = 0, pitch_ = 0;

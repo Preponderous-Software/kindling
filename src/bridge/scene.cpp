@@ -189,6 +189,7 @@ constexpr float kDebrisAssistRadians = 0.21f;  // about 12 degrees
 constexpr float kDebrisAssistMetres = 0.3f;     // or this far to the side, for a piece close by
 constexpr float kRoofHoleAssist = 0.4f;        // metres of ceiling around an open section
 constexpr float kGapAssist = 0.06f;            // metres of floor around a rotten or missing board
+constexpr float kYardWoodAssist = 0.25f;       // metres of grass round the split logs and kindling
 constexpr float kBoardGapAssist = 0.15f;       // metres of window around a board still nailed on
 }  // namespace
 
@@ -319,7 +320,7 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             const float share = dist > 1e-4f ? std::acos(clampf(dot(to, dir) / dist, -1, 1)) /
                                                  std::fmax(kDebrisAssistRadians, std::atan2(kDebrisAssistMetres, dist))
                                            : 2.0f;
-            if (aim.kind != TargetKind::Debris && dist <= L::kDebrisReach && share <= nearOff) {
+            if (dist <= L::kDebrisReach && share <= nearOff) {
                 near = static_cast<int32_t>(i);
                 nearOff = share;
                 nearPoint = c;
@@ -332,7 +333,10 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             aim.point = c;
             aim.distance = t;
         }
-        if (aim.kind != TargetKind::Debris && near >= 0 && w.carry == Carry::Nothing) {
+        // A piece under the crosshair but out of reach gives way to one in
+        // reach close to the line of sight.
+        const bool onReachable = aim.kind == TargetKind::Debris && aim.distance <= L::kDebrisReach;
+        if (!onReachable && near >= 0 && w.carry == Carry::Nothing) {
             aim.kind = TargetKind::Debris;
             aim.index = near;
             aim.point = nearPoint;
@@ -372,14 +376,17 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             }
         }
     }
-    // Kindling and split halves by the chopping block, on the ground.
+    // Kindling and split halves by the chopping block, on the ground, with a
+    // margin round them: a ray grazing a lone log lands on the grass past it.
     if (dir.y < -1e-4f && (aim.kind == TargetKind::None || aim.kind == TargetKind::Ground)) {
         const float t = -eye.y / dir.y;
         const Vec3 p = eye + dir * t;
+        const float m = kYardWoodAssist;
         if (t > 0 && t < maxDistance) {
-            if (w.wood.kindlingByBlock > 0 && p.x > -2.6f && p.x < -2.0f && p.z > 6.2f && p.z < 6.85f)
+            if (w.wood.kindlingByBlock > 0 && p.x > -2.5f - m && p.x < -2.08f + m && p.z > 6.3f - m && p.z < 6.75f + m)
                 aim.kind = TargetKind::Kindling;
-            else if (w.wood.splitByBlock > 0 && p.x > -1.35f && p.x < -0.75f && p.z > 6.1f && p.z < 6.85f)
+            else if (w.wood.splitByBlock > 0 && p.x > -1.31f - m && p.x < -0.80f + m && p.z > 6.2f - m &&
+                     p.z < 6.75f + m)
                 aim.kind = TargetKind::SplitWood;
             if (aim.kind != TargetKind::None && aim.kind != TargetKind::Ground) {
                 aim.index = -1;

@@ -109,7 +109,10 @@ void Session::setCaptured(bool on) {
     if (!on) mouseDown_ = false;
 }
 
-void Session::setHelp(bool on) { help_ = on; }
+void Session::setHelp(bool on) {
+    help_ = on;
+    helpToggled_ = true;
+}
 
 void Session::skipReveal() {
     if (reveal_.active()) reveal_.finish(scene_, w_);
@@ -138,7 +141,10 @@ void Session::onKeyDown(int scancode) {
         if (options_.browser) return;  // the browser itself releases the pointer lock
         if (captured_) capture(false);
         else running_ = false;
-    } else if (scancode == kF1) help_ = !help_;
+    } else if (scancode == kF1) {
+        help_ = !help_;
+        helpToggled_ = true;
+    }
     else if (scancode == kF12 && !options_.browser) engine_.saveScreenshotPng("kindling-screenshot.png");
     else if (scancode == kE) interactPressed_ = true;
     else if (scancode == kR) rotatePressed_ += 1;
@@ -221,7 +227,14 @@ void Session::step() {
         scene_.updateGrime(w_, ev.grime);
         for (std::string& m : ev.messages) {
             if (recorder_) fresh_.push_back(m);
-            messages_.push_back({std::move(m), clock_ + 6.0});
+            // The same words again refresh the line already showing.
+            bool shown = false;
+            for (Message& old : messages_)
+                if (old.text == m) {
+                    old.until = clock_ + 6.0;
+                    shown = true;
+                }
+            if (!shown) messages_.push_back({std::move(m), clock_ + 6.0});
         }
     }
     // Once Ada has settled, the reveal plays (once by itself; T plays it again).
@@ -279,6 +292,9 @@ void Session::frame(double dt) {
         if (m.until == 0) m.until = clock_ + 3.0;
     while (!messages_.empty() && messages_.front().until < clock_) messages_.erase(messages_.begin());
     if (messages_.size() > 3) messages_.erase(messages_.begin(), messages_.end() - 3);
+    // The keys help the first steps; once the Survey is done it gets out of
+    // the way (F1 brings it back).
+    if (help_ && !helpToggled_ && progress(w_).step != Step::Survey) help_ = false;
     const Help help = !help_ ? Help::Hidden : options_.browser ? Help::Browser : Help::Desktop;
     render(engine_, scene_, w_, aim_, help, messages_, clock_, compact_);
 }

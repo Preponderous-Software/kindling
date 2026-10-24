@@ -65,6 +65,10 @@ constexpr float kReach = 2.2f;        // how far the player can work or pick thi
 // Debris lies on the floor, below the eye: measured from the eye, 2.2 m is
 // barely a step out, so a piece to pick up may be a little further.
 constexpr float kDebrisReach = 2.5f;
+// The chopping block in the yard (the middle of its top).
+constexpr Vec2 kChoppingBlock{-1.8f, 7.0f};
+// Standing this close to the block, a round goes on it whatever is aimed at.
+constexpr float kBlockStandRange = 1.4f;
 // The snow drift under the roof hole, at its full size: centre and radii.
 constexpr float kSnowX = 0.1f, kSnowZ = -0.9f, kSnowRX = 0.8f, kSnowRZ = 0.65f;
 constexpr float kNameRange = 10.5f;   // how far things are named (and surveyed): across the room, corner to corner
