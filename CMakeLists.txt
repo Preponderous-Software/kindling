@@ -109,6 +109,8 @@ if(KINDLING_BUILD_TESTS)
     endif()
     add_test(NAME ${t} COMMAND test_${t} "${CMAKE_CURRENT_BINARY_DIR}")
   endforeach()
+  # The frozen saves a released build wrote (tests/fixtures/README.md).
+  target_compile_definitions(test_saves PRIVATE KINDLING_FIXTURES="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures")
 endif()
 
 # ---------------------------------------------------------------- the game on Strata

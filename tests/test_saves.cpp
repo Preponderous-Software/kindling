@@ -1,9 +1,13 @@
 // M6 Saves: a save made at any step loads back to the identical world (same
 // fingerprint), a damaged save is refused and the previous one loaded, and
-// SHA-256 matches the standard's test vectors.
+// SHA-256 matches the standard's test vectors. The frozen saves in tests/fixtures/,
+// written by a released build, still load and play on.
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <string>
+#include <vector>
 
 #include "check.h"
 #include "save/save.h"
@@ -15,6 +19,19 @@ using namespace kindling;
 namespace fs = std::filesystem;
 
 namespace {
+
+std::vector<uint8_t> readAll(const std::string& path) {
+    std::ifstream f(path, std::ios::binary);
+    return {std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>()};
+}
+
+// The autopilot's new game (seed 1), played to `ticks`: how the fixtures were made.
+World played(int64_t ticks) {
+    World w = newWorld(1);
+    Autopilot pilot;
+    while (w.tick < ticks) tick(w, pilot.next(w));
+    return w;
+}
 
 void corrupt(const std::string& path, size_t offset) {
     std::fstream f(path, std::ios::in | std::ios::out | std::ios::binary);
@@ -128,5 +145,27 @@ int main(int argc, char** argv) {
     CHECK(!decodeSave(junk, j, &why));
 
     fs::remove_all(slot);
+
+    // ---- saves from 0.1.2 (format 1) still load, and the game goes on from them.
+    // The fixtures were written by the 0.1.2 build with tools/save-fixtures/
+    // (tests/fixtures/README.md): one at the start of the Repair step, one with
+    // the restoration finished. Never edit them; a new format gets its own.
+    {
+        World repair;
+        CHECK(decodeSave(readAll(KINDLING_FIXTURES "/v1-repair.save"), repair, &why));
+        CHECK(repair.cleared && !repair.repaired && progress(repair).step == Step::Repair);
+        CHECK(fingerprint(repair) == fingerprint(played(repair.tick)));  // just as the rules have it now
+        Autopilot on;
+        while (progress(repair).step != Step::Done && repair.tick < limit) tick(repair, on.next(repair));
+        CHECK(progress(repair).step == Step::Done);
+
+        World done;
+        CHECK(decodeSave(readAll(KINDLING_FIXTURES "/v1-done.save"), done, &why));
+        CHECK(progress(done).step == Step::Done && done.repaired && done.kindled);
+        CHECK(fingerprint(done) == fingerprint(played(done.tick)));
+        // A finished cabin keeps ticking without coming undone.
+        for (int i = 0; i < 600; ++i) tick(done, Input{});
+        CHECK(progress(done).step == Step::Done);
+    }
     TEST_MAIN_END();
 }

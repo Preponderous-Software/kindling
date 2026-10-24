@@ -147,6 +147,11 @@ machine. It keeps the save core's guarantees:
   every two minutes and on quit. The slot defaults to `%APPDATA%\Kindling\default` on Windows and
   `~/.local/share/kindling/default` elsewhere (`--slot DIR` overrides).
 
+- saves a released build wrote are kept in `tests/fixtures/` (`v<format>-*.save`, with how each
+  was made in its README); `tests/test_saves.cpp` loads every one and plays on from it, so a
+  change that cannot read a released save fails the tests. A fixture is never edited: a new
+  format version (`kSaveVersion`) gets its own fixtures and a migration for the older ones.
+
 The save holds the reveal's history, so the restoration plays back after a reload. Moving to
 Strata's `modules/save`, with the world as a USD base layer, content packs as sublayers and a save
 as a thin delta layer over them (steading's model), is the plan after the MVP.
