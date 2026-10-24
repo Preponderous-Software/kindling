@@ -189,6 +189,7 @@ constexpr float kDebrisAssistRadians = 0.21f;  // about 12 degrees
 constexpr float kDebrisAssistMetres = 0.3f;     // or this far to the side, for a piece close by
 constexpr float kRoofHoleAssist = 0.4f;        // metres of ceiling around an open section
 constexpr float kGapAssist = 0.06f;            // metres of floor around a rotten or missing board
+constexpr int kFlakesPerHole = 14;            // snowflakes sifting through each open roof section
 constexpr float kYardWoodAssist = 0.25f;       // metres of grass round the split logs and kindling
 constexpr float kBoardGapAssist = 0.15f;       // metres of window around a board still nailed on
 }  // namespace
@@ -539,12 +540,11 @@ void Scene::puff(Vec3 at, Rgb color, double seconds) {
     if (dust_.size() > 120) dust_.erase(dust_.begin(), dust_.begin() + static_cast<std::ptrdiff_t>(dust_.size() - 120));
 }
 
-void Scene::drawDust(double seconds) {
+void Scene::drawDust(const World& w, double seconds) {
     constexpr double kLife = 1.2;
     while (!dust_.empty() && seconds - dust_.front().born > kLife) dust_.erase(dust_.begin());
-    if (dust_.empty()) return;
     std::vector<StrataPoint> points;
-    points.reserve(dust_.size());
+    points.reserve(dust_.size() + 4 * kFlakesPerHole);
     for (const Mote& m : dust_) {
         const float age = static_cast<float>((seconds - m.born) / kLife);
         const Vec3 p = m.pos + m.vel * (age * static_cast<float>(kLife));
@@ -561,7 +561,38 @@ void Scene::drawDust(double seconds) {
         pt.flags = STRATA_POINT_SOFT;
         points.push_back(pt);
     }
-    engine_.submitPoints(points.data(), points.size());
+    // Flakes fall from the roof to the floor, each on its own drifting line.
+    const float xs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
+    const float zs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
+    const float top = L::kCeilingY + 0.3f, fall = top - L::kFloorY;
+    for (int k = 0; k < 4; ++k) {
+        if ((w.roofPatched >> k) & 1u) continue;
+        for (int i = 0; i < kFlakesPerHole; ++i) {
+            uint32_t h = static_cast<uint32_t>(k * 131 + i) * 2654435761u;
+            auto next = [&h] {
+                h ^= h >> 15;
+                h *= 2246822519u;
+                h ^= h >> 13;
+                return static_cast<float>(h & 0xffffu) / 65535.0f;
+            };
+            const float u = next(), v = next(), phase = next(), speed = 0.35f + 0.2f * next();
+            const float drop = static_cast<float>(std::fmod(seconds * speed + phase * fall, static_cast<double>(fall)));
+            const float sway = 0.06f * std::sin(static_cast<float>(seconds) * 1.3f + phase * 6.28f);
+            StrataPoint pt{};
+            pt.position[0] = xs[k % 2] + u * (xs[k % 2 + 1] - xs[k % 2]) + sway;
+            pt.position[1] = top - drop;
+            pt.position[2] = zs[k / 2] + v * (zs[k / 2 + 1] - zs[k / 2]);
+            pt.size_pixels = 2;
+            pt.world_diameter = 0.035f;
+            pt.color[0] = 0.92f;
+            pt.color[1] = 0.95f;
+            pt.color[2] = 1.0f;
+            pt.color[3] = 0.85f;
+            pt.flags = STRATA_POINT_SOFT;
+            points.push_back(pt);
+        }
+    }
+    if (!points.empty()) engine_.submitPoints(points.data(), points.size());
 }
 
 void Scene::animate(const World& w, double seconds) {

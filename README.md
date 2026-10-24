@@ -30,7 +30,7 @@ recorded and rendered headless by the game itself (`--headless --autopilot --rev
 
 | Surveying the ruin | The mare, fed and brushed, once Ada is home |
 |---|---|
-| ![First person inside the ruined cabin: the soot-black chimney, the fallen rafter, a snow drift under the roof hole, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall under a clear blue sky, content, with the one-line note that Ada is home in the corner](docs/images/game-m7-mare.jpg) |
+| ![First person inside the ruined cabin: the soot-black chimney, the fallen rafter, snow sifting down through the roof hole onto a drift, boards nailed over the window, and the survey checklist in the corner](docs/images/game-m1-survey.jpg) | ![The mare in her stall under a clear blue sky, content, with the one-line note that Ada is home in the corner](docs/images/game-m7-mare.jpg) |
 
 ## Play it
 

@@ -41,7 +41,9 @@ public:
     // A puff of dust (or snow, or ash) where a tool is working; drawn by
     // drawDust between begin and end frame. Real time, like the flicker.
     void puff(Vec3 at, Rgb color, double seconds);
-    void drawDust(double seconds);
+    // The dust, and snow sifting down through each open section of the roof,
+    // so the holes show from across the room.
+    void drawDust(const World& w, double seconds);
 
     // Show the player's own figure (in the reveal, seen from outside).
     void showPlayer(bool on) { showPlayer_ = on; }

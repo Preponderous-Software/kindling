@@ -387,7 +387,7 @@ void render(strata::Engine& engine, bridge::Scene& scene, const World& w, const 
     engine.beginFrame(fd);
     drawHud(engine, w, aim, width, height, help, messages, compact);
     drawPlacement(engine, w, aim);
-    scene.drawDust(seconds);
+    scene.drawDust(w, seconds);
     engine.endFrame();
 }
 
