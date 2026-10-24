@@ -12,14 +12,29 @@ namespace L = kindling::layout;
 namespace {
 
 // What grime looks like over a surface, as a multiplier on its own colour:
-// dust and leaves on the floor, dust on the walls, soot on the chimney.
-void grimeTexel(Surface s, uint8_t g, uint8_t* out) {
+// dust and leaves on the floor, dust on the walls, soot on the chimney. Floor
+// dust is paler than the boards and mottled with leaves, so what is still to
+// sweep shows in a dim room; a swept texel is kFloorSwept.
+void grimeTexel(Surface s, uint8_t g, int x, int y, uint8_t* out) {
     const float t = static_cast<float>(g) / 255.0f;
+    if (s == Surface::Floor) {
+        uint32_t h = static_cast<uint32_t>(x) * 73856093u ^ static_cast<uint32_t>(y) * 19349663u;
+        h ^= h >> 13;
+        h *= 0x5bd1e995u;
+        h ^= h >> 15;
+        const float n = static_cast<float>(h & 1023u) / 1023.0f;
+        const bool leaf = t > 0.5f && (h >> 10) % 8 == 0;
+        const float dust[3] = {0.84f, 0.86f, 0.90f}, leaves[3] = {0.55f, 0.46f, 0.32f};
+        const float* d = leaf ? leaves : dust;
+        const float k = 0.9f + 0.12f * n;
+        const float swept[3] = {kFloorSwept.r, kFloorSwept.g, kFloorSwept.b};
+        for (int c = 0; c < 3; ++c)
+            out[c] = static_cast<uint8_t>(255.0f * std::fmin(1.0f, swept[c] + (d[c] * k - swept[c]) * t) + 0.5f);
+        out[3] = 255;
+        return;
+    }
     float tint[3];
     switch (s) {
-        case Surface::Floor:
-            tint[0] = 0.40f; tint[1] = 0.36f; tint[2] = 0.31f;
-            break;
         case Surface::HearthFace:
             tint[0] = 0.22f; tint[1] = 0.21f; tint[2] = 0.20f;
             break;
@@ -70,7 +85,7 @@ void Scene::uploadGrime(const World& w, Surface s, const TexelRect& r) {
     scratch_.resize(static_cast<size_t>(r.w * r.h * 4));
     for (int j = 0; j < r.h; ++j)
         for (int i = 0; i < r.w; ++i)
-            grimeTexel(s, w.grime.at(s, r.x + i, r.y + j), &scratch_[static_cast<size_t>((j * r.w + i) * 4)]);
+            grimeTexel(s, w.grime.at(s, r.x + i, r.y + j), r.x + i, r.y + j, &scratch_[static_cast<size_t>((j * r.w + i) * 4)]);
     uint32_t& tex = grimeTextures_[static_cast<size_t>(s)];
     if (!tex) tex = engine_.createTextureRgba8(d.width, d.height, scratch_.data(), STRATA_TEXTURE_CLAMP_U | STRATA_TEXTURE_CLAMP_V);
     else engine_.updateTextureRgba8(tex, r.x, r.y, r.w, r.h, scratch_.data());
@@ -174,6 +189,7 @@ constexpr float kDebrisAssistRadians = 0.21f;  // about 12 degrees
 constexpr float kDebrisAssistMetres = 0.3f;     // or this far to the side, for a piece close by
 constexpr float kRoofHoleAssist = 0.4f;        // metres of ceiling around an open section
 constexpr float kGapAssist = 0.06f;            // metres of floor around a rotten or missing board
+constexpr float kBoardGapAssist = 0.15f;       // metres of window around a board still nailed on
 }  // namespace
 
 Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
@@ -238,6 +254,29 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
         }
     }
 
+    // Between the boards over the window the view passes out to the yard. The
+    // gap is the window, named for the nearest board still nailed on.
+    if (dir.x < -1e-4f && eye.x > L::kInnerX0 && !(aim.kind == TargetKind::WindowBoard && aim.index >= 0)) {
+        const float t = (L::kWindowBoardX1 - eye.x) / dir.x;
+        const Vec3 p = eye + dir * t;
+        if (t > 0 && t < best && p.z > L::kWindowZ0 && p.z < L::kWindowZ1 && p.y > L::kWindowY0 && p.y < L::kWindowY1) {
+            int32_t board = -1;
+            float gap = kBoardGapAssist;
+            for (int32_t b = 0; b < static_cast<int32_t>(w.windowBoards.size()); ++b) {
+                const float d = std::fmax(0.0f, std::fmax(L::kWindowBoardY[b][0] - p.y, p.y - L::kWindowBoardY[b][1]));
+                if (w.windowBoards[static_cast<size_t>(b)] && d <= gap) {
+                    board = b;
+                    gap = d;
+                }
+            }
+            aim.kind = TargetKind::WindowBoard;
+            aim.index = board;
+            aim.point = p;
+            aim.distance = t;
+            best = t;
+        }
+    }
+
     // The firebox's floor and back are the firebox, not floorboards or
     // chimney stones.
     if ((aim.kind == TargetKind::Floor || aim.kind == TargetKind::HearthFace) && aim.point.x > L::kFireboxX0 &&
@@ -280,7 +319,7 @@ Aim Scene::pick(const World& w, Vec3 eye, Vec3 dir, float maxDistance) const {
             const float share = dist > 1e-4f ? std::acos(clampf(dot(to, dir) / dist, -1, 1)) /
                                                  std::fmax(kDebrisAssistRadians, std::atan2(kDebrisAssistMetres, dist))
                                            : 2.0f;
-            if (aim.kind != TargetKind::Debris && dist <= L::kReach && share <= nearOff) {
+            if (aim.kind != TargetKind::Debris && dist <= L::kDebrisReach && share <= nearOff) {
                 near = static_cast<int32_t>(i);
                 nearOff = share;
                 nearPoint = c;
@@ -613,7 +652,10 @@ void Scene::lights(const World& w, double seconds, float daylight, std::vector<S
     const float fire = w.hearth.lit ? w.hearth.fire : 0.0f;
     if (fire > 0.01f) {
         const float f = flicker(seconds, 0.4f);
-        out.push_back({{kFireBase.x, 0.55f, -2.4f}, 9.0f, {1.0f, 0.56f, 0.26f}, 5.5f * fire * f,
+        // Long reach and a modest peak: as bright as before a few metres out,
+        // and the far side of the room catches some glow, while the stones
+        // round the firebox stay shaded stone instead of flat yellow.
+        out.push_back({{kFireBase.x, 0.55f, -2.4f}, 16.0f, {1.0f, 0.56f, 0.26f}, 3.0f * fire * f,
                        STRATA_POINT_LIGHT_CAST_SHADOWS});
         out.push_back({{kFireBase.x, 0.75f, -1.7f}, 5.5f, {1.0f, 0.6f, 0.3f}, 0.9f * fire * f, 0});
     }

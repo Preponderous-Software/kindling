@@ -561,7 +561,9 @@ void moveCircle(float& x, float& z, float dx, float dz, float r) {
     }
 }
 
-bool inReach(const World&, const Aim& aim) { return aim.kind != TargetKind::None && aim.distance <= L::kReach; }
+float reachFor(TargetKind kind) { return kind == TargetKind::Debris ? L::kDebrisReach : L::kReach; }
+
+bool inReach(const World&, const Aim& aim) { return aim.kind != TargetKind::None && aim.distance <= reachFor(aim.kind); }
 
 bool byTheDoor(const World& w) {
     const float dx = w.player.x - (L::kDoorX0 + L::kDoorX1) / 2, dz = w.player.z - L::kInnerZ1;

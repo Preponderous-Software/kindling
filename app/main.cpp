@@ -270,12 +270,12 @@ void lookAt(World& w, float x, float z, Vec3 target) {
     w.player.pitch = detAtan2(dy, std::sqrt(dx * dx + dz * dz));
 }
 
-// The tick nearest mid-afternoon on the world's own day, so close-ups are lit
-// by daylight.
-int64_t afternoonTick(const World& w) {
+// The tick nearest `hour` on the world's own day: mid-afternoon, so close-ups
+// are lit by daylight, or dusk, for the fire.
+int64_t tickAt(const World& w, double hour) {
     World probe = w;
     probe.tick = 0;
-    while (timeOfDay(probe) < 14.5 / 24.0) probe.tick += kTickRate;
+    while (timeOfDay(probe) < hour / 24.0) probe.tick += kTickRate;
     return probe.tick;
 }
 
@@ -285,9 +285,9 @@ int runCloseups(strata::Engine& engine, const Args& args) {
         float x, z;
         Vec3 target;
     };
-    auto shoot = [&](World w, const Shot* shots, size_t n) {
+    auto shoot = [&](World w, const Shot* shots, size_t n, double hour = 14.5) {
         bridge::Scene scene(engine);
-        w.tick = afternoonTick(w);
+        w.tick = tickAt(w, hour);
         w.lantern = false;
         std::vector<Message> none;
         for (size_t i = 0; i < n; ++i) {
@@ -318,6 +318,17 @@ int runCloseups(strata::Engine& engine, const Args& args) {
         {"mare-head", layout::kHorse.x - 0.9f, layout::kHorse.z - 2.1f, {layout::kHorse.x, 1.7f, layout::kHorse.z - 1.3f}},
     };
     shoot(w, home, std::size(home));
+    // The hearth with Ada's fire burning, by day and after dusk.
+    const Shot hearth[] = {
+        {"hearth", -0.8f, -0.6f, {-0.8f, 0.5f, -2.5f}},
+        {"hearth-side", -2.1f, -1.0f, {-1.3f, 0.6f, -2.35f}},
+    };
+    shoot(w, hearth, std::size(hearth));
+    const Shot dusk[] = {
+        {"hearth-dusk", -0.8f, -0.6f, {-0.8f, 0.5f, -2.5f}},
+        {"room-dusk", -0.8f, -0.6f, {2.5f, 1.0f, 2.5f}},
+    };
+    shoot(w, dusk, std::size(dusk), 17.5);
     return 0;
 }
 

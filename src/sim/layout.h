@@ -25,6 +25,9 @@ constexpr float kDoorX0 = 2.1f, kDoorX1 = 2.9f, kDoorTop = 2.1f;
 
 // The window in the left wall (x = kInnerX0).
 constexpr float kWindowZ0 = -1.0f, kWindowZ1 = 0.45f, kWindowY0 = 1.0f, kWindowY1 = 2.1f;
+// The four boards nailed over it, bottom to top (y0, y1), on the inside face.
+constexpr float kWindowBoardY[4][2] = {{1.04f, 1.24f}, {1.33f, 1.55f}, {1.66f, 1.84f}, {1.95f, 2.12f}};
+constexpr float kWindowBoardX0 = -3.98f, kWindowBoardX1 = -3.92f;
 
 // The chimney breast and its firebox.
 constexpr float kBreastX0 = -2.3f, kBreastX1 = 0.7f, kBreastZ0 = -2.98f, kBreastFront = -2.35f;
@@ -59,6 +62,9 @@ constexpr float kEyeHeight = 1.62f;
 constexpr float kWalkSpeed = 2.6f;    // m/s
 constexpr float kSprintSpeed = 4.6f;  // m/s
 constexpr float kReach = 2.2f;        // how far the player can work or pick things up
+// Debris lies on the floor, below the eye: measured from the eye, 2.2 m is
+// barely a step out, so a piece to pick up may be a little further.
+constexpr float kDebrisReach = 2.5f;
 // The snow drift under the roof hole, at its full size: centre and radii.
 constexpr float kSnowX = 0.1f, kSnowZ = -0.9f, kSnowRX = 0.8f, kSnowRZ = 0.65f;
 constexpr float kNameRange = 10.5f;   // how far things are named (and surveyed): across the room, corner to corner

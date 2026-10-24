@@ -23,6 +23,7 @@ const Rgb kBeam{0.20f, 0.12f, 0.06f};
 const Rgb kShingle{0.20f, 0.17f, 0.15f};
 const Rgb kMortar{0.44f, 0.41f, 0.37f};
 const Rgb kSoot{0.05f, 0.04f, 0.035f};
+const Rgb kFireBrick{0.11f, 0.07f, 0.05f};
 const Rgb kAsh{0.40f, 0.40f, 0.39f};
 const Rgb kHearthstone{0.28f, 0.27f, 0.25f};
 const Rgb kFrame{0.20f, 0.11f, 0.055f};
@@ -96,10 +97,14 @@ void wall(MeshData& m, int index) {
     m.endTag();
 }
 
+// A floor colour before the grime texture's swept tint goes over it.
+Rgb underSwept(Rgb c) { return {c.r / kFloorSwept.r, c.g / kFloorSwept.g, c.b / kFloorSwept.b}; }
+
 void floor(MeshData& m, const World& w) {
+    const Rgb rotten = underSwept(kRotten), crawl = underSwept(kCrawl), fresh = underSwept(kNewPlank);
     for (int row = 0; row < L::kPlankRows; ++row) {
         const float z0 = L::plankZ0(row) + 0.004f, z1 = L::plankZ0(row + 1) - 0.004f;
-        const Rgb c = vary(kPlank, static_cast<uint32_t>(row) * 7 + 1, 0.18f);
+        const Rgb c = underSwept(vary(kPlank, static_cast<uint32_t>(row) * 7 + 1, 0.18f));
         int span = -1;
         for (int i = 0; i < static_cast<int>(L::kRottenSpans.size()); ++i)
             if (L::kRottenSpans[i].row == row) span = i;
@@ -117,12 +122,12 @@ void floor(MeshData& m, const World& w) {
         switch (w.planks[span]) {
             case PlankState::Rotten:
                 // Sagging, with a hole broken through the middle.
-                m.box({s.x0, -0.01f, z0}, {s.x0 + 0.3f, L::kFloorY - 0.02f, z1}, kRotten);
-                m.box({s.x1 - 0.32f, -0.01f, z0}, {s.x1, L::kFloorY - 0.02f, z1}, kRotten);
-                m.box({s.x0, -0.27f, z0}, {s.x1, -0.25f, z1}, kCrawl);
+                m.box({s.x0, -0.01f, z0}, {s.x0 + 0.3f, L::kFloorY - 0.02f, z1}, rotten);
+                m.box({s.x1 - 0.32f, -0.01f, z0}, {s.x1, L::kFloorY - 0.02f, z1}, rotten);
+                m.box({s.x0, -0.27f, z0}, {s.x1, -0.25f, z1}, crawl);
                 break;
-            case PlankState::Removed: m.box({s.x0, -0.27f, z0}, {s.x1, -0.25f, z1}, kCrawl); break;
-            case PlankState::New: m.box({s.x0, 0, z0}, {s.x1, L::kFloorY, z1}, kNewPlank); break;
+            case PlankState::Removed: m.box({s.x0, -0.27f, z0}, {s.x1, -0.25f, z1}, crawl); break;
+            case PlankState::New: m.box({s.x0, 0, z0}, {s.x1, L::kFloorY, z1}, fresh); break;
         }
         m.endTag();
     }
@@ -212,6 +217,15 @@ void chimney(MeshData& m) {
     m.beginTag(TargetKind::Firebox);
     m.box({L::kFireboxX0, 0, L::kBreastZ0}, {L::kFireboxX1, L::kFireboxTop, -2.86f}, kSoot);
     m.box({L::kFireboxX0, 0, L::kBreastZ0}, {L::kFireboxX1, 0.04f, L::kBreastFront}, kSoot);
+    // Blackened brick lining the sides and the top of the opening, which face
+    // the fire close up: pale stone there washed out to flat yellow.
+    const float in = 0.03f;
+    m.box({L::kFireboxX0, 0.04f, L::kBreastZ0}, {L::kFireboxX0 + in, L::kFireboxTop, L::kBreastFront - 0.005f},
+          kFireBrick);
+    m.box({L::kFireboxX1 - in, 0.04f, L::kBreastZ0}, {L::kFireboxX1, L::kFireboxTop, L::kBreastFront - 0.005f},
+          kFireBrick);
+    m.box({L::kFireboxX0, L::kFireboxTop - in, L::kBreastZ0}, {L::kFireboxX1, L::kFireboxTop, L::kBreastFront - 0.005f},
+          kFireBrick);
     m.endTag();
 
     // The chimney stack above the roof.
@@ -239,11 +253,11 @@ void window(MeshData& m) {
 }
 
 void boards(MeshData& m, const World& w) {
-    const float ys[4][2] = {{1.04f, 1.24f}, {1.33f, 1.55f}, {1.66f, 1.84f}, {1.95f, 2.12f}};
     for (int b = 0; b < 4; ++b) {
         if (!w.windowBoards[b]) continue;
         m.beginTag(TargetKind::WindowBoard, b);
-        m.box({-3.98f, ys[b][0], -1.25f}, {-3.92f, ys[b][1], 0.7f}, vary(kBoard, 30 + b, 0.15f));
+        m.box({L::kWindowBoardX0, L::kWindowBoardY[b][0], -1.25f}, {L::kWindowBoardX1, L::kWindowBoardY[b][1], 0.7f},
+              vary(kBoard, 30 + b, 0.15f));
         m.endTag();
     }
 }

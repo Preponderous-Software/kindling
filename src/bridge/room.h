@@ -14,6 +14,11 @@
 
 namespace kindling::bridge {
 
+// The grime texture's colour over a swept patch of floor. The floor's own
+// colours are divided by it, so swept boards show as built while dust and
+// leaves show paler and greyer than the wood under them.
+constexpr Rgb kFloorSwept{0.67f, 0.53f, 0.36f};
+
 enum class Part : int32_t {
     WallBack = 0,
     WallLeft,
