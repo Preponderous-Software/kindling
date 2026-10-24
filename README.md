@@ -24,7 +24,7 @@ comes after the MVP is in [CONCEPT.md](CONCEPT.md).
 *The reveal at the end of a restoration, as the game plays it: here the autopilot's playthrough,
 recorded and rendered headless by the game itself (`--headless --autopilot --reveal-frames`).*
 
-| The ruin, at nine in the morning | Ada's home, at twenty past eleven |
+| The ruin, at nine in the morning | Ada's home, at ten past eleven |
 |---|---|
 | ![The ruined cabin room: grime, debris, the fallen rafter and snow under the roof hole](docs/images/game-m5-ruin.jpg) | ![The same room restored, late in the morning: the fire lit, a braided rug, curtains, a sampler on the wall, split logs stacked by the hearth, and Ada in the rocking chair, seen from behind its quilt-hung back](docs/images/game-m5-home.jpg) |
 
@@ -79,7 +79,7 @@ simulation and its tests, with no engine.
 
 | Sweeping | Unboarded |
 |---|---|
-| ![First person, broom in hand, sweeping: the meter under the crosshair at 64% clean, and the Clear checklist in the corner](docs/images/game-m2-swept.jpg) | ![The window with its boards pried off and daylight coming in, the pry bar in hand](docs/images/game-m3-window.jpg) |
+| ![First person, broom in hand, sweeping: swept boards brown against the pale dust and leaves, the meter under the crosshair at 64% clean, and the Clear checklist in the corner](docs/images/game-m2-swept.jpg) | ![The window with its boards pried off and daylight coming in, the pry bar in hand](docs/images/game-m3-window.jpg) |
 | **Shovelling the drift** | **Ada, home** |
 | ![The snow drift under the roof hole, the shovel in hand, its meter at 57%, and the hint to shovel it out before it melts into the floor](docs/images/game-snow-shovel.jpg) | ![Close-up of Ada in the mended rocking chair by a braided rug, a quilt over the chair back, in warm light](docs/images/game-closeup-ada.jpg) |
 
