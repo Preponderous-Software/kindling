@@ -1,0 +1,82 @@
+{
+  "session": "s03",
+  "goal": "Your save starts at the Repair step (the cabin is already cleared): finish Repair and then Furnish (pry up the rotten floorboards and lay new planks in the gaps, shingle the roof, board the window, bring the furnishings in from the wagon, place them and turn them with R); record the game time of each checklist line. Above all, say whether every floor gap could be aimed at and filled, and note anything about the wagon, carrying stacks, placing or turning things that was confusing or fiddly.",
+  "build": {"version": "0.1.1", "commit": "08933b7"},
+  "seed": 1881,
+  "durationSec": 1511,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Carried shingle stack hides the roof hole you are trying to patch",
+      "detail": "With the 4-bundle shingle stack in hand, the held model takes up the lower-right third of the screen. Looking up at the roof from inside (pitch ~60-83), the last open roof section sat behind the stack. I had to turn in 15-degree steps with nothing to see until the centre label read 'Hole in the roof'. Expected the carried stack to drop lower or go see-through when the view tilts up, or to sit further to the side.",
+      "repro": "pt start ...seed 1881; take shingles from the wagon (aim at 'Bundle of shingles', E); walk into the cabin to the hearth; hold Up until pitch ~80; patch 3 sections; the 4th open section is hidden behind the stack",
+      "screenshot": "shots/roof_occluded.png",
+      "tick": 20540
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Overturned table out of reach: E does nothing and no 'Too far to reach' note",
+      "detail": "Aimed at the 'Overturned table' (label grey, hint 'Set it back on its legs (E).') from about 2.5 m, near the window. state.json said inReach false, but the screen showed no 'Too far to reach. Step closer.' note (the broken rocking chair does show one). Pressing E twice did nothing and posted no status, so it looks broken. Afterwards I could not find a spot in reach. Expected the same 'too far' note the chair gives, or a status line on E.",
+      "repro": "pt walkto window; face toward the overturned table in the corner left of the window (yaw ~190, pitch ~-31, position x -3.1 z -0.29); pt key e",
+      "screenshot": "shots/table_silent.png",
+      "tick": 26300
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Prying the window boards unchecks the finished 'Haul out the old wood' line",
+      "detail": "At the start of the save, 'Haul out the old wood (0 pieces)' was ticked. Each window board I pried off fell as a 'Broken board' and the line went back to unticked (4 pieces). It is logical, but a completed checklist line silently undoing itself can feel like lost progress. The broken boards were also hard to pick up while looking steeply down: E said 'Nothing to pick up there.' 4 times at pitch -81 with boards 0.8 m away at bearings -9 to -43. It only worked once the crosshair was right on a board.",
+      "repro": "pt start; pt mousehold 6 on 'Board nailed over the window' with the pry bar; watch the checklist; then pt hold Down until pitch ~-80 near the boards and press e",
+      "screenshot": "shots/e1.png",
+      "tick": 8100
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "At 2-5 fps, arrow-key look and aim are unreliable",
+      "detail": "fps 2-5, tps 9-32. Holding Down for 2.0 s moved pitch 83 -> 16 one time and 16 -> -12 the next. A 0.25 s hold sometimes did nothing and sometimes moved 23 degrees. The view kept settling after it looked aimed, so one E press at the wagon landed on 'Your wagon' ('Aim at what you want from the wagon, then E.') instead of the shingles. Some of this comes from the shared machine, but small wagon items and the table need precise aim, which makes it worse.",
+      "repro": "pt hold Down 2 / pt hold Down 0.25 repeatedly while pt state shows fps <= 4",
+      "screenshot": "shots/pitch_lag.png",
+      "tick": 28458
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Top checklist line is drawn over by 'STEP: Repair' and is hard to read",
+      "detail": "The first item, 'Replace the rotten floorboards (3 left)', is drawn in a smaller, dimmer font right under the STEP header and overlaps it, so it reads worse than the other lines. It is the item I most needed to see.",
+      "repro": "pt start; pt shot start",
+      "screenshot": "shots/start.png",
+      "tick": 4787
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "walkto/door path from the wagon got stuck on the outside wall corner while carrying",
+      "detail": "Carrying the shingle stack back from the wagon, I ended up against the 'Log wall, outside' next to the door. The door was 2.1 m away at bearing -6, but I could not get closer until I backed off and came at it from another angle. The doorway is narrow compared to how hard it is to judge your position from the first-person view.",
+      "repro": "take shingles at the wagon; pt walkto door; pt walkto hearth (reports stuck at 7 m)",
+      "screenshot": "shots/door2.png",
+      "tick": 16500
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 2,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Take the boards off the window (approx)": 206.0,
+      "Haul out the old wood": 407.3,
+      "Patch the roof": 687.9,
+      "Mend the rocking chair": 786.6
+    },
+    "startTick": 4787,
+    "endTick": 28458,
+    "floorGapsFilled": 0,
+    "floorGapsLeft": 3,
+    "roofSectionsPatched": 4,
+    "fpsTypical": 3
+  },
+  "fun": 3,
+  "verdict": "Repair is readable and pleasant when it works. The labels and hints at the centre of the screen ('Mend it with the hammer (6)', 'One more section patched.') make each task clear, and the wagon's stack pickup ('Carrying 4 bundles of shingles') is good. But at 2-5 fps, precise aiming at small targets (wagon items, the table, debris seen from steeply above) took most of the session, and I ran out of time before the floor gaps and Furnish, so I cannot say whether every floor gap can be aimed at and filled. The carried stack hiding the roof hole and the silent out-of-reach table are the two design fixes worth making; note too that the brief says 'board the window' but the game asks you to take the boards off."
+}

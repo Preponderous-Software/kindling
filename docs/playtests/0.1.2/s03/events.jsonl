@@ -1,0 +1,33 @@
+{"type":"world","tick":4668,"wallTimeMs":1792815713243,"how":"loaded","seed":1881}
+{"type":"screen","tick":4668,"wallTimeMs":1792815713243,"from":null,"to":"WORLD"}
+{"type":"status","tick":5066,"wallTimeMs":1792815728529,"text":"Light comes through the gap."}
+{"type":"status","tick":5595,"wallTimeMs":1792815746787,"text":"Light comes through the gap."}
+{"type":"status","tick":5766,"wallTimeMs":1792815752480,"text":"Light comes through the gap."}
+{"type":"status","tick":5938,"wallTimeMs":1792815758238,"text":"Daylight floods in."}
+{"type":"status","tick":6697,"wallTimeMs":1792815783854,"text":"Nothing to pick up there."}
+{"type":"status","tick":7004,"wallTimeMs":1792815794117,"text":"Nothing to pick up there."}
+{"type":"status","tick":7297,"wallTimeMs":1792815803927,"text":"Nothing to pick up there."}
+{"type":"status","tick":7564,"wallTimeMs":1792815813250,"text":"Nothing to pick up there."}
+{"type":"status","tick":7844,"wallTimeMs":1792815823702,"text":"Nothing to pick up there."}
+{"type":"status","tick":8100,"wallTimeMs":1792815832343,"text":"Nothing to pick up there."}
+{"type":"save","tick":8272,"wallTimeMs":1792815838167,"count":1}
+{"type":"status","tick":8346,"wallTimeMs":1792815840617,"text":"Nothing to pick up there."}
+{"type":"status","tick":8708,"wallTimeMs":1792815853453,"text":"Nothing to pick up there."}
+{"type":"status","tick":9126,"wallTimeMs":1792815870522,"text":"Nothing to pick up there."}
+{"type":"status","tick":9866,"wallTimeMs":1792815898312,"text":"Tossed out the door: a broken board. 3 pieces left inside."}
+{"type":"status","tick":10755,"wallTimeMs":1792815938136,"text":"Tossed out the door: a broken board. 2 pieces left inside."}
+{"type":"status","tick":11541,"wallTimeMs":1792815976966,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"save","tick":11877,"wallTimeMs":1792815997159,"count":2}
+{"type":"status","tick":12220,"wallTimeMs":1792816014981,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":13893,"wallTimeMs":1792816099293,"text":"Aim at what you want from the wagon, then E."}
+{"type":"save","tick":15477,"wallTimeMs":1792816171392,"count":3}
+{"type":"status","tick":17099,"wallTimeMs":1792816264334,"text":"The mare nickers at you, hopefully. She's hungry."}
+{"type":"save","tick":19082,"wallTimeMs":1792816394068,"count":4}
+{"type":"status","tick":19158,"wallTimeMs":1792816396798,"text":"One more section patched."}
+{"type":"status","tick":19693,"wallTimeMs":1792816436105,"text":"One more section patched."}
+{"type":"status","tick":20309,"wallTimeMs":1792816515890,"text":"One more section patched."}
+{"type":"status","tick":20638,"wallTimeMs":1792816531664,"text":"The roof is whole again."}
+{"type":"save","tick":22683,"wallTimeMs":1792816642085,"count":5}
+{"type":"status","tick":23599,"wallTimeMs":1792816769709,"text":"The rocking chair is sound again."}
+{"type":"status","tick":25535,"wallTimeMs":1792817090723,"text":"Nothing to pick up there."}
+{"type":"save","tick":26288,"wallTimeMs":1792817133019,"count":6}

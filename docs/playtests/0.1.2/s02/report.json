@@ -1,0 +1,80 @@
+{
+  "session": "s02",
+  "goal": "Finish the Survey and the whole Clear step (haul the debris, shovel the snow, sweep the floor, scrub the walls and the chimney) using only what the screen tells you; record the game time each checklist line completes. Note every target that needed a fiddly, exact aim, and whether you could tell which parts of the floor and walls were already clean.",
+  "build": {"version": "0.1.1", "commit": "08933b7"},
+  "seed": 77,
+  "durationSec": 1596,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "bug",
+      "title": "Saw progress on the Fallen rafter resets to 0% every time the mouse button is released",
+      "detail": "Holding LMB with the saw (4) on the Fallen rafter reached 47% (r2.png) and 52% on two separate 3-5 s holds, but after each release the meter read [----------] 0% again (r4.png), so the work was lost. Only one unbroken ~10 s hold cut it. At low frame rates a player naturally releases and re-presses; other partial jobs (sweeping/scrubbing) keep their progress, so this feels like a bug. Expected: partial cuts persist.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 77; finish Survey; walkto debris until 'Fallen rafter' (debris-15, near x=-0.7 z=0.9); pt key 4; pt mousehold 3; pt state (meter 0%); pt mousehold 3; pt shot",
+      "screenshot": "shots/r4.png",
+      "tick": 12002
+    },
+    {
+      "severity": "minor",
+      "category": "bug",
+      "title": "E silently does nothing on a Broken board lying against the broken rocking chair, even with it named and in reach",
+      "detail": "Broken board debris-7 lay against the rocker of the Broken rocking chair. With the crosshair on it reading 'Broken board / Haul it out of the cabin.' and inReach true, E did nothing twice, with no message (q6.png). Earlier, with the crosshair a little high, the chair captured the aim and E also did nothing. It finally picked up after switching tools to bare hands and back (unclear which change fixed it). Expected: E picks up the named debris, or the screen says why not.",
+      "repro": "pt start ... --seed 77; after Survey haul debris until 3 left; pt walkto debris (Broken board 1.2 m by the rocking chair); aim at the board (label reads Broken board); pt key e twice",
+      "screenshot": "shots/q6.png",
+      "tick": 19464
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Debris counter goes UP from 7 to 9 after sawing the rafter, and the rafter gives no hint until aimed at",
+      "detail": "The checklist read 'Haul out the debris (7 left)'; pressing E on the Fallen rafter gives no on-screen reason (only the aim hint 'Too long to carry. Saw it into pieces (4).' when the crosshair is exactly on it). After sawing, the line jumped to '(9 left)' because the rafter became 3 pieces. A counter going backwards reads as a regression. Expected: an E-press message such as 'Too long to carry' and a counter that does not rise (e.g. count the rafter as 3 from the start).",
+      "repro": "pt start ... --seed 77; haul debris until 7 left; walkto Fallen rafter; pt key e (nothing); pt key 4; pt mousehold 10; read checklist",
+      "screenshot": "shots/saw_reset.png",
+      "tick": 12170
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E aimed at out-of-reach debris does nothing even when another piece is within reach just below the crosshair",
+      "detail": "Looking at the Fallen shingle on the snow drift ('Too far to reach. Step closer.') with a Broken board 0.96 m away just below the view, E did nothing; it needed a tilt down first. The brief says E takes the debris in reach nearest the crosshair within about 12 degrees; here the out-of-reach target captured the press.",
+      "repro": "pt start ... --seed 77; finish Survey from x=2.5 z=0.74; face the snow drift at pitch about -28; pt key e",
+      "screenshot": "shots/d1.png",
+      "tick": 2794
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Scrubbed wall patches cannot be told apart from grimy logs once you step back",
+      "detail": "Scrubbing a log wall shows 'Clean here. Move on.' and raises the checklist (13% to 16%), but from 1-2 m away the scrubbed patch is not visibly different in the dim interior (wall_vis.png). Only the checklist % shows progress, so a player cannot see which wall areas remain. Swept floor patches do show as soft, lighter circles (sw1.png), but from a few metres they are low contrast too (clean_vis.png).",
+      "repro": "pt start ... --seed 77; inside, pt key 2; walk up to a wall; pt mousehold 5; pt hold s 1.2; pt shot",
+      "screenshot": "shots/wall_vis.png",
+      "tick": 26192
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Aim label and screen lag the view at 2 fps, so the edge of the snow drift was hard to hit",
+      "detail": "At fps 2 / tps 14 the screenshot showed the crosshair at the edge of the snow drift while the label still read 'Floorboards' (sn4/sn5.png). It took three turns before the label read 'Snow drift'. Once on it, shovelling was quick (about 6 s game time). The drift's footprint was forgiving; the low frame rate was the problem.",
+      "repro": "pt start ... --seed 77; pt walkto hearth; pt key 3; face right toward the drift and tilt down",
+      "screenshot": "shots/sn5.png",
+      "tick": 22879
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Survey": 74.4,
+      "Clear: Haul out the debris": 709.7,
+      "Clear: Shovel out the snow": 782.5
+    },
+    "floorCleanAtStop": 0.15,
+    "wallsCleanAtStop": 0.12,
+    "chimneyCleanAtStop": 0.0,
+    "debrisPieces": 15,
+    "averageTps": 14
+  },
+  "fun": 3,
+  "verdict": "The Survey is a nice, forgiving opener (74 s; the roof hole counted just from looking up while turning), and the hint line under the crosshair ('Too long to carry. Saw it...', 'Clean here. Move on.') carries most of the teaching well. The haul loop (15 pieces, about 10 game minutes) dragged because of the rafter: no feedback on E, saw progress lost on release, and a counter that went up. Wall and floor cleanliness are barely visible, so sweeping and scrubbing become a hunt guided only by a percentage. Out of time at floor 17%, walls 16%, chimney 0%; the Clear step was not finished."
+}

@@ -1,0 +1,85 @@
+{
+  "session": "s01",
+  "goal": "Play the first 15 minutes as a brand-new player who has never seen the game; note every moment of confusion.",
+  "build": {"version": "0.1.1", "commit": "08933b7"},
+  "seed": 2718,
+  "durationSec": 1281,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Debris pick-up cone is tight vertically: shingles a step away and visible on screen give 'Nothing to pick up there' or 'Too far to reach'",
+      "detail": "Indoors, standing 1.6m from a cluster of fallen shingles (inside the 2.2m interact range, horizontal bearing +4deg) with the view tilted to the floor at pitch -57, the shingles sit plainly visible ~40px above the crosshair, yet E says 'Nothing to pick up there.' Tilting up to pitch -44 so the crosshair is near them gives 'Too far to reach. Step closer.' even though the probe reports them within reach. When a piece is at the player's feet (0.3m) it is below the view entirely and E keeps failing until the player looks almost straight down. Expected: E picks up the obviously nearest debris in front of the player, as the forgiving-aim note promises. This was the most frequent friction during the Clear step (about 1 E press in 3 failed).",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 2718; walk in through the door; pt walkto debris; pt face <bearing>; pt key e (with pitch around -57 and debris at 1.5m, or debris at 0.3m)",
+      "screenshot": "shots/fail1b.png",
+      "tick": 6582
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Floor sweeping: dirty and swept boards look the same, so the player cannot see where to sweep next",
+      "detail": "With the broom, a 6s hold on one spot cleaned it (floor 9% -> 11%) and the label switched to 'Clean here. Move on.' In the dim midday interior the swept spot and the unswept floor look almost identical, so there is no visual guide to the remaining dirt; at ~2% per spot the 'Sweep the floor' item looks like a long, blind grind. Expected: dust/leaves visibly on the floor that disappear when swept, or a clearer contrast.",
+      "repro": "pt start ... --seed 2718; enter the cabin; pt key 1; pt hold Down 0.6; pt mousehold 6",
+      "screenshot": "shots/sweep2.png",
+      "tick": 19528
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Game ran at 1-4 fps and tick rate dropped well below 30 during the session",
+      "detail": "pt status reported fps 1-4 and tps between 7.6 and ~28 at different times; around 22:39-22:42 wall-clock only ~440 ticks passed in 3 minutes. Key presses and mouse holds were sometimes lost (E presses with no status event at all). Likely made worse by parallel sessions sharing the box, but a 640x360 window at 1-2 fps makes aiming at small debris very hard.",
+      "repro": "pt start ... --seed 2718; play the Clear step; pt status periodically",
+      "screenshot": "shots/late.png",
+      "tick": 19444
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Same status message stacks up repeatedly under an aim hint that already says it",
+      "detail": "Pressing E twice at the fallen rafter shows 'The rafter is too long to carry. Saw it into pieces (4).' twice as status lines, directly below the aim hint that reads 'Too long to carry. Saw it into pieces (4).' Three copies of one message. Expected: identical status lines de-duplicated (or refreshed).",
+      "repro": "pt start ... --seed 2718; enter cabin; aim at the fallen rafter near the hearth; pt key e; pt key e",
+      "screenshot": "shots/rafter2.png",
+      "tick": 11467
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Help panel covers the middle of the screen on first entry",
+      "detail": "The controls help shown at start sits across the lower-centre of the view, overlapping the aim label and the hearth when you first step inside. F1 hides it (and this is said), so it is workable, but a new player's first view of the cabin is half text.",
+      "repro": "pt start ... --seed 2718; pt hold w 2; pt shot",
+      "screenshot": "shots/in1.png",
+      "tick": 332
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Hearth hint asks to shovel out the ash but the Clear checklist does not list it",
+      "detail": "Aiming at the cold hearth during Clear shows 'Full of old ash. Shovel it out (3).', but the Clear checklist only lists debris, snow, floor, walls and chimney. A new player does not know whether the ash belongs to this step or a later one (it appears to be Kindle work).",
+      "repro": "pt start ... --seed 2718; survey; pt key 3; aim at the hearth",
+      "screenshot": "shots/snow1.png",
+      "tick": 2444
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Boarded window is small and dark and the aim label sits on top of it",
+      "detail": "Looking at the boarded window from across the room, it is a small dark patch directly under the crosshair, so the centred 'Log wall' label covers it; the checklist ticked it but the player can barely see what they surveyed.",
+      "repro": "pt start ... --seed 2718; enter; pt face -7 (toward window); pt hold Up 0.75",
+      "screenshot": "shots/win.png",
+      "tick": 1768
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {"Survey": 69.5},
+    "gameSecondsPlayed": 651,
+    "debrisHauled": 16,
+    "debrisLeftAtStop": 2,
+    "failedPickupPresses": 12,
+    "snowShovelGameSeconds": 8
+  },
+  "fun": 3,
+  "verdict": "The opening reads well: the Survey checklist teaches what is wrong with the cabin in about a minute, aim hints name the right tool by number, and the rafter-needs-sawing twist is a nice surprise. The Clear step then turns into a long haul of 15+ debris one piece at a time with a fussy pick-up cone (frequent 'Nothing to pick up there' / 'Too far to reach' on visible pieces) and a broom pass with no visible dirt to follow, so after ~11 game minutes Clear was still unfinished. Loosen the vertical pick-up aim and make dirt visible, and the first 15 minutes would feel cozy rather than chore-like."
+}

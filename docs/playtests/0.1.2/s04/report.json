@@ -1,0 +1,101 @@
+{
+  "session": "s04",
+  "goal": "Your save starts at the Kindle step: split firewood, stack it, lay and light the fire, welcome the settler and watch the reveal (do not skip it); then spend the rest of your time walking around inside and outside the cabin, judging how it looks and reads (the fire and the firelit chimney, labels and on-screen text overlapping, light, models, the people and the mare) and noting anything ugly, broken, floating, clipping or hard to read.",
+  "build": {"version": "0.1.1", "commit": "08933b7"},
+  "seed": 1881,
+  "durationSec": 1501,
+  "outcome": "achieved",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "bug",
+      "title": "Split log on the ground by the chopping block can't be picked up where it is drawn",
+      "detail": "After splitting, one split log lay in the grass beside the block. With the crosshair right beside the drawn log, E said 'Nothing to pick up there' twice (shots/b8.png). The crosshair only named 'Split logs' when pointed at empty grass well below the drawn log (shots/splitlog_hitbox.png). The pick-up target should match where the log is drawn, or the 12-degree forgiveness should cover it.",
+      "repro": "pt start --profile kindling --seed 1881 (Kindle save); fetch a log round, set it on the block, axe (7) + mousehold until split; pick up one half (E); come back and aim at the remaining half on the grass, press E",
+      "screenshot": "shots/splitlog_hitbox.png",
+      "tick": 20968
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Woodpile beside the hearth is out of reach at what looks like arm's length, and nothing says to step closer",
+      "detail": "Standing right in front of the woodpile rack left of the hearth, the label read 'Woodpile (2 logs) / Stack split logs here (E)', but E only repeated the carry hint 'Stack it on the woodpile by the hearth, or lay it in the hearth (E)'. There was no 'Too far to reach' note, although the hearth shows one in the same situation. I had to walk into the corner before it took the log. Out of reach should say so.",
+      "repro": "carry a split log in; walk to the woodpile left of the hearth until it fills the lower middle of the view (about 1 m); press E",
+      "screenshot": "shots/pilereach.png",
+      "tick": 17934
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E on a carried log round near the chopping block put it back on the pile",
+      "detail": "Carrying a log round ('E to put it where it goes'), I stood at the chopping block with the crosshair on the log rounds pile behind it and pressed E. The round went back onto the pile with no message, and I had to take it again. When you are standing at the block, 'where it goes' should be the block.",
+      "repro": "take a log round from the pile (E); pt walkto chopping_block; press E without tilting down onto the block",
+      "screenshot": "shots/onblock.png",
+      "tick": 12500
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "HUD checklist and clock are unreadable over the light-grey stone chimney",
+      "detail": "The checklist and the date/time are light text with no backing panel or outline. Standing at the hearth, they disappear into the grey chimney stones, and 'Lay kindling in the hearth' and '11 November' are hard to make out. Text over the dark log walls reads fine. A drop shadow or dim panel would fix it.",
+      "repro": "pt walkto hearth; look at the chimney; read the top-left checklist",
+      "screenshot": "shots/hud_on_stone.png",
+      "tick": 9062
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Taking a log from the full woodpile briefly un-ticks the 'stack 4 of 4' checklist item",
+      "detail": "The woodpile says 'Stacked. E takes a log for the fire.' Taking that log drops the item from [x] 4 of 4 to [ ] 3 of 4 until the log is laid on the andirons, then it re-ticks. It reads as lost progress for a step the game told you to do.",
+      "repro": "with 4 logs stacked and kindling laid, E at the woodpile; read the checklist",
+      "screenshot": "shots/uncheck_stack.png",
+      "tick": 26541
+    },
+    {
+      "severity": "minor",
+      "category": "bug",
+      "title": "Seated settler Ada is hidden inside the quilt on the rocking chair",
+      "detail": "Once Ada 'settles by the fire', the patchwork quilt draped on the rocking chair is drawn straight through her. Only a purple skirt shows below it, with no head or torso, and the crosshair names the quilt, not Ada. This is the emotional payoff moment, and the settler can barely be seen.",
+      "repro": "complete Kindle, wait for Welcome and the reveal; look at the rocking chair right of the hearth",
+      "screenshot": "shots/ada_quilt_clip.png",
+      "tick": 30024
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Stale hints after the ending: outside wall says 'the inside needs scrubbing'; no chimney or smoke seen from the yard",
+      "detail": "After 'STEP: Done', hovering the outside log wall still says 'Weathered, not dirty: the inside needs scrubbing.' From the front yard I saw no chimney stack or smoke above the roof, so outside, the lit hearth only shows through the open door. The glow through the doorway is lovely, though.",
+      "repro": "after the reveal, walk out the door ~3 m, turn back to face the cabin",
+      "screenshot": "shots/outside_done.png",
+      "tick": 30888
+    },
+    {
+      "severity": "polish",
+      "category": "bug",
+      "title": "Mare model reads poorly up close: dark, head/neck looks like a detached wedge",
+      "detail": "At about 2.5 m in her paddock, the mare is an almost black silhouette, and her head and neck are a thin bent wedge that looks separate from the body. She also still asks for hay after the ending, which is fine but goes unprompted.",
+      "repro": "after the reveal, from the yard turn toward the mare (Mare ~2.5 m)",
+      "screenshot": "shots/mare_model.png",
+      "tick": 31101
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Under load, held inputs are lost: arrow-key tilt and match holds",
+      "detail": "With the machine busy (fps 2-3, tps dipping to 0.4-0.7 at times), 'hold Down 0.4' tilted the view only about 2 degrees instead of about 23. Two 6-second match holds ended in 'The match goes out' after under 50 game ticks, because the game had stalled. Lighting took 4 tries. Input that is timed in game ticks rather than wall time punishes slow machines.",
+      "repro": "on a loaded machine: pt key 8; aim at the laid fire; pt mousehold 6; pt status during the hold",
+      "screenshot": "shots/match1.png",
+      "tick": 27527
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 2,
+    "deaths": 0,
+    "secondsToObjective": {"Kindle": 946.0, "Welcome": 971.1},
+    "kindleStepGameSeconds": 681.6,
+    "matchAttemptsToLight": 4,
+    "tripsToChoppingBlock": 3
+  },
+  "fun": 3,
+  "verdict": "The Kindle loop is cozy and the payoff is good: the firelight on the stones, the warm glow through the doorway, Ada's line about the quilt and the replay all land. Aiming and reach are the friction. Small ground pieces (split logs, kindling) and the corner woodpile need precise aim or exact standing spots, and 'out of reach' is silent at the woodpile. The biggest visual problem is that Ada, the settler the whole game builds toward, is hidden inside the quilt on her rocking chair."
+}

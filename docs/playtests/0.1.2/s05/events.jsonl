@@ -1,0 +1,44 @@
+{"type":"world","tick":4668,"wallTimeMs":1792817755559,"how":"loaded","seed":1881}
+{"type":"screen","tick":4668,"wallTimeMs":1792817755560,"from":null,"to":"WORLD"}
+{"type":"status","tick":6312,"wallTimeMs":1792818145826,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"save","tick":8269,"wallTimeMs":1792818212150,"count":1}
+{"type":"status","tick":11353,"wallTimeMs":1792818315591,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"save","tick":11869,"wallTimeMs":1792818332799,"count":2}
+{"type":"status","tick":12547,"wallTimeMs":1792818355445,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":12958,"wallTimeMs":1792818369155,"text":"Nothing to pick up there."}
+{"type":"status","tick":13099,"wallTimeMs":1792818373857,"text":"Nothing to pick up there."}
+{"type":"status","tick":13706,"wallTimeMs":1792818394048,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":14949,"wallTimeMs":1792818435572,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":15335,"wallTimeMs":1792818448401,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":15472,"wallTimeMs":1792818452967,"count":3}
+{"type":"status","tick":16885,"wallTimeMs":1792818500045,"text":"Too far to reach. Step closer."}
+{"type":"status","tick":18585,"wallTimeMs":1792818556764,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"save","tick":19075,"wallTimeMs":1792818573094,"count":4}
+{"type":"status","tick":20307,"wallTimeMs":1792818614154,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":21598,"wallTimeMs":1792818657162,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":22261,"wallTimeMs":1792818679264,"text":"Light comes through the gap."}
+{"type":"save","tick":22679,"wallTimeMs":1792818693232,"count":5}
+{"type":"status","tick":23011,"wallTimeMs":1792818704242,"text":"Light comes through the gap."}
+{"type":"status","tick":23395,"wallTimeMs":1792818717052,"text":"Light comes through the gap."}
+{"type":"status","tick":24104,"wallTimeMs":1792818740671,"text":"Daylight floods in. Haul the boards out with the rest."}
+{"type":"save","tick":26279,"wallTimeMs":1792818814596,"count":6}
+{"type":"status","tick":26483,"wallTimeMs":1792818821379,"text":"Nothing to pick up there."}
+{"type":"status","tick":27537,"wallTimeMs":1792818856550,"text":"Tossed out the door: a broken board. 3 pieces left inside."}
+{"type":"status","tick":28119,"wallTimeMs":1792818875957,"text":"Tossed out the door: a broken board. 2 pieces left inside."}
+{"type":"status","tick":28476,"wallTimeMs":1792818887859,"text":"Nothing to pick up there."}
+{"type":"status","tick":28731,"wallTimeMs":1792818896366,"text":"Nothing to pick up there."}
+{"type":"status","tick":29109,"wallTimeMs":1792818908994,"text":"Nothing to pick up there."}
+{"type":"status","tick":29343,"wallTimeMs":1792818916787,"text":"Nothing to pick up there."}
+{"type":"save","tick":29882,"wallTimeMs":1792818934731,"count":7}
+{"type":"status","tick":29960,"wallTimeMs":1792818937351,"text":"Nothing to pick up there."}
+{"type":"status","tick":30646,"wallTimeMs":1792818960179,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":31548,"wallTimeMs":1792818990318,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":32867,"wallTimeMs":1792819034347,"text":"The rocking chair is sound again."}
+{"type":"save","tick":33486,"wallTimeMs":1792819056026,"count":8}
+{"type":"status","tick":34138,"wallTimeMs":1792819077787,"text":"You set the table back on its legs."}
+{"type":"status","tick":36320,"wallTimeMs":1792819159845,"text":"Aim at what you want from the wagon, then E."}
+{"type":"save","tick":37088,"wallTimeMs":1792819187887,"count":9}
+{"type":"status","tick":38695,"wallTimeMs":1792819249576,"text":"One more section patched."}
+{"type":"status","tick":39079,"wallTimeMs":1792819265867,"text":"One more section patched."}
+{"type":"save","tick":40260,"wallTimeMs":1792819333099,"count":10}
+{"type":"status","tick":40260,"wallTimeMs":1792819333099,"text":"Saved."}
