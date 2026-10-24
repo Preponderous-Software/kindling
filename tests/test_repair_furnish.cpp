@@ -67,31 +67,65 @@ int main() {
         CHECK(w.planks[0] == PlankState::Removed);
         CHECK(liveDebris(w) == before + 1);
 
-        // A plank cannot go on a rotten board, only into a gap.
+        // A plank goes only into a gap.
         take(w, ItemKind::Plank);
         CHECK(w.carry == Carry::Item);
-        hold(w, Tool::None, aimAt(TargetKind::RottenPlank, 1), 3.0f);
-        CHECK(w.planks[1] == PlankState::Rotten);
+        // Held on a rotten board, the planks in hand pry it up instead.
+        const size_t beforePry = liveDebris(w);
+        hold(w, Tool::None, aimAt(TargetKind::RottenPlank, 1), 2.6f);
+        CHECK(w.planks[1] == PlankState::Removed);
+        CHECK(liveDebris(w) == beforePry + 1);
         CHECK(w.carry == Carry::Item);
         hold(w, Tool::None, aimAt(TargetKind::RottenPlank, 0), 2.1f);
         CHECK(w.planks[0] == PlankState::New);
-        CHECK(w.carry == Carry::Nothing);
-        int used = 0;
-        for (const Item& it : w.items) used += it.place == ItemPlace::Used ? 1 : 0;
+        // The planks came off the wagon together: the next is in hand.
+        CHECK(w.carry == Carry::Item);
+        CHECK(w.items[static_cast<size_t>(w.carryIndex)].kind == ItemKind::Plank);
+        int used = 0, carried = 0;
+        for (const Item& it : w.items) {
+            used += it.place == ItemPlace::Used ? 1 : 0;
+            carried += it.place == ItemPlace::Carried ? 1 : 0;
+        }
         CHECK(used == 1);
+        CHECK(carried == 2);
     }
 
     // ---- the roof: a bundle of shingles patches the section aimed at
     {
         World w = newWorld(5);
         take(w, ItemKind::Shingles);
+        CHECK(firstItem(w, ItemKind::Shingles) == -1);  // all four bundles at once
         hold(w, Tool::None, aimAt(TargetKind::RoofHole, 2), 2.6f);
         CHECK(w.roofPatched == (1u << 2));
-        CHECK(w.carry == Carry::Nothing);
+        CHECK(w.carry == Carry::Item);  // three bundles left in hand
         // Patching a patched section does nothing (and keeps the bundle).
-        take(w, ItemKind::Shingles);
         hold(w, Tool::None, aimAt(TargetKind::RoofHole, 2), 3.0f);
+        CHECK(w.roofPatched == (1u << 2));
         CHECK(w.carry == Carry::Item);
+        // Put back on the wagon (E on the wagon or on anything still on it),
+        // the whole stack goes back.
+        press(w, aimAt(TargetKind::Item, firstItem(w, ItemKind::Rug)));
+        CHECK(w.carry == Carry::Nothing);
+        int onWagon = 0;
+        for (const Item& it : w.items) onWagon += it.kind == ItemKind::Shingles && it.place == ItemPlace::Wagon ? 1 : 0;
+        CHECK(onWagon == 3);
+        // The last section's bundle leaves empty hands.
+        take(w, ItemKind::Shingles);
+        for (int k : {0, 1, 3}) hold(w, Tool::None, aimAt(TargetKind::RoofHole, k), 2.6f);
+        CHECK(w.roofPatched == kRoofAllPatched);
+        CHECK(w.carry == Carry::Nothing);
+    }
+
+    // ---- a keyframe taken while carrying a stack shows it back on the wagon
+    {
+        World w = newWorld(5);
+        take(w, ItemKind::Shingles);
+        const World seen = fromKeyframe(w, snapshot(w));
+        const std::vector<Item> load = newItems();
+        for (size_t i = 0; i < seen.items.size(); ++i) {
+            CHECK(seen.items[i].place == ItemPlace::Wagon);
+            CHECK(seen.items[i].pos.y == load[i].pos.y && seen.items[i].pos.z == load[i].pos.z);
+        }
     }
 
     // ---- the window, the chair and the table
@@ -112,6 +146,12 @@ int main() {
         World w = newWorld(5);
         w.player.x = 0;
         w.player.z = 0;
+        // Before the cabin is mended the furnishings stay on the wagon.
+        TickEvents early;
+        press(w, aimAt(TargetKind::Item, firstItem(w, ItemKind::Rug)), &early);
+        CHECK(w.carry == Carry::Nothing);
+        CHECK(!early.messages.empty());
+        w.repaired = true;
         take(w, ItemKind::Rug);
         TickEvents ev;
         press(w, aimAt(TargetKind::Wall, 0, {0, 1.5f, L::kInnerZ0}), &ev);  // a rug on the wall: no

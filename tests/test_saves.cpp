@@ -70,6 +70,19 @@ int main(int argc, char** argv) {
     CHECK(roundTrips > 6);
     std::printf("%d save round trips, final save %zu bytes\n", roundTrips, encodeSave(w).size());
 
+    // ---- an older save's crowded wagon loads with the load where it sits now
+    {
+        World old = newWorld(7);
+        old.items[0].pos = {2.9f, 0.86f, 8.45f};
+        old.items[0].yaw = 0.4f;
+        old.items[1].place = ItemPlace::Placed;  // placed things stay where they were put
+        old.items[1].pos = {1.0f, 0.06f, 1.0f};
+        World back;
+        CHECK(decodeSave(encodeSave(old), back, nullptr));
+        CHECK(back.items[0].pos.z == newItems()[0].pos.z && back.items[0].yaw == newItems()[0].yaw);
+        CHECK(back.items[1].pos.x == 1.0f && back.items[1].pos.z == 1.0f);
+    }
+
     // ---- files: the previous save is kept, and a damaged save falls back to it
     const fs::path slot = fs::path(argc > 1 ? argv[1] : ".") / "save-test-slot";
     fs::remove_all(slot);

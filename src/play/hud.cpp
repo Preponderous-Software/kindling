@@ -69,13 +69,14 @@ std::string count(int n, const char* one, const char* many) { return std::to_str
 std::vector<HudRow> checklist(const World& w) {
     const Progress p = progress(w);
     std::vector<HudRow> rows;
-    rows.push_back({HudRow::Step, false, std::string("STEP: ") + stepName(p.step)});
+    rows.push_back({HudRow::Step, false,
+                    std::string("STEP: ") + stepName(p.step) + (p.step == Step::Survey ? ": look at each of these" : "")});
     auto row = [&](bool done, const std::string& label) { rows.push_back({HudRow::Item, done, label}); };
     if (p.step == Step::Survey) {
         row((w.surveyed & kSurveyGrime) != 0, "Grime");
         row((w.surveyed & kSurveyDebris) != 0, "Debris");
         row((w.surveyed & kSurveyRottenPlank) != 0, "Rotten floorboards");
-        row((w.surveyed & kSurveyRoofHole) != 0, "Hole in the roof");
+        row((w.surveyed & kSurveyRoofHole) != 0, "Hole in the roof (stand under it, look up)");
         row((w.surveyed & kSurveyBoardedWindow) != 0, "Boarded window");
     } else if (p.step == Step::Clear) {
         row(p.debrisLeft == 0, "Haul out the debris (" + std::to_string(p.debrisLeft) + " left)");
@@ -84,12 +85,14 @@ std::vector<HudRow> checklist(const World& w) {
         row(p.wallsClean >= kWallCleanGoal, "Scrub the walls (" + toward(p.wallsClean, kWallCleanGoal) + ")");
         row(p.hearthClean >= kWallCleanGoal, "Scrub the chimney (" + toward(p.hearthClean, kWallCleanGoal) + ")");
     } else if (p.step == Step::Kindle) {
-        row(p.woodStacked, "Split firewood and stack it by the hearth (" + std::to_string(w.wood.woodpile) + " of " +
+        row(p.woodStacked, "Split firewood and stack it by the hearth (" + std::to_string(p.woodCount) + " of " +
                                std::to_string(kWoodpileGoal) + ")");
         row(p.ashOut, "Shovel out the old ash");
         row(p.kindlingLaid, "Lay kindling in the hearth");
         row(p.logsLaid, "Lay a split log on the andirons");
-        row(p.burning, "Strike a match and hold it till it catches");
+        row(p.burning, w.hearth.lit && !p.burning
+                           ? "Let the fire take hold (" + toward(w.hearth.fire, kBurningFire) + ")"
+                           : std::string("Strike a match and hold it till it catches"));
     } else if (p.step == Step::Repair) {
         row(p.planksLeft == 0, "Replace the rotten floorboards (" + std::to_string(p.planksLeft) + " left)");
         row(p.roofLeft == 0, "Patch the roof (" + count(p.roofLeft, "section", "sections") + " open)");
@@ -143,8 +146,14 @@ std::string carryLine(const World& w) {
         return std::string("Carrying ") + woodName(static_cast<Wood>(w.carryIndex)) + ": E to put it where it goes";
     if (w.carry == Carry::Item) {
         const Item& it = w.items[static_cast<size_t>(w.carryIndex)];
-        return std::string("Carrying ") + itemName(it.kind) +
-               (isMaterial(it.kind) ? ": hold the left button where it goes" : ": E to put down, R to turn");
+        if (isMaterial(it.kind)) {
+            int n = 0;
+            for (const Item& o : w.items) n += o.place == ItemPlace::Carried ? 1 : 0;
+            const std::string what = it.kind == ItemKind::Plank ? count(n, "new plank", "new planks")
+                                                                : count(n, "bundle of shingles", "bundles of shingles");
+            return "Carrying " + what + ": hold the left button where it goes";
+        }
+        return std::string("Carrying ") + itemName(it.kind) + ": E to put down, R to turn";
     }
     return {};
 }

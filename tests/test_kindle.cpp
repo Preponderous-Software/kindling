@@ -188,7 +188,9 @@ int main() {
         w.hearth.fuelMinutes = 500;
         tick(w, Input{});
         CHECK(progress(w).step == Step::Kindle);  // only two logs stacked
-        w.wood.woodpile = kWoodpileGoal;
+        // A log taken from the stack for the fire still counts toward it.
+        w.wood.woodpile = kWoodpileGoal - 1;
+        CHECK(progress(w).woodCount == kWoodpileGoal);
         tick(w, Input{});
         CHECK(w.kindled);
         CHECK(progress(w).step == Step::Welcome);

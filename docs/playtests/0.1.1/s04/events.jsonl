@@ -1,0 +1,35 @@
+{"type":"world","tick":8622,"wallTimeMs":1792767198892,"how":"loaded","seed":1881}
+{"type":"screen","tick":8622,"wallTimeMs":1792767198892,"from":null,"to":"WORLD"}
+{"type":"status","tick":10277,"wallTimeMs":1792767254162,"text":"The mare nickers at you, hopefully. She's hungry."}
+{"type":"status","tick":11608,"wallTimeMs":1792767298566,"text":"Set it on the chopping block (E) and split it with the axe (7)."}
+{"type":"status","tick":12220,"wallTimeMs":1792767318938,"text":"Split clean in two, with kindling from the splinters."}
+{"type":"save","tick":12223,"wallTimeMs":1792767319052,"count":1}
+{"type":"status","tick":15116,"wallTimeMs":1792767415571,"text":"Stack it on the woodpile by the hearth, or lay it in the hearth (E)."}
+{"type":"save","tick":15823,"wallTimeMs":1792767439113,"count":2}
+{"type":"status","tick":16353,"wallTimeMs":1792767456747,"text":"Stack it on the woodpile by the hearth, or lay it in the hearth (E)."}
+{"type":"status","tick":16691,"wallTimeMs":1792767468168,"text":"Stack it on the woodpile by the hearth, or lay it in the hearth (E)."}
+{"type":"save","tick":19424,"wallTimeMs":1792767559255,"count":3}
+{"type":"save","tick":23026,"wallTimeMs":1792767679617,"count":4}
+{"type":"save","tick":26629,"wallTimeMs":1792767800261,"count":5}
+{"type":"status","tick":28516,"wallTimeMs":1792767863230,"text":"The firebox is clean."}
+{"type":"save","tick":30231,"wallTimeMs":1792767920322,"count":6}
+{"type":"save","tick":33834,"wallTimeMs":1792768040482,"count":7}
+{"type":"status","tick":35650,"wallTimeMs":1792768101005,"text":"Kindling laid. Now a split log or two on the andirons."}
+{"type":"status","tick":37353,"wallTimeMs":1792768158030,"text":"Laid. Strike a match (8) and hold it till it catches."}
+{"type":"save","tick":37437,"wallTimeMs":1792768160829,"count":8}
+{"type":"status","tick":37707,"wallTimeMs":1792768169925,"text":"It catches. Let it take hold."}
+{"type":"status","tick":38181,"wallTimeMs":1792768188122,"text":"The fire has taken hold."}
+{"type":"status","tick":40330,"wallTimeMs":1792768261059,"text":"Split clean in two, with kindling from the splinters."}
+{"type":"status","tick":40501,"wallTimeMs":1792768266756,"text":"The light is going. L lights your lantern."}
+{"type":"save","tick":41038,"wallTimeMs":1792768284682,"count":9}
+{"type":"save","tick":44641,"wallTimeMs":1792768405671,"count":10}
+{"type":"status","tick":45235,"wallTimeMs":1792768425447,"text":"The cabin is warm. Ada's wagon is coming up the trail."}
+{"type":"status","tick":45235,"wallTimeMs":1792768425447,"text":"Ada Lark is here."}
+{"type":"objective_completed","tick":45235,"wallTimeMs":1792768425447,"number":5,"id":"Kindle","title":"Kindle","ticksTaken":36613}
+{"type":"screen","tick":45992,"wallTimeMs":1792768450675,"from":"WORLD","to":"REVEAL"}
+{"type":"status","tick":45992,"wallTimeMs":1792768450675,"text":"Ada is home. (T plays back your restoration.)"}
+{"type":"objective_completed","tick":45992,"wallTimeMs":1792768450675,"number":6,"id":"Welcome","title":"Welcome","ticksTaken":757}
+{"type":"screen","tick":46042,"wallTimeMs":1792768484339,"from":"REVEAL","to":"WORLD"}
+{"type":"save","tick":47235,"wallTimeMs":1792768577111,"count":11}
+{"type":"save","tick":48411,"wallTimeMs":1792768626592,"count":12}
+{"type":"status","tick":48411,"wallTimeMs":1792768626592,"text":"Saved."}

@@ -57,26 +57,29 @@ const char* anchorHint(Anchor a) {
 std::vector<Item> newItems() {
     std::vector<Item> items;
     int32_t id = 1;
-    auto add = [&](ItemKind k, float x, float z, float yaw = 0) {
+    auto add = [&](ItemKind k, float x, float y, float z, float yaw = 0) {
         Item it;
         it.id = id++;
         it.kind = k;
-        it.pos = {x, 0.86f, z};
+        it.pos = {x, y, z};
         it.yaw = yaw;
         items.push_back(it);
     };
-    // Lumber along the left of the bed, shingles beside it, furnishings at the back.
-    for (int k = 0; k < 3; ++k) add(ItemKind::Plank, 1.65f + 0.12f * k, 8.2f, 1.5708f);
-    for (int k = 0; k < 4; ++k) add(ItemKind::Shingles, 2.3f + 0.3f * (k % 2), 7.45f + 0.35f * (k / 2));
-    add(ItemKind::Rug, 3.3f, 7.5f);
-    add(ItemKind::Quilt, 3.25f, 8.0f);
-    add(ItemKind::Curtains, 2.9f, 8.45f);
-    add(ItemKind::Sampler, 3.35f, 8.55f);
-    add(ItemKind::Crock, 2.3f, 8.3f);
-    add(ItemKind::Jar, 2.55f, 8.35f);
-    add(ItemKind::Clock, 2.4f, 8.75f);
-    add(ItemKind::Candle, 2.75f, 8.8f);
-    add(ItemKind::Basket, 3.1f, 9.0f);
+    // The open front of the bed, each thing apart from the next: the planks
+    // in front of the taller stack of shingles on the left, the furnishings
+    // to the right, and the curtains over the right-hand side board.
+    constexpr float kBed = 0.86f, kHalfTurn = 3.14159265f;
+    for (int k = 0; k < 3; ++k) add(ItemKind::Plank, 1.6f, kBed + 0.055f * k, 7.6f, 1.5708f);
+    for (int k = 0; k < 4; ++k) add(ItemKind::Shingles, 2.15f, kBed + 0.14f * k, 7.9f);
+    add(ItemKind::Rug, 2.95f, kBed, 8.2f);
+    add(ItemKind::Quilt, 3.3f, kBed + 0.08f, 7.75f);
+    add(ItemKind::Curtains, 3.66f, 1.22f, 7.9f);
+    add(ItemKind::Sampler, 2.7f, kBed + 0.11f, 7.85f, kHalfTurn);
+    add(ItemKind::Crock, 2.5f, kBed, 7.3f);
+    add(ItemKind::Jar, 2.75f, kBed, 7.3f);
+    add(ItemKind::Clock, 2.35f, kBed, 8.25f, kHalfTurn);
+    add(ItemKind::Candle, 3.0f, kBed, 7.3f);
+    add(ItemKind::Basket, 3.35f, kBed, 7.35f);
     return items;
 }
 

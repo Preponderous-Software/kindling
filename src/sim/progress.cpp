@@ -38,7 +38,10 @@ Progress progress(const World& w) {
     p.ashOut = w.hearth.ash <= 0;
     p.kindlingLaid = w.hearth.kindlingLaid || w.hearth.lit;
     p.logsLaid = w.hearth.logsLaid > 0 || w.hearth.lit;
-    p.woodStacked = w.wood.woodpile >= kWoodpileGoal;
+    // A log taken from the stack for the fire still counts: it is burning, or
+    // laid on the andirons.
+    p.woodCount = w.wood.woodpile + (w.hearth.lit ? (w.hearth.fuelMinutes > 0 ? 1 : 0) : w.hearth.logsLaid);
+    p.woodStacked = p.woodCount >= kWoodpileGoal;
     p.burning = w.hearth.lit && w.hearth.fire >= kBurningFire;
 
     // Steps are reached in order: later work done early counts when its step comes.

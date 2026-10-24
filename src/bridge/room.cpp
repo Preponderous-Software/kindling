@@ -340,7 +340,7 @@ void cottonwood(MeshData& m, float x, float z, float h) {
 }
 
 void yard(MeshData& m) {
-    // The wagon: a bed on four wheels, a canvas cover over the back half.
+    // The wagon: a bed on four wheels, a canvas cover over the back of it.
     m.beginTag(TargetKind::Wagon);
     m.box({1.3f, 0.7f, 7.1f}, {3.7f, 0.82f, 9.3f}, kWood);
     m.box({1.3f, 0.82f, 7.1f}, {1.38f, 1.2f, 9.3f}, kWood);
@@ -348,7 +348,7 @@ void yard(MeshData& m) {
     m.box({1.3f, 0.82f, 9.22f}, {3.7f, 1.2f, 9.3f}, kWood);
     for (float wz : {7.4f, 9.0f})
         for (float wx : {1.22f, 3.78f}) m.logX(wx - 0.06f, wx + 0.06f, 0.42f, wz, 0.42f, kWood, kBark, 14);
-    m.ellipsoid({2.5f, 1.2f, 8.7f}, {1.25f, 0.85f, 0.7f}, kCanvas, 12, 6);
+    m.ellipsoid({2.5f, 1.2f, 8.95f}, {1.25f, 0.85f, 0.4f}, kCanvas, 12, 6);
     m.rod({2.5f, 0.6f, 7.1f}, {2.5f, 0.45f, 5.6f}, 0.05f, kWood, 6);  // the tongue
     m.endTag();
 
@@ -403,6 +403,7 @@ void ground(MeshData& m, const World& w) {
 }
 
 const Rgb kSplit{0.55f, 0.40f, 0.24f};
+const Rgb kFreshSplit{0.80f, 0.66f, 0.44f};  // new-cut wood: the ends of split logs, kindling
 const Rgb kRoundBark{0.20f, 0.14f, 0.09f};
 
 void fireboxContents(MeshData& m, const World& w) {
@@ -447,25 +448,34 @@ void yardWood(MeshData& m, const World& w) {
     for (int k = 0; k < f.splitByBlock && k < 12; ++k)
         m.logZ(6.2f + 0.02f * k, 6.75f, 0.06f + 0.11f * (k / 4), -1.25f + 0.13f * (k % 4), 0.06f, kSplit, {0.62f, 0.45f, 0.26f}, 6);
     m.endTag();
+    // Kindling: a heap of pale, fresh-split sticks, crossed so it reads as a
+    // pile from the block and stays visible after dark.
     m.beginTag(TargetKind::Kindling);
     for (int k = 0; k < f.kindlingByBlock && k < 6; ++k)
-        for (int s = 0; s < 6; ++s)
-            m.box({-2.45f + 0.05f * s + 0.02f * k, 0.02f * k, 6.3f + 0.04f * k}, {-2.43f + 0.05f * s + 0.02f * k, 0.02f * k + 0.03f, 6.75f},
-                  vary({0.55f, 0.40f, 0.22f}, s + 6 * k));
+        for (int s = 0; s < 6; ++s) {
+            const float y = 0.035f * k, x = -2.5f + 0.07f * s + 0.015f * k;
+            if (k % 2 == 0)
+                m.box({x, y, 6.3f}, {x + 0.035f, y + 0.035f, 6.75f}, vary(kFreshSplit, s + 6 * k));
+            else
+                m.box({-2.5f, y, 6.3f + 0.07f * s}, {-2.08f, y + 0.035f, 6.335f + 0.07f * s}, vary(kFreshSplit, s + 6 * k));
+        }
     m.endTag();
 }
 
 void woodpile(MeshData& m, const World& w) {
     m.beginTag(TargetKind::Woodpile);
-    // A low frame of two rails, always, so the spot is findable when empty.
+    // A frame of two rails and four pale stakes, always, so the spot is
+    // findable when empty and in the dark corner.
     m.box({-3.62f, 0.0f, -2.75f}, {-2.62f, 0.05f, -2.7f}, kWood);
     m.box({-3.62f, 0.0f, -2.1f}, {-2.62f, 0.05f, -2.05f}, kWood);
+    for (float sx : {-3.62f, -2.67f})
+        for (float sz : {-2.78f, -2.07f}) m.box({sx, 0.0f, sz}, {sx + 0.05f, 0.62f, sz + 0.05f}, kFreshSplit);
     const int counts[4] = {5, 4, 3, 2};
     int left = w.wood.woodpile;
     for (int row = 0; row < 4 && left > 0; ++row)
         for (int k = 0; k < counts[row] && left > 0; ++k, --left) {
             const float x = -3.5f + 0.17f * k + 0.085f * row;
-            m.logZ(-2.75f, -2.05f, 0.13f + 0.15f * row, x, 0.08f, vary(kSplit, 50 + row * 5 + k), {0.62f, 0.45f, 0.26f}, 8);
+            m.logZ(-2.75f, -2.05f, 0.13f + 0.15f * row, x, 0.08f, vary(kSplit, 50 + row * 5 + k), kFreshSplit, 8);
         }
     m.endTag();
 }
@@ -821,10 +831,11 @@ MeshData buildItem(const Item& item, int32_t index) {
 }
 
 void itemTransform(const Item& item, float out[16]) {
-    // Big things ride folded or rolled while carried, so they do not fill the view.
+    // Big things ride folded or rolled on the wagon and while carried, so they
+    // neither bury the rest of the load nor fill the view.
     const bool big = item.kind == ItemKind::Rug || item.kind == ItemKind::Curtains || item.kind == ItemKind::Sampler ||
                      item.kind == ItemKind::Quilt;
-    const float k = item.place == ItemPlace::Carried && big ? 0.3f : 1.0f;
+    const float k = (item.place == ItemPlace::Carried || item.place == ItemPlace::Wagon) && big ? 0.3f : 1.0f;
     const float c = std::cos(item.yaw) * k, s = std::sin(item.yaw) * k;
     const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, item.pos.x, item.pos.y, item.pos.z, 1};
     for (int i = 0; i < 16; ++i) out[i] = m[i];

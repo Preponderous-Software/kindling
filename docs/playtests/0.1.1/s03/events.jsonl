@@ -1,0 +1,41 @@
+{"type":"world","tick":5298,"wallTimeMs":1792767200553,"how":"loaded","seed":1881}
+{"type":"screen","tick":5298,"wallTimeMs":1792767200554,"from":null,"to":"WORLD"}
+{"type":"status","tick":6197,"wallTimeMs":1792767230676,"text":"Light comes through the gap."}
+{"type":"status","tick":6684,"wallTimeMs":1792767246913,"text":"Light comes through the gap."}
+{"type":"status","tick":7840,"wallTimeMs":1792767285452,"text":"Light comes through the gap."}
+{"type":"status","tick":8410,"wallTimeMs":1792767304440,"text":"Daylight floods in."}
+{"type":"save","tick":8902,"wallTimeMs":1792767320843,"count":1}
+{"type":"status","tick":9896,"wallTimeMs":1792767354012,"text":"Tossed out the door: a broken board. 3 pieces left inside."}
+{"type":"status","tick":11317,"wallTimeMs":1792767401844,"text":"Tossed out the door: a broken board. 2 pieces left inside."}
+{"type":"save","tick":12506,"wallTimeMs":1792767441488,"count":2}
+{"type":"status","tick":13886,"wallTimeMs":1792767487678,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":14677,"wallTimeMs":1792767514030,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":16109,"wallTimeMs":1792767561768,"count":3}
+{"type":"status","tick":18571,"wallTimeMs":1792767644424,"text":"One more section patched."}
+{"type":"status","tick":18646,"wallTimeMs":1792767646923,"text":"One more section patched."}
+{"type":"save","tick":19711,"wallTimeMs":1792767682401,"count":4}
+{"type":"status","tick":20780,"wallTimeMs":1792767718035,"text":"One more section patched."}
+{"type":"status","tick":20858,"wallTimeMs":1792767720619,"text":"The roof is whole again."}
+{"type":"save","tick":23316,"wallTimeMs":1792767802678,"count":5}
+{"type":"status","tick":25701,"wallTimeMs":1792767882104,"text":"Hold the plank over a gap in the floor and work it in (left mouse)."}
+{"type":"status","tick":26020,"wallTimeMs":1792767892716,"text":"Hold the plank over a gap in the floor and work it in (left mouse)."}
+{"type":"status","tick":26589,"wallTimeMs":1792767911679,"text":"Hold the plank over a gap in the floor and work it in (left mouse)."}
+{"type":"save","tick":26918,"wallTimeMs":1792767922661,"count":6}
+{"type":"status","tick":26922,"wallTimeMs":1792767922772,"text":"Hold the plank over a gap in the floor and work it in (left mouse)."}
+{"type":"status","tick":27231,"wallTimeMs":1792767933066,"text":"Hold the plank over a gap in the floor and work it in (left mouse)."}
+{"type":"status","tick":29967,"wallTimeMs":1792768024324,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"save","tick":30522,"wallTimeMs":1792768042798,"count":7}
+{"type":"status","tick":30841,"wallTimeMs":1792768053402,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":32644,"wallTimeMs":1792768113512,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":33405,"wallTimeMs":1792768138841,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":34125,"wallTimeMs":1792768163237,"count":8}
+{"type":"save","tick":37729,"wallTimeMs":1792768284868,"count":9}
+{"type":"status","tick":37867,"wallTimeMs":1792768289477,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":38465,"wallTimeMs":1792768309402,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":40501,"wallTimeMs":1792768377239,"text":"The light is going. L lights your lantern."}
+{"type":"save","tick":41331,"wallTimeMs":1792768407493,"count":10}
+{"type":"save","tick":44932,"wallTimeMs":1792768583528,"count":11}
+{"type":"save","tick":45138,"wallTimeMs":1792768598595,"count":12}
+{"type":"status","tick":45138,"wallTimeMs":1792768598595,"text":"Saved."}
+{"type":"world","tick":45145,"wallTimeMs":1792768606123,"how":"loaded","seed":1881}
+{"type":"screen","tick":45145,"wallTimeMs":1792768606125,"from":null,"to":"WORLD"}

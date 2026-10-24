@@ -9,7 +9,7 @@ to `main` ([WEB.md](WEB.md)).
 ## Steps
 
 0. **Playtest the candidate.** Play `main` with the AI playtest kit
-   ([playtester](https://github.com/dmccoystephenson/playtester), Kindling profile) and commit the
+   ([playtester](https://github.com/Preponderous-Software/playtester), Kindling profile) and commit the
    evidence under `docs/playtests/<version>/`. A playtest of an unreleased build is filed under the
    next expected version, with the exact commit in its README. Its findings do not block the release
    on their own; fix or file the confirmed blocker and major ones.

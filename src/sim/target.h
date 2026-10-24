@@ -41,6 +41,7 @@ enum class TargetKind : int32_t {
     Woodpile,     // the stack of split logs inside, left of the hearth
     Horse,
     OutsideWall,  // the weathered outer face of a log wall; index as Wall
+    Settler,      // Ada, once she has arrived
 };
 
 struct Aim {

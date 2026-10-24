@@ -1,0 +1,91 @@
+{
+  "session": "s03",
+  "goal": "Your save starts at the Repair step (the cabin is already cleared): finish Repair and then Furnish (planks, roof shingles, window boards, the chair, the table, bringing furnishings in from the wagon and turning them with R); record the game time of each checklist line and note anything about the wagon, carrying stacks of planks or shingles, placing or turning things that was confusing or fiddly.",
+  "build": {"version": "0.1.0", "commit": "17ed1e8"},
+  "seed": 1881,
+  "durationSec": 1459,
+  "outcome": "blocked",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "bug",
+      "title": "Open floor gap left by a pried-up rotten board cannot be targeted, so new planks can't be laid",
+      "detail": "After prying up all three rotten floorboards and hauling the broken boards out, I fetched the 3-plank stack from the wagon. With the crosshair squarely over the open gap (green ground visible through it), the centre names nothing (aim None) and holding the left button for 4 s does nothing; planksLeft stays 3. I swept pitch in ~5 degree steps from -83 to -34 and yaw across two gaps: the aim was only ever 'Floorboards' or nothing, never 'Gap in the floor' (that string exists in the game's target text). With no other way to lay the planks, Repair can't be finished, and Furnish and Kindle are out of reach. The pick volume for a Removed plank seems to vanish with the board. Expected: 'Gap in the floor - Hold the left button to work the plank in.'",
+      "repro": "pt start (s03 Repair save, seed 1881); pry the rotten floorboards near x=1.3,z=-0.3 (5, hold LMB on the dark strip); haul out the broken boards; take 'New plank' from the back of the wagon (E); walk back and aim straight at the gap (pitch about -68); pt mousehold 4 -> no progress, aim None",
+      "screenshot": "shots/plank_gap_no_target.png",
+      "tick": 44599
+    },
+    {
+      "severity": "major",
+      "category": "ux",
+      "title": "Plank stack can't be put down indoors although the rotten board tells you to put it down",
+      "detail": "If you fetch planks before prying, the rotten floorboard says 'Put the plank down and pry this up first (5)'. But E anywhere in the cabin, on floor or rotten board, only answers 'Hold the plank over a gap in the floor and work it in (left mouse)'. The only way to free your hands is to walk back to the wagon and press E while aiming at the cart body ('Your wagon'). E while aiming at a furnishing on the wagon (Blue jar, Framed sampler) silently does nothing, and returning the stack gives no confirmation message.",
+      "repro": "take planks from wagon; walk in; aim at a rotten floorboard; pt key e -> refusal message; walk to wagon, aim at 'Blue jar', E -> nothing; aim at 'Your wagon', E -> stack returned silently",
+      "screenshot": "shots/plank_cant_put_down.png",
+      "tick": 26319
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Rotten floorboards look like open holes and only their thin dark strip is targetable",
+      "detail": "Rotten boards render as dark and green squares that look the same as an already-removed gap. Aiming at the middle names nothing; only the narrow dark edge gives 'Rotten floorboard'. I could not tell rotten boards from finished gaps by looking. The checklist says 'Replace the rotten floorboards' but never mentions prying them up first.",
+      "repro": "From the s03 save, walk in, look down at the dark/green patch near the hearth and sweep the crosshair across it.",
+      "screenshot": "shots/rotten_looks_like_hole.png",
+      "tick": 25685
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Planks on the wagon are hard to find; most of the cart only says 'Your wagon'",
+      "detail": "The hint 'Tools, planks, shingles and furnishings' covers the whole cart, but the plank stack is a small dark box at the back right, easy to miss and nearly invisible at dusk. I grabbed the shingles by accident first and needed several minutes and many aim adjustments to find 'New plank'. Once, pressing E on the plank label did not take it. Pressing E on 'Your wagon' gives no feedback when you carry nothing.",
+      "repro": "walkto wagon; sweep yaw at pitch about -17; only a 5-10 degree window at the back right names 'New plank'",
+      "screenshot": "shots/wagon_planks_hard.png",
+      "tick": 23467
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Pressing E at the wagon body does nothing and gives no message",
+      "detail": "With empty hands, E on 'Your wagon' does nothing at all. A short line such as 'Aim at the planks, shingles or a furnishing' would help.",
+      "repro": "walkto wagon; aim at the cart bed; pt key e",
+      "screenshot": "shots/wagon_e_silent.png",
+      "tick": 15770
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Window boards: the gaps between boards name nothing, and boards pried off become new debris to haul",
+      "detail": "At eye level the crosshair falls in the gap between boards, so the target name disappears and holding the button does nothing; you have to nudge onto a board. Each board pried off adds to 'Haul out the old wood', which re-opens a ticked line (0 -> 4 pieces). Picking a board up off the floor needs the crosshair within about 12 degrees in 3D: looking straight down at your feet (pitch -83) misses a board 1.3 m ahead, though the help says E takes the nearest piece. The pry and haul loop itself felt fine.",
+      "repro": "From the s03 save: pt hold Down 0.15 onto a board, mousehold 6; repeat; look down at pitch -83 and press E near a board -> nothing; pitch -56 -> picks up",
+      "screenshot": "shots/pry4.png",
+      "tick": 8410
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Status messages overlap the target prompt, and the checklist is hard to read over a bright window",
+      "detail": "'Light comes through the gap.' is drawn over the 'Board nailed over the window / Pry it off' prompt and its meter. The white checklist text sits over the bright sky in the window and becomes hard to read. The carried shingle and plank stacks fill the lower right quarter of the view and hide the floor gap you are trying to aim at.",
+      "repro": "pry window boards one after another",
+      "screenshot": "shots/pry6.png",
+      "tick": 7840
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 0,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Take the boards off the window": 280.3,
+      "Patch the roof": 695.3,
+      "Haul out the old wood (re-done after window boards)": 490.7
+    },
+    "repairLinesDone": 3,
+    "repairLinesTotal": 6,
+    "planksLaid": 0,
+    "rottenBoardsPried": 3,
+    "wagonTrips": 4,
+    "startTick": 5298,
+    "endTick": 45221
+  },
+  "fun": 2,
+  "verdict": "The window and roof jobs feel good: prying boards, the sky opening up and the shingles working in quickly are satisfying. The floor is broken: after the rotten boards are pried up, the open gap can't be targeted, so the planks can't go in and Repair, Furnish and Kindle are blocked. The plank-stack flow around it (no way to set the stack down indoors, planks hard to find on the wagon, rotten boards that look like holes) made the floor the most frustrating part of the session even before it hard-stopped."
+}
