@@ -1,0 +1,93 @@
+{
+  "session": "s05",
+  "goal": "Your save starts at the Repair step (the cabin is already cleared). First of all, replace the three rotten floorboards: pry each one up with the pry bar (5), haul the broken pieces out, bring the plank stack from the wagon and work a new plank into each gap. Say plainly whether every gap could be aimed at and filled. Then finish the rest of Repair (roof, window boards, chair, table) and as much of Furnish as you can (bring furnishings in from the wagon, place them, turn them with R). Record the game time of each checklist line and note anything confusing or fiddly.",
+  "build": {"version": "0.1.1", "commit": "da3215f"},
+  "seed": 1881,
+  "durationSec": 1593,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Rotten-floorboard and floor-gap hit areas are offset from the drawn patch",
+      "detail": "Every gap could be aimed at and filled (3/3), but two of the three needed hunting for an invisible hotspot. With the crosshair squarely on the visible dark/green rotten patch (from about 1 m, pitch -64) the aim read 'Floorboards' and holding LMB with the pry bar did nothing. Backing up to about 1.5 m and aiming at the patch's far tip finally read 'Rotten floorboard'. When filling, the crosshair on the visible green gap read 'New floorboard' (shots/g9.png), while plain boards to its lower right read 'Gap in the floor' (shots/gap_offset.png). Expected the drawn patch to be the target.",
+      "repro": "pt start --profile kindling --seed 1881; stand at about (-0.5,0.55), face yaw ~293, pitch -54: crosshair beside the gap reads Floorboards; turn right ~15 deg: reads 'Gap in the floor'. For the third gap, from the same spot at yaw 104 the crosshair on the green strip reads 'New floorboard', and at yaw 122 (off the strip) it reads 'Gap in the floor'.",
+      "screenshot": "shots/gap_offset.png",
+      "tick": 21516
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Picking up broken boards needs a near-exact aim: 'Nothing to pick up there' with the board in plain view",
+      "detail": "Hauling 7 broken pieces (3 floor, 4 window) produced 7 'Nothing to pick up there.' messages. The board sat about 1 m away, 10-15 deg above or below the crosshair, and walkto had reported it 'within reach'. The described 12-degree forgiveness does not seem to cover pitch at close range. Hauling the window boards took about 250 game seconds (ticks 24104-31548), the slowest part of Repair.",
+      "repro": "after prying the window boards: pt walkto debris; press e without tilting -> 'Nothing to pick up there.' (event ticks 26483-29960)",
+      "screenshot": "shots/nothing_pickup2.png",
+      "tick": 30248
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Remaining roof holes are invisible from inside: '2 sections open' but no sky or light shows",
+      "detail": "Two roof sections were patched by looking up from about (1.62,0.82) around yaw 340, pitch 45; the first showed only as a small blue corner at the screen edge. After that the checklist still said 2 sections open, but a full 360-degree look at pitch 30-60 showed only dark ceiling boards and rafters, with no sky, light shaft or marker. I could not find the remaining two holes in the time left, so Repair (and Furnish) were not finished.",
+      "repro": "carry shingles in, stand at about (1.6,0.8), patch the hole at yaw ~340 pitch 45 twice, then look around at pitch 30-60",
+      "screenshot": "shots/roof_hidden.png",
+      "tick": 40253
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Wagon 'within reach' per walkto, but E says 'Too far to reach' and needs a precise aim at the stack",
+      "detail": "walkto wagon stopped 1.5 m away ('within reach'), but aiming at the planks gave 'Too far to reach. Step closer.' Another step was needed. Then the crosshair had to sit exactly on the shingle bundle: one pixel above it the game said 'Aim at what you want from the wagon, then E.'",
+      "repro": "pt walkto wagon; aim at plank stack; e",
+      "screenshot": "shots/wagon5.png",
+      "tick": 16000
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Current checklist line is drawn in a smaller, dimmer font squeezed under the STEP header",
+      "detail": "The first line ('Replace the rotten floorboards (3 left)') and later the active 'Patch the roof' line render smaller or grey compared with the other lines. That reads as disabled or done rather than 'next'.",
+      "repro": "pt start ...; pt shot start",
+      "screenshot": "shots/checklist_line1.png",
+      "tick": 5366
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Carried plank stack hides much of the floor view when looking for gaps",
+      "detail": "With 3 planks in hand, the plank model covers the lower-right third of the screen. That is exactly where floor gaps appear when you look down to aim.",
+      "repro": "take the plank stack from the wagon and look down indoors",
+      "screenshot": "shots/h2.png",
+      "tick": 19000
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Low frame rate makes fine aiming slow",
+      "detail": "fps was 4-10 with tps 29-33 (it dipped to 4.8 on the status check), on a machine shared with other sessions. The probe's aim and pitch lagged behind key presses, which made small adjustments overshoot.",
+      "repro": "pt status during play",
+      "screenshot": "shots/r4.png",
+      "tick": 40317
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 2,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Replace the rotten floorboards": 719.9,
+      "Take the boards off the window": 803.5,
+      "Haul out the old wood (window boards)": 1051.6,
+      "Mend the rocking chair": 1095.6,
+      "Set the table right": 1137.9
+    },
+    "floorGapsFilled": 3,
+    "floorGapsAimable": 3,
+    "roofSectionsPatched": 2,
+    "roofSectionsLeft": 2,
+    "nothingToPickUpMessages": 7,
+    "furnishingsPlaced": 0,
+    "saveStartGameSec": 155.6
+  },
+  "fun": 3,
+  "verdict": "The repair loop feels good: pry, haul, fetch the stack, work it in, and the flavour lines ('A new board, pale against the old...') land well. Chair and table were quick and satisfying. Every floor gap could be aimed at and filled, but hit areas offset from the drawn rotten patch and gaps, plus strict pickup aim for broken boards, made the floor and hauling fiddly. The two remaining roof holes gave no visual cue at all, which stalled Repair before Furnish could start."
+}

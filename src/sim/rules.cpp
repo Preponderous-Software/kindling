@@ -157,10 +157,25 @@ void carryWood(World& w, Wood k) {
     w.carryIndex = static_cast<int32_t>(k);
 }
 
+// The places firewood is taken from or put down.
+bool woodGoesTo(TargetKind kind) {
+    return kind == TargetKind::ChoppingBlock || kind == TargetKind::LogPile || kind == TargetKind::Woodpile ||
+           kind == TargetKind::SplitWood || kind == TargetKind::Kindling || kind == TargetKind::Firebox;
+}
+
 // Putting firewood where it goes: the block, the woodpile, the hearth.
 void putDownWood(World& w, const Input& in, TickEvents* ev) {
     const Wood k = static_cast<Wood>(w.carryIndex);
-    const TargetKind at = inReach(w, in.aim) ? in.aim.kind : TargetKind::None;
+    TargetKind at = inReach(w, in.aim) ? in.aim.kind : TargetKind::None;
+    // A round carried up to the block goes on it, even with the log pile
+    // behind it under the crosshair.
+    const float bx = w.player.x - L::kChoppingBlock.x, bz = w.player.z - L::kChoppingBlock.z;
+    if (k == Wood::Round && !w.wood.roundOnBlock && bx * bx + bz * bz < L::kBlockStandRange * L::kBlockStandRange)
+        at = TargetKind::ChoppingBlock;
+    if (at == TargetKind::None && !inReach(w, in.aim) && woodGoesTo(in.aim.kind)) {
+        say(ev, "Too far to reach. Step closer.");
+        return;
+    }
     Hearth& h = w.hearth;
     bool done = false;
     if (k == Wood::Round && at == TargetKind::ChoppingBlock && !w.wood.roundOnBlock) {
@@ -295,7 +310,10 @@ void interact(World& w, const Input& in, TickEvents* ev) {
         return;
     }
     if (!inReach(w, in.aim)) {
-        if (in.aim.kind == TargetKind::Debris || in.aim.kind == TargetKind::Item) say(ev, "Too far to reach. Step closer.");
+        if (in.aim.kind == TargetKind::Debris || in.aim.kind == TargetKind::Item || in.aim.kind == TargetKind::Wagon ||
+            in.aim.kind == TargetKind::HayBale || (in.aim.kind == TargetKind::Table && w.table == TableState::Toppled) ||
+            woodGoesTo(in.aim.kind))
+            say(ev, "Too far to reach. Step closer.");
         return;
     }
     switch (in.aim.kind) {
@@ -380,9 +398,13 @@ void work(World& w, const Input& in, TickEvents* ev) {
             ++w.hearth.matchesStruck;
             say(ev, "The match goes out. Hold it to the kindling until it catches.");
         }
-        w.workKind = TargetKind::None;
-        w.workIndex = -1;
-        w.workSeconds = 0;
+        // A struck match is spent; any other job keeps its progress, to pick
+        // up again on the same thing.
+        if (w.tool == Tool::Matches) {
+            w.workKind = TargetKind::None;
+            w.workIndex = -1;
+            w.workSeconds = 0;
+        }
         return;
     }
     if (!sameJob) {
@@ -475,7 +497,7 @@ void work(World& w, const Input& in, TickEvents* ev) {
                             1.5708f);
                 bool open = true;
                 for (int32_t b : w.windowBoards) open = open && b == 0;
-                say(ev, open ? "Daylight floods in." : "Light comes through the gap.");
+                say(ev, open ? "Daylight floods in. Haul the boards out with the rest." : "Light comes through the gap.");
                 w.workSeconds = 0;
             }
             break;
@@ -561,7 +583,9 @@ void moveCircle(float& x, float& z, float dx, float dz, float r) {
     }
 }
 
-bool inReach(const World&, const Aim& aim) { return aim.kind != TargetKind::None && aim.distance <= L::kReach; }
+float reachFor(TargetKind kind) { return kind == TargetKind::Debris ? L::kDebrisReach : L::kReach; }
+
+bool inReach(const World&, const Aim& aim) { return aim.kind != TargetKind::None && aim.distance <= reachFor(aim.kind); }
 
 bool byTheDoor(const World& w) {
     const float dx = w.player.x - (L::kDoorX0 + L::kDoorX1) / 2, dz = w.player.z - L::kInnerZ1;
@@ -648,8 +672,10 @@ bool toolApplies(const World& w, const Aim& aim) {
 
 Vec3 carryPosition(const Player& p) {
     // Low and to the right of the crosshair wherever the view points, so what
-    // is carried stays in sight without hiding what it is carried to.
-    const Vec3 f = lookDirection(p.yaw, std::fmax(p.pitch - kCarryBelowView, -1.55f));
+    // is carried stays in sight without hiding what it is carried to; looking
+    // up (at the roof), it drops further, out of the way.
+    const float below = kCarryBelowView + 0.6f * std::fmax(0.0f, p.pitch);
+    const Vec3 f = lookDirection(p.yaw, std::fmax(p.pitch - below, -1.55f));
     const Vec3 right{detCos(p.yaw), 0, detSin(p.yaw)};
     return {p.x + f.x * 0.7f + right.x * 0.3f, std::fmax(L::kEyeHeight + f.y * 0.7f, L::kFloorY + 0.08f),
             p.z + f.z * 0.7f + right.z * 0.3f};
@@ -681,7 +707,13 @@ void tick(World& w, const Input& in, TickEvents* ev) {
     const bool duskBefore = dusk(w);
     if (in.toggleLantern) w.lantern = !w.lantern;
 
-    if (in.selectTool >= 0 && in.selectTool < kToolCount) w.tool = static_cast<Tool>(in.selectTool);
+    if (in.selectTool >= 0 && in.selectTool < kToolCount && static_cast<Tool>(in.selectTool) != w.tool) {
+        w.tool = static_cast<Tool>(in.selectTool);
+        // Work done with one tool doesn't carry over to another.
+        w.workKind = TargetKind::None;
+        w.workIndex = -1;
+        w.workSeconds = 0;
+    }
     move(w, in);
     if (in.interact) interact(w, in, ev);
     work(w, in, ev);

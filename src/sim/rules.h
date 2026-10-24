@@ -43,6 +43,9 @@ void tick(World& w, const Input& in, TickEvents* events = nullptr);
 // solid and staying inside the yard. Exposed for tests.
 void moveCircle(float& x, float& z, float dx, float dz, float r);
 
+// How far from the eye a target of this kind can be worked or picked up.
+float reachFor(TargetKind kind);
+
 // How far from the player's eye things can be reached and worked on.
 bool inReach(const World& w, const Aim& aim);
 

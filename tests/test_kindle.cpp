@@ -67,6 +67,30 @@ int main() {
         CHECK(w.wood.woodpile == pile + 1 && w.carry == Carry::Nothing);
     }
 
+    // ---- standing at the block, a round goes on it even with the log pile
+    // under the crosshair; a woodpile out of reach says so
+    {
+        World w = newWorld(9);
+        press(w, aimAt(TargetKind::LogPile));
+        CHECK(w.carry == Carry::Firewood);
+        w.player.x = layout::kChoppingBlock.x;
+        w.player.z = layout::kChoppingBlock.z - 0.9f;
+        press(w, aimAt(TargetKind::LogPile));
+        CHECK(w.carry == Carry::Nothing && w.wood.roundOnBlock);
+
+        World v = newWorld(9);
+        v.wood.splitByBlock = 1;
+        press(v, aimAt(TargetKind::SplitWood));
+        Aim far = aimAt(TargetKind::Woodpile);
+        far.distance = layout::kReach + 0.5f;
+        TickEvents ev;
+        press(v, far, &ev);
+        CHECK(v.carry == Carry::Firewood);
+        bool told = false;
+        for (const std::string& m : ev.messages) told = told || m.find("Too far") != std::string::npos;
+        CHECK(told);
+    }
+
     // ---- laying and lighting the fire
     {
         World w = newWorld(9);
@@ -188,8 +212,15 @@ int main() {
         w.hearth.fuelMinutes = 500;
         tick(w, Input{});
         CHECK(progress(w).step == Step::Kindle);  // only two logs stacked
-        // A log taken from the stack for the fire still counts toward it.
+        // A log taken from the stack for the fire still counts toward it, in
+        // hand and once it burns.
         w.wood.woodpile = kWoodpileGoal - 1;
+        w.carry = Carry::Firewood;
+        w.carryIndex = static_cast<int32_t>(Wood::Split);
+        w.hearth.kindlingLaid = true;
+        CHECK(progress(w).woodCount == kWoodpileGoal + 1);
+        w.carry = Carry::Nothing;
+        w.carryIndex = -1;
         CHECK(progress(w).woodCount == kWoodpileGoal);
         tick(w, Input{});
         CHECK(w.kindled);

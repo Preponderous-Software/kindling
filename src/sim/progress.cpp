@@ -40,7 +40,12 @@ Progress progress(const World& w) {
     p.logsLaid = w.hearth.logsLaid > 0 || w.hearth.lit;
     // A log taken from the stack for the fire still counts: it is burning, or
     // laid on the andirons.
-    p.woodCount = w.wood.woodpile + (w.hearth.lit ? (w.hearth.fuelMinutes > 0 ? 1 : 0) : w.hearth.logsLaid);
+    // A split log in hand once the kindling is laid is on its way from the
+    // stack to the fire: it still counts.
+    const bool logInHand = w.carry == Carry::Firewood && w.carryIndex == static_cast<int32_t>(Wood::Split) &&
+                           w.hearth.kindlingLaid;
+    p.woodCount = w.wood.woodpile + (w.hearth.lit ? (w.hearth.fuelMinutes > 0 ? 1 : 0) : w.hearth.logsLaid) +
+                  (logInHand ? 1 : 0);
     p.woodStacked = p.woodCount >= kWoodpileGoal;
     p.burning = w.hearth.lit && w.hearth.fire >= kBurningFire;
 

@@ -1,0 +1,432 @@
+{"t": 1792815712878, "cmd": "start", "args": ["--profile", "kindling", "--game-dir", "<kindling checkout>", "--seed", "1881"]}
+{"t": 1792815718738, "cmd": "state", "args": []}
+{"t": 1792815718820, "cmd": "shot", "args": ["start"]}
+{"t": 1792815725317, "cmd": "key", "args": ["F1"]}
+{"t": 1792815725870, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792815732016, "cmd": "state", "args": []}
+{"t": 1792815735820, "cmd": "shot", "args": ["w1"]}
+{"t": 1792815739910, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792815740496, "cmd": "state", "args": []}
+{"t": 1792815740584, "cmd": "shot", "args": ["w2"]}
+{"t": 1792815744659, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792815749777, "cmd": "state", "args": []}
+{"t": 1792815749870, "cmd": "state", "args": []}
+{"t": 1792815749938, "cmd": "hold", "args": ["Up", "0.2"]}
+{"t": 1792815750278, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792815755404, "cmd": "state", "args": []}
+{"t": 1792815755520, "cmd": "state", "args": []}
+{"t": 1792815755591, "cmd": "hold", "args": ["Up", "0.2"]}
+{"t": 1792815755999, "cmd": "mousehold", "args": ["5"]}
+{"t": 1792815761156, "cmd": "state", "args": []}
+{"t": 1792815761251, "cmd": "state", "args": []}
+{"t": 1792815761349, "cmd": "hold", "args": ["Up", "0.2"]}
+{"t": 1792815765655, "cmd": "hold", "args": ["Down", "1.2"]}
+{"t": 1792815767015, "cmd": "state", "args": []}
+{"t": 1792815767088, "cmd": "shot", "args": ["f1"]}
+{"t": 1792815773241, "cmd": "face", "args": ["180"]}
+{"t": 1792815777054, "cmd": "hold", "args": ["Down", "0.8"]}
+{"t": 1792815777970, "cmd": "state", "args": []}
+{"t": 1792815778049, "cmd": "shot", "args": ["f2"]}
+{"t": 1792815783641, "cmd": "key", "args": ["e"]}
+{"t": 1792815784167, "cmd": "wait", "args": ["1"]}
+{"t": 1792815785241, "cmd": "state", "args": []}
+{"t": 1792815785366, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815793895, "cmd": "key", "args": ["e"]}
+{"t": 1792815794438, "cmd": "wait", "args": ["1"]}
+{"t": 1792815795501, "cmd": "state", "args": []}
+{"t": 1792815795579, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792815803691, "cmd": "key", "args": ["e"]}
+{"t": 1792815804194, "cmd": "wait", "args": ["1"]}
+{"t": 1792815805253, "cmd": "state", "args": []}
+{"t": 1792815805332, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815812763, "cmd": "key", "args": ["e"]}
+{"t": 1792815813292, "cmd": "wait", "args": ["1"]}
+{"t": 1792815814377, "cmd": "state", "args": []}
+{"t": 1792815814470, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792815823318, "cmd": "key", "args": ["e"]}
+{"t": 1792815823928, "cmd": "wait", "args": ["1"]}
+{"t": 1792815824989, "cmd": "state", "args": []}
+{"t": 1792815825063, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815832067, "cmd": "key", "args": ["e"]}
+{"t": 1792815832554, "cmd": "wait", "args": ["1"]}
+{"t": 1792815833640, "cmd": "state", "args": []}
+{"t": 1792815833758, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792815840367, "cmd": "key", "args": ["e"]}
+{"t": 1792815840879, "cmd": "wait", "args": ["1"]}
+{"t": 1792815841965, "cmd": "state", "args": []}
+{"t": 1792815842037, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815853046, "cmd": "key", "args": ["e"]}
+{"t": 1792815853651, "cmd": "wait", "args": ["1"]}
+{"t": 1792815854825, "cmd": "state", "args": []}
+{"t": 1792815854980, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792815869825, "cmd": "state", "args": []}
+{"t": 1792815869895, "cmd": "key", "args": ["e"]}
+{"t": 1792815870528, "cmd": "wait", "args": ["2"]}
+{"t": 1792815872646, "cmd": "shot", "args": ["e1"]}
+{"t": 1792815873133, "cmd": "events", "args": ["5"]}
+{"t": 1792815878023, "cmd": "face", "args": ["-9"]}
+{"t": 1792815879829, "cmd": "hold", "args": ["Up", "0.5"]}
+{"t": 1792815880482, "cmd": "state", "args": []}
+{"t": 1792815880556, "cmd": "key", "args": ["e"]}
+{"t": 1792815881088, "cmd": "wait", "args": ["1"]}
+{"t": 1792815882182, "cmd": "state", "args": []}
+{"t": 1792815886336, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815897838, "cmd": "key", "args": ["e"]}
+{"t": 1792815898399, "cmd": "wait", "args": ["1"]}
+{"t": 1792815899481, "cmd": "state", "args": []}
+{"t": 1792815899558, "cmd": "events", "args": ["3"]}
+{"t": 1792815904999, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792815918086, "cmd": "state", "args": []}
+{"t": 1792815918243, "cmd": "face", "args": ["+8"]}
+{"t": 1792815919265, "cmd": "state", "args": []}
+{"t": 1792815919386, "cmd": "key", "args": ["e"]}
+{"t": 1792815920011, "cmd": "wait", "args": ["1"]}
+{"t": 1792815921163, "cmd": "state", "args": []}
+{"t": 1792815921293, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815937681, "cmd": "key", "args": ["e"]}
+{"t": 1792815938246, "cmd": "wait", "args": ["1"]}
+{"t": 1792815939356, "cmd": "events", "args": ["1"]}
+{"t": 1792815939471, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792815950301, "cmd": "state", "args": []}
+{"t": 1792815950419, "cmd": "face", "args": ["-16"]}
+{"t": 1792815953849, "cmd": "state", "args": []}
+{"t": 1792815953982, "cmd": "key", "args": ["e"]}
+{"t": 1792815954518, "cmd": "wait", "args": ["1"]}
+{"t": 1792815955601, "cmd": "state", "args": []}
+{"t": 1792815955729, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792815976210, "cmd": "key", "args": ["e"]}
+{"t": 1792815976966, "cmd": "wait", "args": ["1"]}
+{"t": 1792815978068, "cmd": "events", "args": ["1"]}
+{"t": 1792815978162, "cmd": "walkto", "args": ["debris", "60"]}
+{"t": 1792816001021, "cmd": "state", "args": []}
+{"t": 1792816001166, "cmd": "face", "args": ["-7"]}
+{"t": 1792816002440, "cmd": "state", "args": []}
+{"t": 1792816002564, "cmd": "key", "args": ["e"]}
+{"t": 1792816003142, "cmd": "wait", "args": ["1"]}
+{"t": 1792816004265, "cmd": "state", "args": []}
+{"t": 1792816004376, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816014355, "cmd": "key", "args": ["e"]}
+{"t": 1792816014925, "cmd": "wait", "args": ["1"]}
+{"t": 1792816016028, "cmd": "events", "args": ["1"]}
+{"t": 1792816021535, "cmd": "walkto", "args": ["hearth", "60"]}
+{"t": 1792816043937, "cmd": "face", "args": ["180"]}
+{"t": 1792816051315, "cmd": "state", "args": []}
+{"t": 1792816051454, "cmd": "shot", "args": ["r1"]}
+{"t": 1792816057901, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816064388, "cmd": "walkto", "args": ["wagon", "60"]}
+{"t": 1792816075351, "cmd": "state", "args": []}
+{"t": 1792816075501, "cmd": "shot", "args": ["wag1"]}
+{"t": 1792816079798, "cmd": "hold", "args": ["Up", "0.7"]}
+{"t": 1792816080736, "cmd": "state", "args": []}
+{"t": 1792816080896, "cmd": "shot", "args": ["wag2"]}
+{"t": 1792816086674, "cmd": "face", "args": ["25"]}
+{"t": 1792816091855, "cmd": "hold", "args": ["Down", "0.15"]}
+{"t": 1792816092267, "cmd": "state", "args": []}
+{"t": 1792816092395, "cmd": "shot", "args": ["wag3"]}
+{"t": 1792816098718, "cmd": "key", "args": ["e"]}
+{"t": 1792816099291, "cmd": "wait", "args": ["1"]}
+{"t": 1792816100423, "cmd": "state", "args": []}
+{"t": 1792816100574, "cmd": "events", "args": ["2"]}
+{"t": 1792816100704, "cmd": "shot", "args": ["carry1"]}
+{"t": 1792816106693, "cmd": "status", "args": []}
+{"t": 1792816106941, "cmd": "state", "args": []}
+{"t": 1792816107086, "cmd": "hold", "args": ["Up", "0.15"]}
+{"t": 1792816107554, "cmd": "wait", "args": ["1"]}
+{"t": 1792816108691, "cmd": "state", "args": []}
+{"t": 1792816113276, "cmd": "key", "args": ["e"]}
+{"t": 1792816113861, "cmd": "wait", "args": ["1"]}
+{"t": 1792816114974, "cmd": "state", "args": []}
+{"t": 1792816115115, "cmd": "events", "args": ["1"]}
+{"t": 1792816115242, "cmd": "shot", "args": ["carry2"]}
+{"t": 1792816120901, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816121556, "cmd": "walkto", "args": ["hearth", "60"]}
+{"t": 1792816148154, "cmd": "hold", "args": ["Up", "1.5"]}
+{"t": 1792816149895, "cmd": "state", "args": []}
+{"t": 1792816149979, "cmd": "shot", "args": ["roof1"]}
+{"t": 1792816154810, "cmd": "state", "args": []}
+{"t": 1792816154904, "cmd": "walkto", "args": ["hearth", "60"]}
+{"t": 1792816167847, "cmd": "hold", "args": ["Down", "0.9"]}
+{"t": 1792816168963, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816174417, "cmd": "state", "args": []}
+{"t": 1792816174481, "cmd": "face", "args": ["-13"]}
+{"t": 1792816177162, "cmd": "hold", "args": ["w", "2.5"]}
+{"t": 1792816179815, "cmd": "state", "args": []}
+{"t": 1792816179881, "cmd": "shot", "args": ["door1"]}
+{"t": 1792816185500, "cmd": "state", "args": []}
+{"t": 1792816189538, "cmd": "hold", "args": ["Down", "0.5"]}
+{"t": 1792816190332, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816214782, "cmd": "state", "args": []}
+{"t": 1792816214896, "cmd": "shot", "args": ["door2"]}
+{"t": 1792816221003, "cmd": "hold", "args": ["s", "1"]}
+{"t": 1792816222284, "cmd": "face", "args": ["45"]}
+{"t": 1792816229139, "cmd": "hold", "args": ["w", "1.5"]}
+{"t": 1792816230972, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816254143, "cmd": "state", "args": []}
+{"t": 1792816259446, "cmd": "hold", "args": ["s", "2"]}
+{"t": 1792816261674, "cmd": "state", "args": []}
+{"t": 1792816261906, "cmd": "hold", "args": ["a", "2"]}
+{"t": 1792816264170, "cmd": "state", "args": []}
+{"t": 1792816264337, "cmd": "status", "args": []}
+{"t": 1792816270222, "cmd": "state", "args": ["--full"]}
+{"t": 1792816276751, "cmd": "walkto", "args": ["door", "60"]}
+{"t": 1792816292700, "cmd": "state", "args": []}
+{"t": 1792816292858, "cmd": "hold", "args": ["Down", "0.3"]}
+{"t": 1792816293430, "cmd": "shot", "args": ["door3"]}
+{"t": 1792816300203, "cmd": "face", "args": ["8"]}
+{"t": 1792816301629, "cmd": "hold", "args": ["w", "2"]}
+{"t": 1792816303826, "cmd": "state", "args": []}
+{"t": 1792816303920, "cmd": "walkto", "args": ["hearth", "60"]}
+{"t": 1792816350369, "cmd": "face", "args": ["180"]}
+{"t": 1792816360002, "cmd": "hold", "args": ["Up", "1"]}
+{"t": 1792816361330, "cmd": "state", "args": []}
+{"t": 1792816361498, "cmd": "shot", "args": ["roof2"]}
+{"t": 1792816367316, "cmd": "hold", "args": ["Up", "0.6"]}
+{"t": 1792816368134, "cmd": "face", "args": ["90"]}
+{"t": 1792816370622, "cmd": "state", "args": []}
+{"t": 1792816370710, "cmd": "shot", "args": ["ceil1"]}
+{"t": 1792816371153, "cmd": "face", "args": ["90"]}
+{"t": 1792816374641, "cmd": "state", "args": []}
+{"t": 1792816374731, "cmd": "shot", "args": ["ceil2"]}
+{"t": 1792816375124, "cmd": "face", "args": ["90"]}
+{"t": 1792816379040, "cmd": "state", "args": []}
+{"t": 1792816379205, "cmd": "shot", "args": ["ceil3"]}
+{"t": 1792816379673, "cmd": "face", "args": ["90"]}
+{"t": 1792816382131, "cmd": "state", "args": []}
+{"t": 1792816382289, "cmd": "shot", "args": ["ceil4"]}
+{"t": 1792816388131, "cmd": "face", "args": ["90"]}
+{"t": 1792816390636, "cmd": "face", "args": ["90"]}
+{"t": 1792816393523, "cmd": "state", "args": []}
+{"t": 1792816393637, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792816399806, "cmd": "state", "args": []}
+{"t": 1792816399895, "cmd": "shot", "args": ["roof3"]}
+{"t": 1792816405682, "cmd": "state", "args": []}
+{"t": 1792816405748, "cmd": "state", "args": []}
+{"t": 1792816405860, "cmd": "hold", "args": ["Up", "0.2"]}
+{"t": 1792816406290, "cmd": "state", "args": []}
+{"t": 1792816406379, "cmd": "state", "args": []}
+{"t": 1792816406446, "cmd": "hold", "args": ["Up", "0.2"]}
+{"t": 1792816406863, "cmd": "state", "args": []}
+{"t": 1792816406946, "cmd": "state", "args": []}
+{"t": 1792816407022, "cmd": "hold", "args": ["Up", "0.2"]}
+{"t": 1792816407420, "cmd": "state", "args": []}
+{"t": 1792816407525, "cmd": "state", "args": []}
+{"t": 1792816407630, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792816413735, "cmd": "state", "args": []}
+{"t": 1792816413807, "cmd": "state", "args": []}
+{"t": 1792816413896, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792816420011, "cmd": "state", "args": []}
+{"t": 1792816420163, "cmd": "shot", "args": ["roof4"]}
+{"t": 1792816431796, "cmd": "mousehold", "args": ["4"]}
+{"t": 1792816436043, "cmd": "state", "args": []}
+{"t": 1792816436250, "cmd": "shot", "args": ["roof5"]}
+{"t": 1792816443834, "cmd": "state", "args": []}
+{"t": 1792816444002, "cmd": "state", "args": []}
+{"t": 1792816444149, "cmd": "face", "args": ["15"]}
+{"t": 1792816447660, "cmd": "state", "args": []}
+{"t": 1792816447743, "cmd": "state", "args": []}
+{"t": 1792816447891, "cmd": "face", "args": ["15"]}
+{"t": 1792816451245, "cmd": "state", "args": []}
+{"t": 1792816451539, "cmd": "state", "args": []}
+{"t": 1792816451684, "cmd": "face", "args": ["15"]}
+{"t": 1792816470883, "cmd": "state", "args": []}
+{"t": 1792816471070, "cmd": "state", "args": []}
+{"t": 1792816471288, "cmd": "face", "args": ["15"]}
+{"t": 1792816498638, "cmd": "state", "args": []}
+{"t": 1792816498838, "cmd": "state", "args": []}
+{"t": 1792816498983, "cmd": "face", "args": ["15"]}
+{"t": 1792816503471, "cmd": "state", "args": []}
+{"t": 1792816503737, "cmd": "state", "args": []}
+{"t": 1792816503987, "cmd": "face", "args": ["15"]}
+{"t": 1792816508105, "cmd": "state", "args": []}
+{"t": 1792816508304, "cmd": "state", "args": []}
+{"t": 1792816508529, "cmd": "mousehold", "args": ["8"]}
+{"t": 1792816516666, "cmd": "state", "args": []}
+{"t": 1792816516874, "cmd": "state", "args": []}
+{"t": 1792816517033, "cmd": "face", "args": ["15"]}
+{"t": 1792816520444, "cmd": "shot", "args": ["roof6"]}
+{"t": 1792816527252, "cmd": "note", "args": ["--shot", "roof_occluded", "Carrying the shingle stack: the held bundle model fills the lower-right third of the view and hides the last open roof section when looking straight up (pitch ~83). Had to sweep yaw blind until the label read 'Hole in the roof'. Tick ~20500."]}
+{"t": 1792816527825, "cmd": "mousehold", "args": ["8"]}
+{"t": 1792816536104, "cmd": "state", "args": []}
+{"t": 1792816541680, "cmd": "hold", "args": ["Down", "2"]}
+{"t": 1792816543902, "cmd": "state", "args": []}
+{"t": 1792816544012, "cmd": "hold", "args": ["Up", "0.4"]}
+{"t": 1792816544663, "cmd": "face", "args": ["90"]}
+{"t": 1792816552238, "cmd": "state", "args": []}
+{"t": 1792816552338, "cmd": "shot", "args": ["fl1"]}
+{"t": 1792816553136, "cmd": "face", "args": ["90"]}
+{"t": 1792816555250, "cmd": "state", "args": []}
+{"t": 1792816555371, "cmd": "shot", "args": ["fl2"]}
+{"t": 1792816555932, "cmd": "face", "args": ["90"]}
+{"t": 1792816563076, "cmd": "state", "args": []}
+{"t": 1792816563224, "cmd": "shot", "args": ["fl3"]}
+{"t": 1792816563961, "cmd": "face", "args": ["90"]}
+{"t": 1792816570634, "cmd": "state", "args": []}
+{"t": 1792816570735, "cmd": "shot", "args": ["fl4"]}
+{"t": 1792816584960, "cmd": "hold", "args": ["Down", "2"]}
+{"t": 1792816587231, "cmd": "state", "args": []}
+{"t": 1792816587396, "cmd": "shot", "args": ["fl5"]}
+{"t": 1792816588095, "cmd": "status", "args": []}
+{"t": 1792816593166, "cmd": "key", "args": ["6"]}
+{"t": 1792816593789, "cmd": "face", "args": ["30"]}
+{"t": 1792816600116, "cmd": "state", "args": []}
+{"t": 1792816600212, "cmd": "shot", "args": ["chair1"]}
+{"t": 1792816605974, "cmd": "face", "args": ["12"]}
+{"t": 1792816608324, "cmd": "hold", "args": ["w", "0.6"]}
+{"t": 1792816609179, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792816609709, "cmd": "wait", "args": ["1"]}
+{"t": 1792816610794, "cmd": "state", "args": []}
+{"t": 1792816610869, "cmd": "shot", "args": ["chair2"]}
+{"t": 1792816615177, "cmd": "hold", "args": ["w", "0.8"]}
+{"t": 1792816616092, "cmd": "wait", "args": ["1"]}
+{"t": 1792816617161, "cmd": "state", "args": []}
+{"t": 1792816617236, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792816623333, "cmd": "state", "args": []}
+{"t": 1792816627494, "cmd": "state", "args": []}
+{"t": 1792816627596, "cmd": "shot", "args": ["chair3"]}
+{"t": 1792816633744, "cmd": "hold", "args": ["Down", "0.4"]}
+{"t": 1792816634306, "cmd": "wait", "args": ["1"]}
+{"t": 1792816635480, "cmd": "state", "args": []}
+{"t": 1792816635620, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792816641824, "cmd": "state", "args": []}
+{"t": 1792816646403, "cmd": "hold", "args": ["s", "0.5"]}
+{"t": 1792816647115, "cmd": "wait", "args": ["1"]}
+{"t": 1792816648234, "cmd": "state", "args": []}
+{"t": 1792816648335, "cmd": "shot", "args": ["chair4"]}
+{"t": 1792816653393, "cmd": "hold", "args": ["Down", "0.25"]}
+{"t": 1792816654977, "cmd": "wait", "args": ["1"]}
+{"t": 1792816656537, "cmd": "state", "args": []}
+{"t": 1792816656622, "cmd": "hold", "args": ["Down", "0.25"]}
+{"t": 1792816656991, "cmd": "wait", "args": ["1"]}
+{"t": 1792816658054, "cmd": "state", "args": []}
+{"t": 1792816658119, "cmd": "hold", "args": ["Down", "0.25"]}
+{"t": 1792816658527, "cmd": "wait", "args": ["1"]}
+{"t": 1792816659732, "cmd": "state", "args": []}
+{"t": 1792816666793, "cmd": "mousehold", "args": ["8"]}
+{"t": 1792816678752, "cmd": "state", "args": []}
+{"t": 1792816752148, "cmd": "mousehold", "args": ["9"]}
+{"t": 1792816761308, "cmd": "state", "args": []}
+{"t": 1792816765461, "cmd": "mousehold", "args": ["6"]}
+{"t": 1792816771682, "cmd": "state", "args": []}
+{"t": 1792816777616, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792816778094, "cmd": "face", "args": ["45"]}
+{"t": 1792816958805, "cmd": "state", "args": []}
+{"t": 1792816958884, "cmd": "face", "args": ["45"]}
+{"t": 1792816960867, "cmd": "state", "args": []}
+{"t": 1792816960958, "cmd": "face", "args": ["45"]}
+{"t": 1792816962507, "cmd": "state", "args": []}
+{"t": 1792816962677, "cmd": "face", "args": ["45"]}
+{"t": 1792816964402, "cmd": "state", "args": []}
+{"t": 1792816964473, "cmd": "face", "args": ["45"]}
+{"t": 1792816969586, "cmd": "state", "args": []}
+{"t": 1792816969671, "cmd": "face", "args": ["45"]}
+{"t": 1792816993416, "cmd": "state", "args": []}
+{"t": 1792816993655, "cmd": "face", "args": ["45"]}
+{"t": 1792817002866, "cmd": "state", "args": []}
+{"t": 1792817003204, "cmd": "face", "args": ["45"]}
+{"t": 1792817020069, "cmd": "state", "args": []}
+{"t": 1792817020314, "cmd": "shot", "args": ["tbl"]}
+{"t": 1792817027690, "cmd": "walkto", "args": ["window", "60"]}
+{"t": 1792817055582, "cmd": "face", "args": ["45"]}
+{"t": 1792817057478, "cmd": "state", "args": []}
+{"t": 1792817057553, "cmd": "face", "args": ["45"]}
+{"t": 1792817060958, "cmd": "state", "args": []}
+{"t": 1792817061081, "cmd": "face", "args": ["45"]}
+{"t": 1792817064308, "cmd": "state", "args": []}
+{"t": 1792817064383, "cmd": "face", "args": ["45"]}
+{"t": 1792817066494, "cmd": "state", "args": []}
+{"t": 1792817066557, "cmd": "face", "args": ["45"]}
+{"t": 1792817068204, "cmd": "state", "args": []}
+{"t": 1792817068288, "cmd": "face", "args": ["45"]}
+{"t": 1792817069506, "cmd": "state", "args": []}
+{"t": 1792817069597, "cmd": "face", "args": ["45"]}
+{"t": 1792817071204, "cmd": "state", "args": []}
+{"t": 1792817071283, "cmd": "face", "args": ["45"]}
+{"t": 1792817072894, "cmd": "state", "args": []}
+{"t": 1792817072969, "cmd": "shot", "args": ["tbl2"]}
+{"t": 1792817079561, "cmd": "face", "args": ["-40"]}
+{"t": 1792817081801, "cmd": "wait", "args": ["1"]}
+{"t": 1792817082900, "cmd": "state", "args": []}
+{"t": 1792817082980, "cmd": "shot", "args": ["tbl3"]}
+{"t": 1792817087883, "cmd": "face", "args": ["-35"]}
+{"t": 1792817089149, "cmd": "wait", "args": ["1"]}
+{"t": 1792817090238, "cmd": "state", "args": []}
+{"t": 1792817090327, "cmd": "key", "args": ["e"]}
+{"t": 1792817090806, "cmd": "wait", "args": ["2"]}
+{"t": 1792817092918, "cmd": "state", "args": []}
+{"t": 1792817093033, "cmd": "events", "args": ["2"]}
+{"t": 1792817096728, "cmd": "shot", "args": ["tbl4"]}
+{"t": 1792817105522, "cmd": "face", "args": ["28"]}
+{"t": 1792817107782, "cmd": "wait", "args": ["1"]}
+{"t": 1792817108899, "cmd": "state", "args": []}
+{"t": 1792817114744, "cmd": "hold", "args": ["Up", "0.3"]}
+{"t": 1792817115203, "cmd": "wait", "args": ["1"]}
+{"t": 1792817116411, "cmd": "state", "args": []}
+{"t": 1792817116524, "cmd": "shot", "args": ["tbl5"]}
+{"t": 1792817122608, "cmd": "look", "args": ["-70", "40"]}
+{"t": 1792817122861, "cmd": "wait", "args": ["1"]}
+{"t": 1792817123919, "cmd": "state", "args": []}
+{"t": 1792817128586, "cmd": "shot", "args": ["tbl6"]}
+{"t": 1792817129557, "cmd": "state", "args": []}
+{"t": 1792817134261, "cmd": "key", "args": ["e"]}
+{"t": 1792817134890, "cmd": "wait", "args": ["2"]}
+{"t": 1792817136970, "cmd": "state", "args": []}
+{"t": 1792817137120, "cmd": "events", "args": ["2"]}
+{"t": 1792817141846, "cmd": "state", "args": []}
+{"t": 1792817141921, "cmd": "key", "args": ["e"]}
+{"t": 1792817142485, "cmd": "wait", "args": ["3"]}
+{"t": 1792817145579, "cmd": "state", "args": []}
+{"t": 1792817145688, "cmd": "events", "args": ["1"]}
+{"t": 1792817145807, "cmd": "shot", "args": ["tbl7"]}
+{"t": 1792817150658, "cmd": "state", "args": []}
+{"t": 1792817150742, "cmd": "hold", "args": ["w", "0.5"]}
+{"t": 1792817151383, "cmd": "wait", "args": ["1"]}
+{"t": 1792817152462, "cmd": "state", "args": []}
+{"t": 1792817158778, "cmd": "walkto", "args": ["window", "60"]}
+{"t": 1792817159148, "cmd": "state", "args": []}
+{"t": 1792817165349, "cmd": "state", "args": []}
+{"t": 1792817165451, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792817166003, "cmd": "wait", "args": ["1"]}
+{"t": 1792817167107, "cmd": "state", "args": []}
+{"t": 1792817167181, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792817167726, "cmd": "wait", "args": ["1"]}
+{"t": 1792817168824, "cmd": "state", "args": []}
+{"t": 1792817168888, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792817169440, "cmd": "wait", "args": ["1"]}
+{"t": 1792817170515, "cmd": "state", "args": []}
+{"t": 1792817170594, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792817171122, "cmd": "wait", "args": ["1"]}
+{"t": 1792817172200, "cmd": "state", "args": []}
+{"t": 1792817172289, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792817172853, "cmd": "wait", "args": ["1"]}
+{"t": 1792817173923, "cmd": "state", "args": []}
+{"t": 1792817174007, "cmd": "hold", "args": ["w", "0.4"]}
+{"t": 1792817174518, "cmd": "wait", "args": ["1"]}
+{"t": 1792817175581, "cmd": "state", "args": []}
+{"t": 1792817181201, "cmd": "face", "args": ["180"]}
+{"t": 1792817185075, "cmd": "hold", "args": ["w", "2.5"]}
+{"t": 1792817187706, "cmd": "wait", "args": ["1"]}
+{"t": 1792817188805, "cmd": "state", "args": []}
+{"t": 1792817188874, "cmd": "shot", "args": ["tbl8"]}
+{"t": 1792817194171, "cmd": "hold", "args": ["Down", "0.5"]}
+{"t": 1792817197416, "cmd": "face", "args": ["45"]}
+{"t": 1792817199751, "cmd": "state", "args": []}
+{"t": 1792817199834, "cmd": "face", "args": ["45"]}
+{"t": 1792817200933, "cmd": "state", "args": []}
+{"t": 1792817200997, "cmd": "face", "args": ["45"]}
+{"t": 1792817202193, "cmd": "state", "args": []}
+{"t": 1792817202248, "cmd": "face", "args": ["45"]}
+{"t": 1792817208106, "cmd": "state", "args": []}
+{"t": 1792817208172, "cmd": "face", "args": ["45"]}
+{"t": 1792817209875, "cmd": "state", "args": []}
+{"t": 1792817209934, "cmd": "face", "args": ["45"]}
+{"t": 1792817212399, "cmd": "state", "args": []}
+{"t": 1792817212472, "cmd": "face", "args": ["45"]}
+{"t": 1792817214225, "cmd": "state", "args": []}
+{"t": 1792817214274, "cmd": "face", "args": ["45"]}
+{"t": 1792817215843, "cmd": "state", "args": []}
+{"t": 1792817215937, "cmd": "state", "args": []}
+{"t": 1792817222085, "cmd": "note", "args": ["--shot", "pitch_lag", "Looking with arrow keys at 2-4 fps is unreliable: hold Down 2.0 moved pitch 83->16 one time and 16->-12 the next; hold Down 0.25 sometimes changed nothing and sometimes 23 degrees. Aim keeps settling after state is read, so E landed on 'Your wagon' instead of the shingles (status 'Aim at what you want from the wagon, then E.')."]}
+{"t": 1792817222418, "cmd": "events", "args": ["40"]}
+{"t": 1792817222486, "cmd": "state", "args": []}
+{"t": 1792817222579, "cmd": "stop", "args": []}
+{"t": 1792817260035, "cmd": "report", "args": []}
