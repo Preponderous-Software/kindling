@@ -341,15 +341,20 @@ int runGame(strata::Engine& engine, const Args& args) {
     o.autopilot = args.autopilot;
     o.speed = args.speed;
     o.playtestOut = args.playtestOut;
+    if (engine.driven()) {
+        // A test harness is playing (Strata's STRATA_DRIVE): keep it away from
+        // the player's saves. No save is read or written, and no replay file.
+        o.slot.clear();
+        o.replayPath.clear();
+        o.fresh = true;
+        std::puts("kindling: driven by a test harness; this game does not save");
+    }
     play::Session session(engine, o);
-    using Clock = std::chrono::steady_clock;
-    auto last = Clock::now();
     while (session.running()) {
         StrataEvent e;
         while (engine.pollEvent(e)) session.handle(e);
-        const auto now = Clock::now();
-        session.frame(std::chrono::duration<double>(now - last).count());
-        last = now;
+        // The engine's frame clock: measured, or a harness's fixed step.
+        session.frame(engine.frameSeconds());
         engine.present();
     }
     session.save(nullptr);
