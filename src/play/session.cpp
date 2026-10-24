@@ -29,7 +29,7 @@ constexpr float kKeyPitchRate = 1.0f;
 
 Session::Session(strata::Engine& engine, const SessionOptions& options)
     : engine_(engine), options_(options), w_(newWorld(options.seed)), scene_(engine) {
-    if (!options_.fresh) {
+    if (!options_.fresh && !options_.slot.empty()) {
         const LoadResult r = loadSave(options_.slot, w_);
         if (r.ok || r.message != "No save to load.") messages_.push_back({r.message, 8.0});
         if (!r.ok) w_ = newWorld(options_.seed);
@@ -53,6 +53,10 @@ Session::Session(strata::Engine& engine, const SessionOptions& options)
 std::string Session::lastMessage() const { return messages_.empty() ? std::string() : messages_.back().text; }
 
 bool Session::save(const char* note) {
+    if (options_.slot.empty()) {  // no slot: this game does not save
+        lastSave_ = clock_;
+        return false;
+    }
     std::string why;
     const bool ok = writeSave(options_.slot, w_, &why);
     if (ok && note) messages_.push_back({note, 0});
@@ -67,6 +71,10 @@ bool Session::save(const char* note) {
 }
 
 void Session::load() {
+    if (options_.slot.empty()) {
+        messages_.push_back({"This game does not save.", clock_ + 6.0});
+        return;
+    }
     World loaded;
     const LoadResult r = loadSave(options_.slot, loaded);
     messages_.push_back({r.message, clock_ + 6.0});
@@ -150,7 +158,10 @@ void Session::onKeyDown(int scancode) {
     else if (scancode == kR) rotatePressed_ += 1;
     else if (scancode == kL) lanternPressed_ = true;
     else if (scancode == kT && progress(w_).step == Step::Done) reveal_.start(clock_);
-    else if (scancode == kF5) save("Saved.");
+    else if (scancode == kF5) {
+        if (options_.slot.empty()) messages_.push_back({"This game does not save.", 0});
+        else save("Saved.");
+    }
     else if (scancode == kF9) load();
     else if (scancode == kGrave) toolPressed_ = 0;
     else if (scancode >= k1 && scancode < k1 + kToolCount - 1) toolPressed_ = scancode - k1 + 1;

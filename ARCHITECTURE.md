@@ -227,6 +227,12 @@ The arrow keys look around as well as the mouse; a harness turns with them, beca
 a time turns by the same amount at any frame rate. A key tapped between two frames still counts for
 one tick.
 
+A harness can also drive the game through Strata's drive channel (Strata `docs/DRIVE.md`,
+playtester's `kindling-strata` profile): with `STRATA_DRIVE` set, the window becomes a headless
+surface, input is injected through the engine, and the frame time comes from
+`engine.frameSeconds()`, so a stepped harness gets the same frames on every run. A driven game reads
+and writes no save and no replay file (it prints "driven by a test harness" when it starts).
+
 ## Layout
 
 ```text
