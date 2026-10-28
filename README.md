@@ -128,7 +128,9 @@ images.
 | [CONCEPT.md](CONCEPT.md) | The game: player fantasy, pillars, the core loop, seasons, settlers, the valley, art direction |
 | [MVP.md](MVP.md) | The first playable slice: what is in, what is out, milestones and how each is checked |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | How it is built: the engine boundary, game modules, saves, content, replays, the browser build |
+| [docs/WEB.md](docs/WEB.md) | The browser build: what differs from the desktop game, its saves and controls, building it, CI and deployment |
 | [docs/RELEASING.md](docs/RELEASING.md) | Cutting a release: the version, playtest evidence and the Windows and Linux downloads |
+| [docs/THIRD-PARTY.md](docs/THIRD-PARTY.md) | The licences of Strata and the components the downloads link in through it |
 
 ## Built on
 
