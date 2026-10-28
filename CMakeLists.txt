@@ -165,4 +165,14 @@ if(KINDLING_WEB)
     -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,FS,IDBFS,addRunDependency,removeRunDependency
     "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html")
   set_property(TARGET kindling-web APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html")
+  # The loading shell (web/strata-kit, vendored from Strata) and its bridge go
+  # inline into the page, with the download's size (web/strata_page.cmake).
+  set_property(TARGET kindling-web APPEND PROPERTY LINK_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/web/strata-kit/strata-loader.js"
+    "${CMAKE_CURRENT_SOURCE_DIR}/web/strata-boot.js")
+  add_custom_command(TARGET kindling-web POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" "-DHTML=$<TARGET_FILE:kindling-web>"
+            "-DWASM=$<TARGET_FILE_DIR:kindling-web>/$<TARGET_FILE_BASE_NAME:kindling-web>.wasm"
+            "-DWEB=${CMAKE_CURRENT_SOURCE_DIR}/web" -P "${CMAKE_CURRENT_SOURCE_DIR}/web/strata_page.cmake"
+    VERBATIM)
 endif()

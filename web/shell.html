@@ -9,6 +9,8 @@
   :root {
     --bg: #14100c; --panel: rgba(22, 17, 12, 0.88); --line: #3a2e22; --text: #f0e6d6; --dim: #b4a690;
     --ember: #f08a3c; --btn: #2a2119; --btn-on: #5a3a1c;
+    /* The loading shell (web/strata-kit/strata-loader.js) in the page's colours. */
+    --sk-loader-bg: var(--bg); --sk-loader-fg: var(--text); --sk-loader-panel: var(--panel); --sk-loader-accent: var(--ember);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
@@ -135,7 +137,7 @@
 
 <div id="tools" class="bar" role="group" aria-label="Tools"></div>
 
-<div id="loading">Loading Kindling&hellip;</div>
+<div id="loading" style="display: none"></div>
 
 <div id="help" class="dialog" role="dialog" aria-labelledby="helpTitle">
   <h2 id="helpTitle">Kindling</h2>
@@ -413,6 +415,7 @@
       window.kindling = call;  // for the smoke test and the curious
       ready = true;
       $('loading').style.display = 'none';
+      StrataBoot.ready();
       setTouch(touchMode);
       wire();
       sizeCanvas();
@@ -423,6 +426,7 @@
     },
     onRendererFailed: function (why) {
       $('loading').textContent = 'Kindling needs WebGL 2, which this browser did not provide (' + why + ').';
+      StrataLoader.fallback('engine', 'Kindling needs WebGL 2, which this browser did not provide (' + why + ').');
     },
     onAbort: function (what) {
       $('loading').style.display = 'block';
@@ -431,6 +435,27 @@
   };
 })();
 </script>
-{{{ SCRIPT }}}
+<!-- emcc's script tag, kept inert: web/strata-boot.js starts it behind the
+     loading shell. data-bytes is the download's size, stamped by the build. -->
+<template id="strata-glue" data-bytes="0">{{{ SCRIPT }}}</template>
+<!-- The loading shell, vendored from Strata, and its bridge to this build; the
+     build puts both inline (web/strata_page.cmake). -->
+<script src="strata-kit/strata-loader.js"></script>
+<script src="strata-boot.js"></script>
+<script>
+  // The loading shell: the trailer's first frame behind real progress, and the
+  // trailer itself, with the reason, if the game can't run here. The media are
+  // the game's /play trailer.
+  StrataBoot.start({
+    wasm: 'kindling.wasm',
+    title: 'Kindling',
+    poster: 'https://danielstephenson.dev/trailers/kindling.jpg',
+    posterAlt: 'Kindling: inside the cabin, by the chimney',
+    trailer: { webm: 'https://danielstephenson.dev/trailers/kindling.webm', mp4: 'https://danielstephenson.dev/trailers/kindling.mp4' },
+    trailerLabel: 'A recorded clip of Kindling',
+    fallback: { href: 'https://danielstephenson.dev/play', text: 'More games' },
+    canvas: document.getElementById('canvas')
+  }).catch(function () {});  // the loading shell already shows why
+</script>
 </body>
 </html>
