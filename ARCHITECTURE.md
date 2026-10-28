@@ -242,7 +242,7 @@ and writes no save and no replay file (it prints "driven by a test harness" when
 
 ```text
 kindling/
-  src/sim/        restoration model, settlers, seasons, firewood (no rendering, no USD)
+  src/sim/        restoration model, Ada, firewood, the game clock (no rendering, no USD)
   src/play/       the HUD, the reveal, a play session (input, autosave), shared by both apps
   src/bridge/     game state to Strata meshes and lights
   src/save/       the checksummed save file (USD layers through Strata's save core after the MVP)
@@ -251,9 +251,11 @@ kindling/
   app/            the desktop game (main.cpp) and the browser game (web_main.cpp)
   web/            the browser page's shell and its smoke test
   content/        prefabs (USD) and people, briefs and words (data; planned)
-  tests/          determinism, golden images, save corruption, replay validation
+  tests/          determinism, the rules, the playthrough and its replay, saves and their fixtures
+  tools/          the Windows play script, the save-fixture writer
+  third_party/    usd-recorder's vendored replay writer
   prototypes/     the M0 prototypes
-  docs/           images, playtest notes
+  docs/           images, playtest notes, the browser build, releasing, third-party notices
 ```
 
 ## Decisions still open
