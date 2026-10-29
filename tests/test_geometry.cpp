@@ -4,6 +4,7 @@
 
 #include "bridge/room.h"
 #include "check.h"
+#include "sim/layout.h"
 
 using namespace kindling;
 using namespace kindling::bridge;
@@ -123,6 +124,68 @@ int main() {
     CHECK(model[12] == w.debris[0].pos.x && model[14] == w.debris[0].pos.z && model[15] == 1.0f);
     CHECK(std::fabs(model[0] * model[0] + model[2] * model[2] - 1.0f) < 1e-5f);
     CHECK(hasTag(buildDebris(w.debris[14], 14), TargetKind::Debris, 14));
+
+    // ---- a hung sampler sits flat on the face of the wall, wherever on a log
+    // the crosshair met it (#40). In the groove between two logs the point is
+    // 0.1 m behind their faces; the frame (0.05 m deep behind its face, its
+    // cloth 0.02 m in front) went there and sank into the logs above and below.
+    {
+        namespace L = kindling::layout;
+        struct Hang {
+            int32_t wall;
+            Vec3 groove;
+            float face;  // the wall's inside face along its normal axis
+            Vec3 normal;
+        };
+        const Hang hangs[4] = {
+            {0, {2.4f, 1.55f, L::kInnerZ0 - 0.1f}, L::kInnerZ0, {0, 0, 1}},
+            {1, {L::kInnerX0 - 0.1f, 1.55f, 2.0f}, L::kInnerX0, {1, 0, 0}},
+            {2, {L::kInnerX1 + 0.1f, 1.55f, 1.0f}, L::kInnerX1, {-1, 0, 0}},
+            {3, {-2.0f, 1.55f, L::kInnerZ1 + 0.1f}, L::kInnerZ1, {0, 0, -1}},
+        };
+        const World fresh = newWorld(5);
+        for (const Hang& h : hangs) {
+            Aim aim;
+            aim.kind = TargetKind::Wall;
+            aim.index = h.wall;
+            aim.point = h.groove;
+            aim.distance = 0.8f;
+            Pose pose;
+            CHECK(placementFor(fresh, ItemKind::Sampler, aim, 0.26f, pose));
+            const Vec3 at = hungPosition(ItemKind::Sampler, pose.pos, pose.yaw);
+            const float depth = h.normal.x != 0 ? at.x : at.z, sign = h.normal.x + h.normal.z;
+            CHECK(std::fabs((depth - h.face) * sign - kWallHangOut) < 1e-4f);  // out from the face, not in the groove
+            CHECK(std::fabs(at.y - h.groove.y) < 1e-4f);
+            // The frame's back (0.05 m behind its face, along its local -z) only just meets the logs.
+            CHECK((depth - h.face) * sign - 0.05f > -0.02f);
+            // And the transform puts it there for a placed sampler.
+            Item it;
+            it.kind = ItemKind::Sampler;
+            it.place = ItemPlace::Placed;
+            it.pos = pose.pos;
+            it.yaw = pose.yaw;
+            float m[16];
+            itemTransform(it, m);
+            CHECK(std::fabs(m[12] - at.x) < 1e-5f && std::fabs(m[13] - at.y) < 1e-5f && std::fabs(m[14] - at.z) < 1e-5f);
+            // Its face (local +z, the third column) points into the room.
+            CHECK(m[8] * h.normal.x + m[10] * h.normal.z > 0.999f);
+        }
+        // A 0.1.2 save keeps the point the crosshair met: it is drawn on the face too.
+        CHECK(std::fabs(hungPosition(ItemKind::Sampler, {L::kInnerX1 + 0.07f, 1.8f, 0}, -1.5708f).x -
+                        (L::kInnerX1 - kWallHangOut)) < 1e-5f);
+        // Clear of the corners and the chimney breast, and above the mantel on the breast.
+        CHECK(hungPosition(ItemKind::Sampler, {L::kInnerX1, 1.8f, L::kInnerZ1 - 0.1f}, -1.5708f).z <=
+              L::kInnerZ1 - kWallHangHalfWidth + 1e-4f);
+        CHECK(hungPosition(ItemKind::Sampler, {L::kBreastX1 + 0.1f, 1.8f, L::kInnerZ0}, 0).x >=
+              L::kBreastX1 + kWallHangHalfWidth - 1e-4f);
+        const Vec3 breast = hungPosition(ItemKind::Sampler, {-0.7f, 1.6f, L::kBreastFront + 0.03f}, 0);
+        CHECK(breast.z >= L::kBreastFront + 0.08f + kWallHangOut - 1e-4f);
+        CHECK(breast.y - 0.36f > L::kMantelY + 0.32f);
+        // Nothing else moves.
+        const Vec3 rug{1.0f, L::kFloorY, 0.5f};
+        const Vec3 same = hungPosition(ItemKind::Rug, rug, 0.3f);
+        CHECK(same.x == rug.x && same.y == rug.y && same.z == rug.z);
+    }
 
     TEST_MAIN_END();
 }

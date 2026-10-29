@@ -81,6 +81,16 @@ void horsePartTransform(Vec3 pivot, float yaw, float pitch, float roll, float ou
 // One material or furnishing, built around its origin; place it with itemTransform.
 MeshData buildItem(const Item& item, int32_t index);
 void itemTransform(const Item& item, float out[16]);
+// Where a wall furnishing (the sampler) hangs, given where it was put up
+// (Item::pos, the point the crosshair met) and the way it faces (Item::yaw):
+// flat against the face of that wall's logs, or of the chimney breast's
+// stones, and clear of the corners, the breast and the mantel. The logs are
+// round, so the point the crosshair met can lie in the groove between two,
+// up to 0.1 m behind their faces; hung there the frame sank into the logs
+// and showed only as a strip between them (#40). Anything else: `pos`.
+Vec3 hungPosition(ItemKind kind, Vec3 pos, float yaw);
+// How far out from the face a wall furnishing hangs, and half its width.
+constexpr float kWallHangOut = 0.04f, kWallHangHalfWidth = 0.52f;
 // Half the footprint of a furnishing on its anchor (x, z half-extents), for
 // the placement outline.
 void itemFootprint(ItemKind kind, float& halfX, float& halfZ);
