@@ -105,7 +105,12 @@ bool placementFor(const World& w, ItemKind kind, const Aim& aim, float yaw, Pose
         case Anchor::Wall: {
             if (aim.kind != TargetKind::Wall && aim.kind != TargetKind::HearthFace) return false;
             if (p.y < 1.2f || p.y > 2.5f) return false;
-            // Face into the room from whichever wall it hangs on.
+            // Not on the chimney breast's sides: hung there, facing the room
+            // like the breast's front, it would stand edge-on to the room.
+            if (aim.kind == TargetKind::HearthFace && p.z < L::kBreastFront - 0.02f) return false;
+            // Face into the room from whichever wall it hangs on. Where on the
+            // wall it hangs, flat against the face of the logs or the stones,
+            // is the render bridge's (bridge::hungPosition).
             float facing = 0;
             if (aim.kind == TargetKind::Wall) {
                 switch (aim.index) {
