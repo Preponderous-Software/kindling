@@ -1,0 +1,110 @@
+{
+  "session": "s03",
+  "goal": "Your save (written by the previous release, 0.1.2) starts at the Repair step with the cabin already cleared. First say whether the game loaded it without complaint. Then finish Repair and as much of Furnish as you can: pry up the rotten floorboards and lay new planks in every gap, shingle every open roof section, take down the window boards, mend the chair and table, then bring the furnishings in from the wagon, place them and turn them with R. Record the game time of each checklist line; say plainly whether every floor gap and every roof hole could be found, aimed at and fixed.",
+  "build": {
+    "version": "0.1.2",
+    "commit": "7ecf1fe"
+  },
+  "seed": 1,
+  "durationSec": 1409,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "bug",
+      "title": "Framed sampler turned with R and hung on a log wall lies flat, sticking out of the wall edge-on",
+      "detail": "Took the framed sampler from the wagon, carried it in, pressed R once, faced the right-hand (+x) log wall at about 0.8 m and pressed E. It was hung, and the brief line 'Something of home on the walls' ticked, but the frame lies horizontal, perpendicular to the wall: from the front and from the side it shows only as a thin red/green line at eye height. Expected wall furnishings either to keep facing the room whatever R does, or to turn only about the wall's normal.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 1 (save at Repair); finish Repair; at the wagon aim at 'Framed sampler', e; walk in through the door; face the +x wall (yaw 90) ~0.8 m away, pitch level; pt key r; pt key e; sidestep and look",
+      "screenshot": "shots/sampler_flat.png",
+      "tick": 35374
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Open roof sections are hard to see from below: the last open section showed only as a thin sliver of sky",
+      "detail": "Standing under the roof hole looking up, open sections are blue sky and patched ones are grey, but the hole is seen through a deep shaft, so from most spots only part of the opening is visible. After two sections the remaining open area was a strip at the edge of view, and the last one was a 1-2 px blue sliver (roof5.png). The checklist says how many sections are open but not where. All 4 could be found and fixed (aim name 'Hole in the roof' helped), but only by hunting with small look nudges.",
+      "repro": "stand at about (0.56,-0.08) under the hole with shingles; tilt up to ~60-70 deg; patch sections and look for the remaining blue",
+      "screenshot": "shots/roof5.png",
+      "tick": 26627
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E meant for a broken board on the floor silently set the table upright instead",
+      "detail": "While picking up the window boards (E, looking down near the window), one E press with no board under the crosshair righted the overturned table ('You set the table back on its legs.', tick 20127). Harmless here, but the 'Set the table right' line ticked without me choosing it; I only noticed later from the checklist. The status line says what happened, so it is workable.",
+      "repro": "after prying off the window boards, stand near the window and press e at the floor between the boards and the table",
+      "screenshot": "shots/w7.png",
+      "tick": 20127
+    },
+    {
+      "severity": "minor",
+      "category": "balance",
+      "title": "Four window boards and three floorboards must each be carried to the door one at a time",
+      "detail": "Each pried board becomes a 'Broken board' to haul. The four window boards took about 140 game seconds of walking (tick 19093 to 23219), across the room four times, with nothing new to do. Picking a board up also needs the view tilted so the board is within ~12 deg of the crosshair; when walkto debris stopped 1.2 m away with the view straight down, E said 'Nothing to pick up there.' Carrying a small armful (or tossing them out through the open window) would cut the dull part.",
+      "repro": "pry off all 4 window boards; haul them out with e at the board and e by the door",
+      "screenshot": "shots/windone.png",
+      "tick": 23219
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Checklist and Ada's brief cover the upper-left third of the view, over the wagon bed and window",
+      "detail": "In Furnish the HUD has 8 lines. At the wagon the furnishings sit right under them, and at the window the top boards were under the checklist text. F1 hides only the controls help.",
+      "repro": "finish Repair; walkto wagon; look at the wagon bed",
+      "screenshot": "shots/hud_overlap.png",
+      "tick": 36134
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "R while carrying the mantel clock had no visible effect; it always lands facing the room",
+      "detail": "Picked the placed clock back up, pressed R twice, put it down: it sat the same way on the mantel. Fine if mantel things snap to face out, but nothing says so, while the prompt says 'R to turn'.",
+      "repro": "place mantel clock (e at the hearth); e to pick it up; r r; e",
+      "screenshot": "shots/clkR2.png",
+      "tick": 32896
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Long checklist lines drop to a smaller font than the rest",
+      "detail": "'Replace the rotten floorboards (3 left)' in Repair and 'No dark corners: a candle, and curtains' / 'Somewhere to sit and sew, with a quilt to hand' in Furnish render noticeably smaller than their neighbours, so the list looks uneven.",
+      "repro": "load the save; look at the checklist; finish Repair and look again",
+      "screenshot": "shots/fw5.png",
+      "tick": 34017
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Build in the 0.2.0 run reports version 0.1.2",
+      "detail": "state.json and session.json both say version 0.1.2 (commit 7ecf1fe) though this is the 0.2.0 playtest run. The save itself loaded fine with 'Loaded your save.'",
+      "repro": "pt start ...; pt state --full | grep version",
+      "screenshot": "shots/start.png",
+      "tick": 4824
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 3,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Repair": 948.4
+    },
+    "saveLoadedCleanly": true,
+    "repairGameSecondsFromLoad": 793.5,
+    "floorGapsFixed": 3,
+    "floorGapsTotal": 3,
+    "roofSectionsFixed": 4,
+    "roofSectionsTotal": 4,
+    "furnishingsPlaced": 2,
+    "furnishingsRequired": 5,
+    "sec: Replace the rotten floorboards": 543.7,
+    "sec: Take the boards off the window": 632.7,
+    "sec: Set the table right": 670.9,
+    "sec: Haul out the old wood": 774.0,
+    "sec: Patch the roof": 901.0,
+    "sec: Mend the rocking chair": 948.4,
+    "sec: Mantel clock placed (Furnish 1 of 5)": 1083.0,
+    "sec: Framed sampler hung (Furnish 2 of 5, 'Something of home on the walls')": 1179.1
+  },
+  "fun": 4,
+  "verdict": "The 0.1.2 save loaded cleanly ('Loaded your save.') at Repair, and the whole Repair step works: all 3 rotten boards could be found (they show as dark/green patches), pried, re-planked, and all 4 roof sections shingled, with clear aim names, progress meters and warm status lines. The weak spots are the roof hole's visibility from below (the last open section was a sliver), the one-at-a-time board hauling, and R on wall furnishings: the sampler turned once with R hangs flat out of the wall but still counts."
+}

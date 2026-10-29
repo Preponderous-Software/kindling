@@ -1,0 +1,87 @@
+{
+  "session": "s01",
+  "goal": "Play the first 15 minutes as a brand-new player who has never seen the game; note every moment of confusion.",
+  "build": {"version": "0.1.2", "commit": "7ecf1fe"},
+  "seed": 2718,
+  "durationSec": 1172,
+  "outcome": "achieved",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Interior too dark to see dirt while sweeping in the Clear step (window still boarded)",
+      "detail": "Around 1 pm game time the cabin floor is almost black with the window boarded. Sweeping the floor became guesswork: the only signal was 'Clean here. Move on.' on spots already done. Sweeping went at about 10% per 30 game seconds and was the slowest, least readable part of the first 15 minutes. With the lantern on and the crosshair close to the chimney, clean (pale) and sooty (dark) stones were easy to tell apart, and scrubbing went 3x faster. The lantern is only suggested at dusk. Expected: suggest the lantern indoors early, or make the dirty floor readable in the dark.",
+      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 2718; finish Survey; key 1; hold Down to the floor; mousehold while turning; compare with key l (lantern) on",
+      "screenshot": "shots/sw4.png",
+      "tick": 21946
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E next to the Fallen rafter says 'Nothing to pick up there' instead of saying it must be sawn",
+      "detail": "Standing 0.7 m from the Fallen rafter (the nearest debris) and pressing E shows 'Nothing to pick up there.' The 'Too long to carry. Saw it (4)' hint only shows when the crosshair is exactly on the rafter. While hauling debris I thought the game was ignoring me. Once the rafter was sawn, the feedback was excellent ('Sawn into three lengths...').",
+      "repro": "after Survey: walkto debris until it picks the Fallen rafter; key e",
+      "screenshot": "shots/nopick.png",
+      "tick": 11996
+    },
+    {
+      "severity": "minor",
+      "category": "bug",
+      "title": "A shingle lying on the snow drift takes the aim, so the shovel does nothing at the drift's edge",
+      "detail": "With the shovel out and the crosshair visibly on the snow drift's edge, holding the mouse for 4 s did nothing: the aim read 'Fallen shingle - Haul it out of the cabin.' Shovelling only started after the crosshair was nudged onto bare snow. That contradicts the stated rule that the shovel works anywhere on the drift's footprint. Once it started, the snow cleared in a few seconds, which felt good.",
+      "repro": "after Survey at about (0.8,0.4) yaw 297 pitch -45: key 3; mousehold 4 with the crosshair on the snow where a shingle overlaps it",
+      "screenshot": "shots/s3.png",
+      "tick": 3800
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Default help panel covers the lower third of the screen, where the floor and debris are",
+      "detail": "The controls help is shown at start and covers the bottom third of the view. That is exactly where the floor, debris and snow drift are when you tilt down to survey. A new player has to find F1 (mentioned only inside the panel) to see what they are aiming at. The help is clear and useful, but it could shrink or fade after the first minute.",
+      "repro": "pt start ...; walk in the door; hold Down 0.6",
+      "screenshot": "shots/help_covers_floor.png",
+      "tick": 1008
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Checklist HUD text has no backing, so it is hard to read over pale surfaces",
+      "detail": "The checklist in the top left (white/grey text, no shadow panel) is nearly unreadable over the freshly scrubbed pale chimney stones ('Scrub the walls (13%)'), and it was also hard to read over the snow drift. A dark outline or a translucent panel would fix it.",
+      "repro": "scrub the chimney (key 2, mousehold) until the stones are pale, then look at them from close range",
+      "screenshot": "shots/hearth7.png",
+      "tick": 25334
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Survey checklist line 'Hole in the roof (stand under it, look up)' is drawn in a smaller font",
+      "detail": "That one checklist item is visibly shrunk compared with the others, apparently to fit. The parenthetical instruction is genuinely helpful, but the mismatched size looks like a bug.",
+      "repro": "pt start ...; pt shot",
+      "screenshot": "shots/checklist_font.png",
+      "tick": 322
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Clear-step percentages on screen differ from actual cleanliness without saying so",
+      "detail": "'Sweep the floor (53%)' was shown while the probe had floorClean 0.45, and the chimney showed 78% at hearthClean 0.59. The HUD shows progress toward a hidden threshold. That is fine, but a new player cannot tell how much is left, and the starting 9-13% suggests the area is already partly clean. The build also reports version 0.1.2 in a run labelled 0.2.0 (worth checking).",
+      "repro": "compare pt state checklist text with progress.floorClean / hearthClean",
+      "screenshot": "shots/hearth7.png",
+      "tick": 25180
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {"Survey": 98.7},
+    "gameSecondsPlayed": 847,
+    "debrisHauled": 15,
+    "debrisTripsRequired": 15,
+    "floorSweptPercentShown": 53,
+    "chimneyScrubbedPercentShown": 78,
+    "wallsScrubbedPercentShown": 13,
+    "confusionMoments": 6
+  },
+  "fun": 3,
+  "verdict": "The Survey step is an excellent onboarding: every checklist line teaches what to look at, and the roof-hole hint ('stand under it, look up') worked first try. Clear is satisfying when feedback is visible (the snow shovelling, sawing the rafter into three carryable lengths), but it drags. It takes 15 single-item trips to the door, and sweeping happens in a near-dark room where you cannot see what is dirty. After 14 game minutes I was still in step 2 of 5. Lighting and readability during Clear matter most."
+}
