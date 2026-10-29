@@ -43,8 +43,8 @@ and pressing F5 just after the Kindle step began (tick 8244).
   (s02: 6% to 12% across a release); every floor gap (3 of 3) and every roof section (4 of 4) could
   be found and fixed (s03); the dusty floor and the scrubbed chimney show their progress (s02).
 - **0 blocker, 2 major, 18 minor, 12 polish** in 30 groups. The two majors were filed as issues:
-  the framed sampler hung on a side wall shows only as a thin strip (s03), and the log walls scrub
-  so slowly, and look so alike clean or grimy, that the Clear step cannot reasonably be finished
-  (s02, with s01 stopping at 13% too). The minors and polish are in [summary.md](summary.md).
+  the framed sampler hung on a side wall shows only as a thin strip (s03, #40), and the log walls
+  scrub so slowly, and look so alike clean or grimy, that the Clear step cannot reasonably be
+  finished (s02, with s01 stopping at 13% too; #41). The minors and polish are in [summary.md](summary.md).
 - "Build reports version 0.1.2" (s01, s03, s04) is the expected state of an unreleased build, not
   a bug: the version is bumped when the release is cut (docs/RELEASING.md).
