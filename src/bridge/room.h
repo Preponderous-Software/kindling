@@ -19,6 +19,15 @@ namespace kindling::bridge {
 // leaves show paler and greyer than the wood under them.
 constexpr Rgb kFloorSwept{0.67f, 0.53f, 0.36f};
 
+// The grime texture's colour over a scrubbed patch of log wall. The walls' own
+// colours are divided by it, so scrubbed logs show as built while dust shows
+// as a paler, greyer film over them.
+constexpr Rgb kWallScrubbed{0.62f, 0.46f, 0.30f};
+
+// One texel of a surface's grime texture (RGBA8): what grime `g` at texel
+// (x, y) looks like, as a multiplier on the surface's own colour.
+void grimeTexel(Surface s, uint8_t g, int x, int y, uint8_t out[4]);
+
 enum class Part : int32_t {
     WallBack = 0,
     WallLeft,

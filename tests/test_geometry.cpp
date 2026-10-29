@@ -1,6 +1,7 @@
 // The render geometry, without an engine: triangles face outward, every part
 // of the room builds, and picked triangles map back to the right targets.
 #include <cmath>
+#include <cstdlib>
 
 #include "bridge/room.h"
 #include "check.h"
@@ -124,6 +125,50 @@ int main() {
     CHECK(model[12] == w.debris[0].pos.x && model[14] == w.debris[0].pos.z && model[15] == 1.0f);
     CHECK(std::fabs(model[0] * model[0] + model[2] * model[2] - 1.0f) < 1e-5f);
     CHECK(hasTag(buildDebris(w.debris[14], 14), TargetKind::Debris, 14));
+
+    // ---- grime shows on the log walls (#41). A texel that counts as clean
+    // shows the logs as built; one still to scrub is a pale, grey film over
+    // them, far enough from the bare logs to see in a dim room, and it stays
+    // that way until it counts as clean.
+    {
+        auto lum = [](const float c[3]) { return 0.2126f * c[0] + 0.7152f * c[1] + 0.0722f * c[2]; };
+        auto shown = [](Surface s, uint8_t g, int x, int y, Rgb base, float out[3]) {
+            uint8_t t[4];
+            grimeTexel(s, g, x, y, t);
+            out[0] = base.r * t[0] / 255.0f;
+            out[1] = base.g * t[1] / 255.0f;
+            out[2] = base.b * t[2] / 255.0f;
+        };
+        const Rgb log{0.33f, 0.20f, 0.10f};  // the log colour (room.cpp)
+        const Rgb under{log.r / kWallScrubbed.r, log.g / kWallScrubbed.g, log.b / kWallScrubbed.b};
+        for (Surface s : {Surface::BackWall, Surface::LeftWall, Surface::RightWall, Surface::FrontWall})
+            for (int x = 0; x < 6; ++x) {
+                float bare[3], barely[3], filthy[3];
+                shown(s, 0, x, 3, under, bare);
+                CHECK(std::fabs(bare[0] - log.r) < 0.005f && std::fabs(bare[1] - log.g) < 0.005f &&
+                      std::fabs(bare[2] - log.b) < 0.005f);
+                shown(s, kCleanThreshold, x, 3, under, bare);
+                CHECK(std::fabs(bare[0] - log.r) < 0.005f);
+                shown(s, kCleanThreshold + 1, x, 3, under, barely);
+                shown(s, 230, x, 3, under, filthy);
+                for (const float* d : {barely, filthy}) {
+                    CHECK(lum(d) > 1.25f * lum(bare));                    // paler
+                    CHECK(d[0] / d[2] < 0.7f * (bare[0] / bare[2]));     // and greyer
+                }
+            }
+        // The floor and the chimney look as they did: swept boards are kFloorSwept, clean stones bare.
+        uint8_t t[4];
+        grimeTexel(Surface::Floor, 0, 5, 5, t);
+        CHECK(std::abs(t[0] - static_cast<int>(255 * kFloorSwept.r + 0.5f)) <= 1 &&
+              std::abs(t[2] - static_cast<int>(255 * kFloorSwept.b + 0.5f)) <= 1);
+        grimeTexel(Surface::HearthFace, 0, 5, 5, t);
+        CHECK(t[0] == 255 && t[1] == 255 && t[2] == 255);
+        grimeTexel(Surface::HearthFace, 255, 5, 5, t);
+        CHECK(t[0] == 56);
+        // The walls are built under the scrubbed tint, brighter than the logs they show.
+        const MeshData back = buildPart(Part::WallBack, newWorld(1));
+        CHECK(!back.colors.empty() && back.colors[0] > log.r);
+    }
 
     // ---- a hung sampler sits flat on the face of the wall, wherever on a log
     // the crosshair met it (#40). In the groove between two logs the point is
