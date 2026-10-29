@@ -851,7 +851,9 @@ Vec3 hungPosition(ItemKind kind, Vec3 pos, float yaw) {
     // On the breast, the frame's bottom clears the mantel shelf and the
     // tallest thing on it (the clock, 0.32 m).
     constexpr float kOverMantel = L::kMantelY + 0.33f + 0.36f;
-    auto along = [](float v, float lo, float hi) { return std::fmin(hi - kHalf, std::fmax(lo + kHalf, v)); };
+    auto along = [](float v, float lo, float hi) {
+        return std::fmin(hi - kWallHangHalfWidth, std::fmax(lo + kWallHangHalfWidth, v));
+    };
     const float c = std::cos(yaw), s = std::sin(yaw);
     if (s > 0.7f) return {L::kInnerX0 + kOut, pos.y, along(pos.z, L::kInnerZ0, L::kInnerZ1)};   // left wall
     if (s < -0.7f) return {L::kInnerX1 - kOut, pos.y, along(pos.z, L::kInnerZ0, L::kInnerZ1)};  // right wall
