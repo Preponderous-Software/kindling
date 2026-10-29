@@ -9,43 +9,6 @@ namespace kindling::bridge {
 
 namespace L = kindling::layout;
 
-namespace {
-
-// What grime looks like over a surface, as a multiplier on its own colour:
-// dust and leaves on the floor, dust on the walls, soot on the chimney. Floor
-// dust is paler than the boards and mottled with leaves, so what is still to
-// sweep shows in a dim room; a swept texel is kFloorSwept.
-void grimeTexel(Surface s, uint8_t g, int x, int y, uint8_t* out) {
-    const float t = static_cast<float>(g) / 255.0f;
-    if (s == Surface::Floor) {
-        uint32_t h = static_cast<uint32_t>(x) * 73856093u ^ static_cast<uint32_t>(y) * 19349663u;
-        h ^= h >> 13;
-        h *= 0x5bd1e995u;
-        h ^= h >> 15;
-        const float n = static_cast<float>(h & 1023u) / 1023.0f;
-        const bool leaf = t > 0.5f && (h >> 10) % 8 == 0;
-        const float dust[3] = {0.84f, 0.86f, 0.90f}, leaves[3] = {0.55f, 0.46f, 0.32f};
-        const float* d = leaf ? leaves : dust;
-        const float k = 0.9f + 0.12f * n;
-        const float swept[3] = {kFloorSwept.r, kFloorSwept.g, kFloorSwept.b};
-        for (int c = 0; c < 3; ++c)
-            out[c] = static_cast<uint8_t>(255.0f * std::fmin(1.0f, swept[c] + (d[c] * k - swept[c]) * t) + 0.5f);
-        out[3] = 255;
-        return;
-    }
-    float tint[3];
-    switch (s) {
-        case Surface::HearthFace:
-            tint[0] = 0.22f; tint[1] = 0.21f; tint[2] = 0.20f;
-            break;
-        default:
-            tint[0] = 0.50f; tint[1] = 0.48f; tint[2] = 0.45f;
-    }
-    for (int c = 0; c < 3; ++c) out[c] = static_cast<uint8_t>(255.0f * (1.0f + (tint[c] - 1.0f) * t) + 0.5f);
-    out[3] = 255;
-}
-
-}  // namespace
 
 Scene::~Scene() {
     for (Held& h : parts_) drop(h);
