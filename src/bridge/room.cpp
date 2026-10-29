@@ -844,6 +844,28 @@ MeshData buildItem(const Item& item, int32_t index) {
     return m;
 }
 
+Vec3 hungPosition(ItemKind kind, Vec3 pos, float yaw) {
+    if (anchorOf(kind) != Anchor::Wall) return pos;
+    constexpr float kHalf = kWallHangHalfWidth, kOut = kWallHangOut;
+    constexpr float kStoneProud = 0.08f;  // the most a chimney stone stands out of the mortar (chimney())
+    // On the breast, the frame's bottom clears the mantel shelf and the
+    // tallest thing on it (the clock, 0.32 m).
+    constexpr float kOverMantel = L::kMantelY + 0.33f + 0.36f;
+    auto along = [](float v, float lo, float hi) { return std::fmin(hi - kHalf, std::fmax(lo + kHalf, v)); };
+    const float c = std::cos(yaw), s = std::sin(yaw);
+    if (s > 0.7f) return {L::kInnerX0 + kOut, pos.y, along(pos.z, L::kInnerZ0, L::kInnerZ1)};   // left wall
+    if (s < -0.7f) return {L::kInnerX1 - kOut, pos.y, along(pos.z, L::kInnerZ0, L::kInnerZ1)};  // right wall
+    if (c < 0) return {along(pos.x, L::kInnerX0, L::kInnerX1), pos.y, L::kInnerZ1 - kOut};      // front wall
+    // Facing +z: the chimney breast's front, or the back wall either side of it.
+    if (pos.z > L::kBreastFront - 0.1f && pos.x > L::kBreastX0 && pos.x < L::kBreastX1)
+        return {along(pos.x, L::kBreastX0, L::kBreastX1), std::fmax(pos.y, kOverMantel),
+                L::kBreastFront + kStoneProud + kOut};
+    float x = along(pos.x, L::kInnerX0, L::kInnerX1);
+    if (x > L::kBreastX0 - kHalf && x < L::kBreastX1 + kHalf)
+        x = x < (L::kBreastX0 + L::kBreastX1) / 2 ? L::kBreastX0 - kHalf : L::kBreastX1 + kHalf;
+    return {x, pos.y, L::kInnerZ0 + kOut};
+}
+
 void itemTransform(const Item& item, float out[16]) {
     // Big things ride folded or rolled on the wagon and while carried, so they
     // neither bury the rest of the load nor fill the view.
@@ -857,6 +879,7 @@ void itemTransform(const Item& item, float out[16]) {
     if (item.kind == ItemKind::Quilt && item.place == ItemPlace::Placed &&
         std::fabs(at.x - kChairSeatX) < 0.3f && std::fabs(at.z - (kChairSeatZ + 0.2f)) < 0.3f)
         at = {kChairSeatX, 1.0f, kChairSeatZ + 0.31f};
+    if (item.place == ItemPlace::Placed) at = hungPosition(item.kind, at, item.yaw);
     const float m[16] = {c, 0, -s, 0, 0, k, 0, 0, s, 0, c, 0, at.x, at.y, at.z, 1};
     for (int i = 0; i < 16; ++i) out[i] = m[i];
 }

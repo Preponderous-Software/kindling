@@ -2,6 +2,8 @@
 // new planks and shingles from the wagon are worked in, the chair is mended,
 // the table set right; furnishings go only where they belong, can be moved
 // and put back, and Ada's brief is checked against the room.
+#include <cmath>
+
 #include "check.h"
 #include "sim/brief.h"
 #include "sim/layout.h"
@@ -186,6 +188,47 @@ int main() {
         press(w, aimAt(TargetKind::Floor, -1, {-1.0f, L::kFloorY, -0.5f}));
         CHECK(w.items[static_cast<size_t>(rug)].place == ItemPlace::Placed);
         CHECK(w.items[static_cast<size_t>(rug)].yaw > 0.5f);
+    }
+
+    // ---- the sampler faces the room from whichever wall, whatever R did (#40)
+    {
+        struct Hang {
+            int32_t wall;
+            Vec3 point;    // where the crosshair met the wall
+            Vec3 normal;   // into the room
+        };
+        const Hang hangs[4] = {
+            {0, {2.4f, 1.55f, L::kInnerZ0 - 0.1f}, {0, 0, 1}},
+            {1, {L::kInnerX0 - 0.1f, 1.55f, 2.0f}, {1, 0, 0}},
+            {2, {L::kInnerX1 + 0.1f, 1.55f, 1.0f}, {-1, 0, 0}},
+            {3, {-2.0f, 1.55f, L::kInnerZ1 + 0.1f}, {0, 0, -1}},
+        };
+        for (const Hang& h : hangs) {
+            World w = newWorld(5);
+            w.repaired = true;
+            const int32_t s = firstItem(w, ItemKind::Sampler);
+            take(w, ItemKind::Sampler);
+            Input turn;
+            turn.rotate = 1;
+            tick(w, turn);
+            press(w, aimAt(TargetKind::Wall, h.wall, h.point));
+            const Item& it = w.items[static_cast<size_t>(s)];
+            CHECK(it.place == ItemPlace::Placed);
+            // The frame's face (its local +z, turned by its yaw) points into the room.
+            CHECK(std::sin(it.yaw) * h.normal.x + std::cos(it.yaw) * h.normal.z > 0.999f);
+            CHECK(evaluateBrief(w).points[4].met);
+        }
+        // The chimney breast's front takes it; the breast's sides do not, where
+        // it would stand edge-on to the room.
+        World w = newWorld(5);
+        w.repaired = true;
+        take(w, ItemKind::Sampler);
+        TickEvents ev;
+        press(w, aimAt(TargetKind::HearthFace, -1, {L::kBreastX1, 1.8f, -2.7f}), &ev);
+        CHECK(w.carry == Carry::Item);
+        CHECK(!ev.messages.empty());
+        press(w, aimAt(TargetKind::HearthFace, -1, {-0.7f, 2.1f, L::kBreastFront + 0.03f}));
+        CHECK(w.carry == Carry::Nothing);
     }
 
     // ---- Ada's brief, point by point

@@ -327,6 +327,7 @@ void drawPlacement(strata::Engine& engine, const World& w, const Aim& aim) {
     if (isMaterial(it.kind)) return;
     Pose pose;
     if (!placementFor(w, it.kind, aim, it.yaw, pose)) return;
+    pose.pos = bridge::hungPosition(it.kind, pose.pos, pose.yaw);
     float hx, hz;
     bridge::itemFootprint(it.kind, hx, hz);
     const float c = std::cos(pose.yaw), s = std::sin(pose.yaw);
