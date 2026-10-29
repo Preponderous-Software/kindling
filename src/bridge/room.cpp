@@ -53,44 +53,51 @@ float frontSlopeY(float z) { return kRidgeY - (z - kRidgeZ) / (kEaveZ1 - kRidgeZ
 constexpr float kHoleXs[3] = {L::kRoofHoleX0, (L::kRoofHoleX0 + L::kRoofHoleX1) / 2, L::kRoofHoleX1};
 constexpr float kHoleZs[3] = {L::kRoofHoleZ0, (L::kRoofHoleZ0 + L::kRoofHoleZ1) / 2, L::kRoofHoleZ1};
 
+// A wall colour before the grime texture's scrubbed tint goes over it.
+Rgb underScrubbed(Rgb c) { return {c.r / kWallScrubbed.r, c.g / kWallScrubbed.g, c.b / kWallScrubbed.b}; }
+
 // One log wall: 0 back, 1 left (with the window), 2 right, 3 front (with the door).
+// Its colours are divided by kWallScrubbed, so scrubbed logs show as built.
 void wall(MeshData& m, int index) {
     m.beginTag(TargetKind::Wall, index);
+    // The log ends keep their own colour: they are seen mostly from the yard,
+    // where a pale film over them would glare.
+    const Rgb log = underScrubbed(kLog), logEnd = kLogEnd, frame = underScrubbed(kFrame);
     for (int k = 0; k < kCourses; ++k) {
         const float y = courseY(k);
-        const Rgb c = vary(kLog, static_cast<uint32_t>(k * 4 + index));
+        const Rgb c = vary(log, static_cast<uint32_t>(k * 4 + index));
         switch (index) {
-            case 0: m.logX(-4.25f, 4.25f, y, L::kInnerZ0 - kLogR, kLogR, c, kLogEnd); break;
+            case 0: m.logX(-4.25f, 4.25f, y, L::kInnerZ0 - kLogR, kLogR, c, logEnd); break;
             case 3:
                 if (y < L::kDoorTop) {
-                    m.logX(-4.25f, L::kDoorX0, y, L::kInnerZ1 + kLogR, kLogR, c, kLogEnd);
-                    m.logX(L::kDoorX1, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, c, kLogEnd);
+                    m.logX(-4.25f, L::kDoorX0, y, L::kInnerZ1 + kLogR, kLogR, c, logEnd);
+                    m.logX(L::kDoorX1, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, c, logEnd);
                 } else {
-                    m.logX(-4.25f, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, c, kLogEnd);
+                    m.logX(-4.25f, 4.25f, y, L::kInnerZ1 + kLogR, kLogR, c, logEnd);
                 }
                 break;
-            case 2: m.logZ(-3.3f, 4.47f, y, L::kInnerX1 + kLogR, kLogR, c, kLogEnd); break;
+            case 2: m.logZ(-3.3f, 4.47f, y, L::kInnerX1 + kLogR, kLogR, c, logEnd); break;
             default:
                 if (y > L::kWindowY0 - 0.05f && y < L::kWindowY1 + 0.05f) {
-                    m.logZ(-3.3f, L::kWindowZ0, y, L::kInnerX0 - kLogR, kLogR, c, kLogEnd);
-                    m.logZ(L::kWindowZ1, 4.47f, y, L::kInnerX0 - kLogR, kLogR, c, kLogEnd);
+                    m.logZ(-3.3f, L::kWindowZ0, y, L::kInnerX0 - kLogR, kLogR, c, logEnd);
+                    m.logZ(L::kWindowZ1, 4.47f, y, L::kInnerX0 - kLogR, kLogR, c, logEnd);
                 } else {
-                    m.logZ(-3.3f, 4.47f, y, L::kInnerX0 - kLogR, kLogR, c, kLogEnd);
+                    m.logZ(-3.3f, 4.47f, y, L::kInnerX0 - kLogR, kLogR, c, logEnd);
                 }
         }
     }
     if (index == 3) {  // the door frame
-        m.box({L::kDoorX0 - 0.1f, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX0, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
-        m.box({L::kDoorX1, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+        m.box({L::kDoorX0 - 0.1f, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX0, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, frame);
+        m.box({L::kDoorX1, 0, L::kInnerZ1 - 0.02f}, {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, frame);
         m.box({L::kDoorX0 - 0.1f, L::kDoorTop, L::kInnerZ1 - 0.02f},
-              {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, kFrame);
+              {L::kDoorX1 + 0.1f, L::kDoorTop + 0.1f, L::kInnerZ1 + 0.36f}, frame);
     }
     if (index == 1 || index == 2) {
         // The gable: the triangle between the top course and the roof, both faces.
         const float x = index == 1 ? L::kInnerX0 - kLogR : L::kInnerX1 + kLogR;
         for (float side : {1.0f, -1.0f}) {
-            const uint32_t a = m.vertex({x, kEaveY, -3.3f}, kLog), b = m.vertex({x, kEaveY, 4.47f}, kLog);
-            const uint32_t c = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, kLog);
+            const uint32_t a = m.vertex({x, kEaveY, -3.3f}, log), b = m.vertex({x, kEaveY, 4.47f}, log);
+            const uint32_t c = m.vertex({x, kRidgeY - 0.05f, kRidgeZ}, log);
             m.triangle(a, b, c, {side, 0, 0});
         }
     }
@@ -716,6 +723,48 @@ MeshData buildPart(Part part, const World& w) {
         m.wantUv = true;
     }
     return m;
+}
+
+// What grime looks like over a surface, as a multiplier on its own colour:
+// dust and leaves on the floor, dust on the walls, soot on the chimney. Floor
+// dust is paler than the boards and mottled with leaves, so what is still to
+// sweep shows in a dim room; a swept texel is kFloorSwept. Wall dust is the
+// same idea: a grey, mottled film paler than the logs, and a texel that counts
+// as clean (kCleanThreshold) is kWallScrubbed, the bare logs. Any texel still
+// to scrub is at least most of the way to full dust, so what reads as clean is
+// what counts as clean.
+void grimeTexel(Surface s, uint8_t g, int x, int y, uint8_t out[4]) {
+    const float t = static_cast<float>(g) / 255.0f;
+    uint32_t h = static_cast<uint32_t>(x) * 73856093u ^ static_cast<uint32_t>(y) * 19349663u ^ static_cast<uint32_t>(s) * 83492791u;
+    h ^= h >> 13;
+    h *= 0x5bd1e995u;
+    h ^= h >> 15;
+    const float n = static_cast<float>(h & 1023u) / 1023.0f;
+    if (s == Surface::Floor) {
+        const bool leaf = t > 0.5f && (h >> 10) % 8 == 0;
+        const float dust[3] = {0.84f, 0.86f, 0.90f}, leaves[3] = {0.55f, 0.46f, 0.32f};
+        const float* d = leaf ? leaves : dust;
+        const float k = 0.9f + 0.12f * n;
+        const float swept[3] = {kFloorSwept.r, kFloorSwept.g, kFloorSwept.b};
+        for (int c = 0; c < 3; ++c)
+            out[c] = static_cast<uint8_t>(255.0f * std::fmin(1.0f, swept[c] + (d[c] * k - swept[c]) * t) + 0.5f);
+        out[3] = 255;
+        return;
+    }
+    if (s == Surface::HearthFace) {
+        const float tint[3] = {0.22f, 0.21f, 0.20f};
+        for (int c = 0; c < 3; ++c) out[c] = static_cast<uint8_t>(255.0f * (1.0f + (tint[c] - 1.0f) * t) + 0.5f);
+        out[3] = 255;
+        return;
+    }
+    // A log wall.
+    const float bare[3] = {kWallScrubbed.r, kWallScrubbed.g, kWallScrubbed.b};
+    const float dust[3] = {0.88f, 0.88f, 0.90f};
+    const float k = 0.82f + 0.18f * n;  // dust lies in patches
+    const float a = g <= kCleanThreshold ? 0.0f
+                                         : 0.65f + 0.35f * std::fmin(1.0f, static_cast<float>(g - kCleanThreshold) / 70.0f);
+    for (int c = 0; c < 3; ++c) out[c] = static_cast<uint8_t>(255.0f * (bare[c] + (dust[c] * k - bare[c]) * a) + 0.5f);
+    out[3] = 255;
 }
 
 bool partSurface(Part part, Surface& out) {
