@@ -1,0 +1,99 @@
+{
+  "session": "s03",
+  "goal": "Your save (written by the previous release, 0.1.2) starts at the Repair step with the cabin already cleared. First say whether the game loaded it without complaint. Then finish Repair and as much of Furnish as you can: pry up the rotten floorboards and lay new planks in every gap, shingle every open roof section, take down the window boards, mend the chair and table, then bring the furnishings in from the wagon, place them and turn them with R. Record the game time of each checklist line; say plainly whether every floor gap and every roof hole could be found, aimed at and fixed. When you place the framed sampler, hang it on a side log wall (not the chimney) and say whether it shows as a whole flat picture from in front and from the side, or only as a thin strip; also try the chimney breast.",
+  "build": {"version": "0.1.2", "commit": "2af0a33"},
+  "seed": 1,
+  "durationSec": 1672,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "major",
+      "category": "ux",
+      "title": "Roof holes not visible from inside: ceiling shows only 'Ceiling boards' while checklist says 4 sections open",
+      "detail": "Carrying the 4 shingle bundles, I swept the whole ceiling at pitch 35, 63 and 77 degrees from two spots in the cabin (x1.96 z2.08 near the door and x2.54 z-1.61 near the back). Every view showed solid dark ceiling boards and the crosshair only ever named 'Ceiling boards'; no open sky, no light shaft, no 'open roof' label. A sunlit patch on the floor near the old rotten boards hints at a hole but none could be seen above it. I could not find, aim at or fix any of the 4 roof sections in the time available, so Repair could not be finished. Expected: open roof sections clearly visible (sky showing through) and labelled when aimed at.",
+      "repro": "pt start (v1-repair fixture); take shingles from wagon; walk in through door; pt hold Up 1.5; pt face 90 x4; pt hold Up 1.2; pt face 120 x3",
+      "screenshot": "shots/roof_nohole.png",
+      "tick": 21890
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Rotten floorboard looks almost identical to an open gap, and one sits right next to another",
+      "detail": "Rotten boards render as a dark/green-tinted patch, very like the pried-open gap (green ground showing through). The third rotten board is directly adjacent to the first, so after laying a plank the area still looked like an unfilled gap and I only discovered it by aiming at it. Nice touch though: holding the button on it while carrying planks pried it up and laid a new plank in one go.",
+      "repro": "From x1.49 z-0.08 facing yaw ~230 pitch -50, pry the board, lay a plank from the wagon stack; the adjacent dark patch is still a rotten board",
+      "screenshot": "shots/plank1.png",
+      "tick": 13511
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Floor reach is short: rotten board says 'Too far to reach' at about 1.5 m",
+      "detail": "Standing about 1.5 m from a rotten board looking down at ~37 degrees, the label read 'Too far to reach. Step closer.' Only after stepping almost on top of it and tilting to -50 did it come in reach. The interact range for E is 2.2 m but tool work on the floor feels much shorter.",
+      "repro": "Walk toward the rotten board near the rocking chair; stop ~1.5 m away with pitch -37",
+      "screenshot": "shots/f3.png",
+      "tick": 8457
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E on a broken board reports 'Nothing to pick up there' when the board is in reach but below the view",
+      "detail": "After walking to a broken board (probe distance 1.5 m, bearing -2), pressing E said 'Nothing to pick up there.' The board was just above the bottom of the screen; I had to tilt the view to put it near the crosshair. Expected the forgiving 12-degree pickup to take the only debris in front of me.",
+      "repro": "pt walkto debris; pt key e (with the view pitched steeply down)",
+      "screenshot": "shots/haul.png",
+      "tick": 15443
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Wagon bed is crowded: picking planks or shingles needs a precise aim among furnishings",
+      "detail": "On the wagon the jar, clock, sampler, candle and crocks sit in front of the plank and shingle stacks; at a few frames a second it took several nudges to get 'Bundle of shingles' or 'New plank' under the crosshair instead of 'Mantel clock' or 'Your wagon'.",
+      "repro": "pt walkto wagon; tilt to the bed; try to aim at the shingles",
+      "screenshot": "shots/wg4.png",
+      "tick": 20500
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Checklist overlay covers the upper window boards",
+      "detail": "Standing at the window, the top boards sit behind the checklist text in the top-left corner, making it hard to see which board is left. F1 hides help but the checklist stays.",
+      "repro": "pt walkto window; tilt up to the boards",
+      "screenshot": "shots/win3.png",
+      "tick": 17600
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "First checklist line is drawn smaller and indented differently from the rest",
+      "detail": "'[ ] Replace the rotten floorboards (3 left)' renders in a smaller, dimmer font than the following lines, squeezed under the STEP header.",
+      "repro": "pt start; pt shot",
+      "screenshot": "shots/start.png",
+      "tick": 4936
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Game ran at 1-2 fps and 7-14 ticks a second on the loaded machine",
+      "detail": "Short key holds (under ~0.3 s) often did not register at all, so turning and aiming took many retries. Probably machine load; recorded once.",
+      "repro": "pt status during play",
+      "screenshot": "shots/c1.png",
+      "tick": 6231
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 0,
+    "deaths": 0,
+    "secondsToObjective": {
+      "Mend the rocking chair": 245.3,
+      "Replace the rotten floorboards": 495.6,
+      "Take the boards off the window": 604.0
+    },
+    "saveLoadedCleanly": 1,
+    "floorGapsFixed": 3,
+    "roofSectionsFixed": 0,
+    "roofSectionsFound": 0,
+    "windowBoardsRemoved": 4,
+    "furnishingsPlaced": 0
+  },
+  "fun": 3,
+  "verdict": "The 0.1.2 Repair save loaded without any complaint, and the floor, window and chair work feels good: clear prompts, satisfying status lines, and prying a rotten board while carrying planks lays a new one in one go. But I could not see any of the 4 open roof sections from inside the cabin (the ceiling shows only solid 'Ceiling boards'), so Repair stayed unfinished and I never reached Furnish or the sampler test. Aiming at small targets (rotten boards next to gaps, items on a crowded wagon) also needs more care than it should."
+}

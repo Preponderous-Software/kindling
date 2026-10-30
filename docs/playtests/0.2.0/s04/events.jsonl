@@ -1,0 +1,22 @@
+{"type":"world","tick":9300,"wallTimeMs":1793318088071,"how":"loaded","seed":1881}
+{"type":"screen","tick":9300,"wallTimeMs":1793318088072,"from":null,"to":"WORLD"}
+{"type":"status","tick":11512,"wallTimeMs":1793318278002,"text":"Nothing to pick up there."}
+{"type":"save","tick":12905,"wallTimeMs":1793318418757,"count":1}
+{"type":"status","tick":14774,"wallTimeMs":1793318608467,"text":"Too far to reach. Step closer."}
+{"type":"status","tick":15089,"wallTimeMs":1793318635826,"text":"Kindling laid. Now a split log or two on the andirons."}
+{"type":"status","tick":15299,"wallTimeMs":1793318658114,"text":"The match goes out. Hold it to the kindling until it catches."}
+{"type":"status","tick":15523,"wallTimeMs":1793318682290,"text":"It catches. Let it take hold."}
+{"type":"status","tick":15992,"wallTimeMs":1793318742865,"text":"The fire has taken hold."}
+{"type":"status","tick":15992,"wallTimeMs":1793318742865,"text":"The cabin is warm. Ada's wagon is coming up the trail."}
+{"type":"objective_completed","tick":15992,"wallTimeMs":1793318742865,"number":5,"id":"Kindle","title":"Kindle","ticksTaken":6692}
+{"type":"status","tick":16146,"wallTimeMs":1793318763778,"text":"Ada Lark is here."}
+{"type":"save","tick":16510,"wallTimeMs":1793318805215,"count":2}
+{"type":"screen","tick":16755,"wallTimeMs":1793318829422,"from":"WORLD","to":"REVEAL"}
+{"type":"status","tick":16755,"wallTimeMs":1793318829422,"text":"Ada is home. (T plays back your restoration.)"}
+{"type":"objective_completed","tick":16755,"wallTimeMs":1793318829422,"number":6,"id":"Welcome","title":"Welcome","ticksTaken":763}
+{"type":"screen","tick":16783,"wallTimeMs":1793318863423,"from":"REVEAL","to":"WORLD"}
+{"type":"screen","tick":17070,"wallTimeMs":1793318887363,"from":"WORLD","to":"REVEAL"}
+{"type":"screen","tick":17077,"wallTimeMs":1793318919873,"from":"REVEAL","to":"WORLD"}
+{"type":"save","tick":18120,"wallTimeMs":1793319035952,"count":3}
+{"type":"status","tick":18589,"wallTimeMs":1793319078207,"text":"The mare nickers at you, hopefully. She's hungry."}
+{"type":"status","tick":20640,"wallTimeMs":1793319232213,"text":"Nothing to pick up there."}

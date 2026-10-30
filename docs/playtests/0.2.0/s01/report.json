@@ -1,0 +1,96 @@
+{
+  "session": "s01",
+  "goal": "Play the first 15 minutes as a brand-new player who has never seen the game; note every moment of confusion.",
+  "build": {"version": "0.1.2", "commit": "2af0a33"},
+  "seed": 2718,
+  "durationSec": 1260,
+  "outcome": "partial",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Debris aim-assist steals the floor target from the broom; sweeping silently does nothing",
+      "detail": "Holding the broom with the crosshair visibly on bare floorboards, the centre label read 'Fallen shingle' (a shingle about 1m off-centre). 10s of left-mouse sweeping did nothing: floor stayed at 8% and no message said why. Expected the broom to sweep the floor under the crosshair, or a hint that a piece of debris is in the way. Tilting further down to get 'Floorboards' fixed it.",
+      "repro": "pt start --profile kindling --seed 2718; finish Survey; shovel the snow drift near the rocking chair; pt key 1; aim at floor near a fallen shingle; pt mousehold 10",
+      "screenshot": "shots/broom_blocked.png",
+      "tick": 7238
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "E does nothing, with no feedback, when debris lies at your feet below the crosshair",
+      "detail": "A fallen shingle 0.9m away at bearing -2 deg, view pitched -42 deg: the label read 'Floorboards' (not in reach) and E neither picked it up nor said anything. Tilting to -71 deg so the label read 'Fallen shingle' made E work. The 12-degree leniency seems to be horizontal only. A failed E needs a message (e.g. 'Nothing in reach'), and debris this close should be picked up. The same silent E also happened near the door (shots/stuck_board.png).",
+      "repro": "stand beside the hearth next to fallen shingles; look level-ish (pitch about -40); pt key e",
+      "screenshot": "shots/e_silent.png",
+      "tick": 9555
+    },
+    {
+      "severity": "minor",
+      "category": "balance",
+      "title": "Sweeping and scrubbing work one small patch at a time; the Clear step is a long grind",
+      "detail": "Each 2-3 game-seconds of broom or brush cleans one small spot, then the meter says 'Clean here. Move on.' Six floor patches took the floor from 9% to 22%, and three chimney patches took it to 22%. Holding the mouse while strafing did not sweep a trail. With 15 debris pieces each carried singly to the door as well, Clear looks like 100+ aim-hold-move cycles. Cleaned stone does visibly lighten, which is good feedback. A wider sweep, or sweeping while walking, would help.",
+      "repro": "pt key 1; aim at floor; pt mousehold 5; move 1m; repeat; read the Sweep the floor % in the checklist",
+      "screenshot": "shots/sweep_rate.png",
+      "tick": 8246
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Rotten floorboard shows a 'Pry it up (5)' hint during Survey/Clear, but prying is a later step",
+      "detail": "Right after Survey, the crosshair on a rotten floorboard says 'Pry it up with the pry bar (5).' while the checklist says Clear. As a new player I took the pry bar and held the mouse; nothing happened ('Too far to reach'). It was not clear whether prying is allowed yet. The hint should say it is for the Repair step, as the furnishings on the wagon do.",
+      "repro": "complete Survey; aim at the dark/green floor patch; pt key 5; pt mousehold 6",
+      "screenshot": "shots/clear0.png",
+      "tick": 1925
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Cabin interior is very dark at 9 am",
+      "detail": "Walking into the cabin at the start, the back wall and floor were near-black (in2.png). It is hard to see the grime and the debris you are asked to survey. The lantern is only suggested at dusk.",
+      "repro": "pt start; pt hold w 8; pt shot",
+      "screenshot": "shots/in2.png",
+      "tick": 308
+    },
+    {
+      "severity": "polish",
+      "category": "text",
+      "title": "Checklist line 'Hole in the roof (stand under it, look up)' uses a smaller font than the other lines",
+      "detail": "In the Survey checklist, the roof-hole line is drawn smaller and dimmer than its siblings, presumably shrunk to fit. It reads as a different kind of item.",
+      "repro": "pt start; pt shot",
+      "screenshot": "shots/start.png",
+      "tick": 21
+    },
+    {
+      "severity": "polish",
+      "category": "bug",
+      "title": "Camera clips into the wagon when you walk up to it",
+      "detail": "At 1.1m from the wagon, the screen fills with flat brown/green shapes and a post. You cannot see the wagon's tools, planks or furnishings, though the label 'Your wagon' shows.",
+      "repro": "pt walkto wagon; pt shot",
+      "screenshot": "shots/wagon_clip.png",
+      "tick": 10360
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Game ran at 1-2 fps / 2-15 tps on the loaded machine",
+      "detail": "Software renderer on a shared machine. Turning by arrow keys overshot badly (pt face missed by 20-40 deg), and walking took several real seconds per metre. This is mostly the environment, recorded once.",
+      "repro": "pt status during play",
+      "screenshot": "shots/haul5.png",
+      "tick": 5320
+    }
+  ],
+  "metrics": {
+    "objectivesCompleted": 1,
+    "deaths": 0,
+    "secondsToObjective": {"Survey": 63.7},
+    "gameSecondsPlayed": 356,
+    "debrisHauled": 4,
+    "debrisLeft": 11,
+    "snowCleared": true,
+    "floorCleanPct": 22,
+    "chimneyCleanPct": 22,
+    "silentEPresses": 3
+  },
+  "fun": 3,
+  "verdict": "Survey-by-looking is a lovely, gentle onboarding: the checklist ticks off as you notice things, the help hides itself, and shovelling the snow drift feels quick and good. Clear then slows to a grind. Cleaning goes spot by spot, debris goes out one piece at a time, and twice the tool or E silently did nothing because the target under the crosshair was not what I meant. Add feedback for a failed E or tool use, and make cleaning broader, before anything else."
+}

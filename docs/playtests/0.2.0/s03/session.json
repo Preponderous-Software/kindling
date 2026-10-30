@@ -1,0 +1,32 @@
+{
+  "session": "s03",
+  "dir": "s03",
+  "profile": "kindling",
+  "display": ":111",
+  "window": "6291475",
+  "size": "640x360",
+  "seed": "1",
+  "args": [],
+  "command": [
+    "<kindling checkout>/build/kindling",
+    "--width",
+    "640",
+    "--height",
+    "360",
+    "--slot",
+    "s03/data",
+    "--seed",
+    "1",
+    "--playtest-out",
+    "s03/out"
+  ],
+  "probe": true,
+  "ticksPerSecond": 30,
+  "startedAtMs": 1793317831117,
+  "version": "0.1.2",
+  "commit": "2af0a33",
+  "dirty": false,
+  "builtAtMs": 1793316012861,
+  "buildWarnings": [],
+  "driver": "x11"
+}

@@ -1,0 +1,11 @@
+{"type":"world","tick":0,"wallTimeMs":1793317611117,"how":"created","seed":77}
+{"type":"screen","tick":0,"wallTimeMs":1793317611118,"from":null,"to":"WORLD"}
+{"type":"status","tick":2149,"wallTimeMs":1793317840850,"text":"You've seen the worst of it. Time to clear the place out."}
+{"type":"objective_completed","tick":2149,"wallTimeMs":1793317840850,"number":1,"id":"Survey","title":"Survey","ticksTaken":2149}
+{"type":"save","tick":3605,"wallTimeMs":1793318033877,"count":1}
+{"type":"status","tick":3969,"wallTimeMs":1793318089063,"text":"Sawn into three lengths, each light enough to carry: three pieces to haul out instead of one."}
+{"type":"status","tick":4725,"wallTimeMs":1793318205155,"text":"Too far to reach. Step closer."}
+{"type":"status","tick":5327,"wallTimeMs":1793318289621,"text":"Tossed out the door: a fallen shingle. 16 pieces left inside."}
+{"type":"save","tick":7210,"wallTimeMs":1793318526773,"count":2}
+{"type":"save","tick":10815,"wallTimeMs":1793318812811,"count":3}
+{"type":"status","tick":11536,"wallTimeMs":1793318877500,"text":"The snow is out. Patch that hole before the next fall."}

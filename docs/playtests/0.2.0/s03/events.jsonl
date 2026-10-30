@@ -1,0 +1,24 @@
+{"type":"world","tick":4649,"wallTimeMs":1793317829072,"how":"loaded","seed":1}
+{"type":"screen","tick":4649,"wallTimeMs":1793317829075,"from":null,"to":"WORLD"}
+{"type":"status","tick":7358,"wallTimeMs":1793318148323,"text":"The rocking chair is sound again."}
+{"type":"save","tick":8254,"wallTimeMs":1793318276375,"count":1}
+{"type":"status","tick":8933,"wallTimeMs":1793318355034,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":9640,"wallTimeMs":1793318474917,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":11089,"wallTimeMs":1793318622886,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":11705,"wallTimeMs":1793318677008,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":11859,"wallTimeMs":1793318690678,"count":2}
+{"type":"status","tick":13455,"wallTimeMs":1793318814766,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":13735,"wallTimeMs":1793318841043,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":13798,"wallTimeMs":1793318845887,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":14869,"wallTimeMs":1793318928813,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":15275,"wallTimeMs":1793318963765,"text":"Nothing to pick up there."}
+{"type":"status","tick":15443,"wallTimeMs":1793318977381,"text":"Nothing to pick up there."}
+{"type":"save","tick":15464,"wallTimeMs":1793318979037,"count":3}
+{"type":"status","tick":16276,"wallTimeMs":1793319051848,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":16920,"wallTimeMs":1793319107808,"text":"Light comes through the gap."}
+{"type":"status","tick":16990,"wallTimeMs":1793319114487,"text":"Light comes through the gap."}
+{"type":"status","tick":17487,"wallTimeMs":1793319148182,"text":"Light comes through the gap."}
+{"type":"status","tick":18117,"wallTimeMs":1793319192926,"text":"Daylight floods in. Haul the boards out with the rest."}
+{"type":"save","tick":19069,"wallTimeMs":1793319259002,"count":4}
+{"type":"save","tick":21904,"wallTimeMs":1793319491483,"count":5}
+{"type":"status","tick":21904,"wallTimeMs":1793319491483,"text":"Saved."}
