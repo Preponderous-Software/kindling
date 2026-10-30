@@ -1,83 +1,99 @@
 {
-  "session": "s02",
-  "goal": "Finish the Survey and the whole Clear step (haul the debris, saw the fallen rafter, shovel the snow, sweep the floor, scrub the walls and the chimney) using only what the screen tells you; record the game time each checklist line completes. Say whether sawing keeps its progress when you let go of the button, whether the debris counter ever goes up, and whether you can see which parts of the floor and walls are still dirty.",
-  "build": {"version": "0.1.2", "commit": "7ecf1fe"},
-  "seed": 77,
-  "durationSec": 1700,
-  "outcome": "partial",
-  "findings": [
-    {
-      "severity": "major",
-      "category": "balance",
-      "title": "Scrub the walls is far slower than every other Clear task (13% -> 24% in ~70 s of continuous scrubbing)",
-      "detail": "With the scrub brush held against the log wall while sweeping the view across it, the walls line rose about 4% per 25 s of scrubbing (13% at tick 34455, 17% at 35363, 24% at 37966). Extrapolated, the walls alone need roughly 8-10 more minutes of holding the mouse, more than haul+snow+chimney together. Combined with the walls being hard to read (see below) it was the reason the Clear step could not be finished in a 35-minute session. Chimney, by comparison, went 0 -> 100% in ~1.5 min.",
-      "repro": "pt start --profile kindling --game-dir <kindling checkout> --seed 77; finish Survey; pt key 2; walk to any interior log wall until the meter shows '[---] 0% clean'; pt mousehold 25 while tapping arrow keys; watch 'Scrub the walls (N%)'",
-      "screenshot": "shots/wall2.png",
-      "tick": 37966
-    },
-    {
-      "severity": "minor",
-      "category": "ux",
-      "title": "Grimy vs clean log walls are nearly indistinguishable, especially from mid-afternoon on",
-      "detail": "Floor and chimney show progress clearly (swept boards turn lighter and lose their leaf speckle; scrubbed stones turn pale grey). The log walls look uniformly dark brown up close and from a step back, even with the lantern lit (~3:35 pm in game), so you cannot tell which logs are already clean. Only the per-spot centre meter ('Clean here. Move on.' / 'Grimy. Scrub it (2).') tells you, which forces sweeping the crosshair over every log.",
-      "repro": "after scrubbing a wall corner for ~25 s: pt hold s 1.0; pt shot X; pt key l; pt shot Y",
-      "screenshot": "shots/walls_grime_hard_to_see.png",
-      "tick": 35599
-    },
-    {
-      "severity": "minor",
-      "category": "ux",
-      "title": "Sweep the floor stalls at ~93%: the last specks in corners are hard to find as the cabin darkens",
-      "detail": "Floor went 9% -> 89% in about 3 minutes of sweeping, then only 89 -> 93% over two more full passes (ticks 28600-30357). Remaining dirt is in corners, along walls and near the hearth; by 2:30 pm the interior is dim and the dirt speckle is hard to see. Nothing points to where the remaining percent is. The floor line was still not done when I stopped.",
-      "repro": "sweep the floor with pt key 1 and mousehold while stepping in rows; after ~89% look around with pt hold Up 0.35 and try to spot remaining dirt",
-      "screenshot": "shots/floor_tail.png",
-      "tick": 35970
-    },
-    {
-      "severity": "minor",
-      "category": "ux",
-      "title": "Fallen rafter needs an exact aim; the hit area does not line up with the drawn rafter",
-      "detail": "Standing next to the rafter the crosshair visibly overlapped it several times while the centre label still said 'Log wall'; it only switched to 'Fallen rafter' after ~2-degree nudges, at a point where the screenshot shows the crosshair slightly off the beam. Debris pick-up has a 12-degree assist, the rafter does not seem to.",
-      "repro": "after Survey, stand at about (0.8, 0.7) facing yaw ~285; pt look 15 0 repeatedly, reading the centre label each time",
-      "screenshot": "shots/r8.png",
-      "tick": 3734
-    },
-    {
-      "severity": "polish",
-      "category": "ux",
-      "title": "Debris counter goes UP from 15 to 17 after sawing the rafter",
-      "detail": "'Haul out the debris (15 left)' became '(17 left)' once the rafter was sawn into three lengths. A status line explains it ('Sawn into three lengths... three pieces to haul out instead of one'), so it is understandable, but a progress counter going backwards right after finishing a job feels like a setback and the message is easy to miss at low fps. Consider counting the rafter as 3 from the start.",
-      "repro": "pt key 4; aim at the fallen rafter; pt mousehold 10 (repeat until sawn); read checklist line 1",
-      "screenshot": "shots/debris_up.png",
-      "tick": 4217
-    },
-    {
-      "severity": "polish",
-      "category": "ux",
-      "title": "Roof hole survey check needs the crosshair right on the open sky patch",
-      "detail": "Standing under the hole and looking up with the opening clearly on screen (off-centre by ~20 degrees), the label stayed 'Ceiling boards' and the checklist did not tick; it ticked only once the crosshair was on the blue gap.",
-      "repro": "after the other survey items: walk to about (0.8, 0.7), pt hold Up 1.2, look around the hole",
-      "screenshot": "shots/up3.png",
-      "tick": 1707
-    }
-  ],
-  "metrics": {
-    "objectivesCompleted": 1,
-    "deaths": 0,
-    "secondsToObjective": {
-      "Survey": 65.9,
-      "Clear: Haul out the debris": 614.6,
-      "Clear: Shovel out the snow": 654.1,
-      "Clear: Scrub the chimney": 1106.8
-    },
-    "fallenRafterSawn": true,
-    "sawKeepsProgressOnRelease": true,
-    "debrisCounterWentUp": true,
-    "debrisCounterMax": 17,
-    "floorPercentAtStop": 93,
-    "wallsPercentAtStop": 24,
-    "chimneySecondsToClean": 82
+ "session": "s02",
+ "goal": "Finish the Survey and the whole Clear step (haul the debris, saw the fallen rafter, shovel the snow, sweep the floor, scrub the walls and the chimney) using only what the screen tells you; record the game time each checklist line completes. Say whether sawing keeps its progress when you let go of the button, whether the debris counter ever goes up, and whether you can see which parts of the floor and walls are still dirty. In particular: can you tell grimy log walls from scrubbed ones by eye (up close, from a step back, and with the lantern lit), and how long does 'Scrub the walls' take to reach its goal?",
+ "build": {
+  "version": "0.1.2",
+  "commit": "2af0a33"
+ },
+ "seed": 77,
+ "durationSec": 1500,
+ "outcome": "partial",
+ "findings": [
+  {
+   "severity": "major",
+   "category": "balance",
+   "title": "'Scrub the walls' needs ~10+ game minutes of strafe-and-scrub; each patch adds ~2 checklist %",
+   "detail": "With the scrub brush, each reach-sized patch goes to 'Clean here. Move on.' in ~1.5-2 game s but only raises wallsClean by ~0.01 (checklist ~+2%). 13% -> 26% took ticks ~5600-9980 (~146 game s, of which ~60 s actual scrubbing; the rest repositioning). Reach is short: strafing along a wall at ~1 m drops to 'Too far to reach. Step closer.' as soon as the wall angles away. Extrapolating, reaching 100% is 10+ minutes of repetitive scrubbing, the slowest line in Clear by far. Not completed in this session. Expected a goal reachable in a few minutes, or a wider brush stroke.",
+   "repro": "pt start --seed 77; survey; walk inside; pt key 2; face a side wall within ~1 m; loop: pt mousehold 2.5; pt hold d 0.3 -- watch checklist 'Scrub the walls (%)'",
+   "screenshot": "shots/wall_lantern.png",
+   "tick": 9982
   },
-  "fun": 3,
-  "verdict": "Survey, hauling, sawing, snow and chimney all read well from the screen: sawing keeps its progress when you let go (6% -> 12% across a release), the floor and chimney visibly brighten where cleaned, and status lines explain everything including why the debris count rises from 15 to 17. The Clear step falls down on its last two lines: the walls scrub at ~4% per 25 s with almost no visible clean/grimy difference, and the floor's last 7% hides in dim corners, so the step could not be finished in 28 minutes of play."
+  {
+   "severity": "minor",
+   "category": "ux",
+   "title": "Debris counter goes UP from 15 to 17 after sawing the fallen rafter; rafter has no checklist line",
+   "detail": "Sawing the fallen rafter (tool 4, hold LMB) turned it into three 'Piece of rafter' debris; 'Haul out the debris' went from 15 left to 17 left. A status line explains it ('three pieces to haul out instead of one'), so it is understandable, but a counter rising reads as regress, and the rafter itself never appears on the Clear checklist so a player does not know it is a task until the crosshair names it.",
+   "repro": "pt start --seed 77; complete Survey; pt key 4; aim the crosshair at the diagonal fallen rafter left of the hearth; pt mousehold 8 (x2)",
+   "screenshot": "shots/debris_up.png",
+   "tick": 3969
+  },
+  {
+   "severity": "minor",
+   "category": "ux",
+   "title": "E at your feet picks the aimed far object instead of debris 0.4 m away unless you look nearly straight down",
+   "detail": "Standing next to a fallen shingle (0.4 m, bearing +2) with the view level-ish (pitch -13), pressing E targeted the cold hearth behind it and said 'Too far to reach. Step closer.' Only after tilting to pitch -42 did E pick the shingle up. The 12-degree assist seems to count pitch, so debris right at your feet needs an exact downward aim.",
+   "repro": "stand on a fallen shingle (pt walkto debris), face it with pitch about -13, pt key e",
+   "screenshot": "shots/pick1.png",
+   "tick": 4718
+  },
+  {
+   "severity": "minor",
+   "category": "ux",
+   "title": "Snow drift reads as 'Floorboards'/'Chimney stones'/'Too far' until you stand almost on it at pitch -66",
+   "detail": "With the crosshair visibly on the edge of the snow drift from ~1.5 m, the aim label said 'Chimney stones' and then 'Floorboards'; once it said 'Snow drift' it was 'Too far to reach' even after stepping closer. Shovelling only worked standing on its edge looking steeply down (pitch -66). Once in reach it was quick (~8 game s).",
+   "repro": "after Survey: pt key 3; walk to ~1.5 m from the snow pile in front of the hearth; aim at its edge; read the aim label",
+   "screenshot": "shots/snow2.png",
+   "tick": 10885
+  },
+  {
+   "severity": "minor",
+   "category": "text",
+   "title": "Checklist text is hard to read against the pale lit chimney stones",
+   "detail": "Scrubbed chimney stones under the lantern are pale cream; the white checklist text in the top-left (thin dark outline) nearly disappears against them. The held tool/lantern sprite also covers the '8 Matches' toolbar label.",
+   "repro": "scrub the chimney with lantern lit (L), look up at the stones",
+   "screenshot": "shots/chimney.png",
+   "tick": 12705
+  },
+  {
+   "severity": "minor",
+   "category": "perf",
+   "title": "Game ran at 1-2 fps / 6-15 tps; short arrow-key taps were often dropped",
+   "detail": "On the loaded machine the game ran 1-2 fps and 6-15 ticks/s. Arrow-key holds under ~0.3 s frequently did not change yaw or pitch at all, and pt face often stopped 10-50 degrees short, which made precise aiming (rafter, chimney patches) slow. Mostly an environment issue; noted once.",
+   "repro": "pt hold Up 0.2 and compare pitchDeg before/after",
+   "screenshot": "shots/wallE.png",
+   "tick": 7553
+  },
+  {
+   "severity": "polish",
+   "category": "ux",
+   "title": "Good: scrubbed vs grimy walls and swept vs dusty floor are readable by eye",
+   "detail": "Scrubbed log walls turn a warm dark brown while grimy logs stay a pale grey; the difference shows up close, from a step back, and with the lantern lit (somewhat lower contrast under the warm light). Dusty floor has brown leaf flecks; swept patches are plainer, but the floor difference is subtler than the walls. The aimed-spot meter ('[##--] 24% clean' / 'Clean here. Move on.') confirms it.",
+   "repro": "pt key 2; scrub a patch; step back; press L",
+   "screenshot": "shots/wall_back.png",
+   "tick": 9982
+  }
+ ],
+ "metrics": {
+  "objectivesCompleted": 1,
+  "deaths": 0,
+  "secondsToObjective": {
+   "Survey": 71.6,
+   "Saw the fallen rafter (status)": 132.3,
+   "Shovel out the snow": 384.5
+  },
+  "sawKeepsProgressOnRelease": true,
+  "debrisCounterWentUp": true,
+  "debrisStart": 15,
+  "debrisPeak": 17,
+  "debrisEnd": 16,
+  "wallsChecklistPctStart": 13,
+  "wallsChecklistPctEnd": 26,
+  "wallsScrubGameSeconds": 146,
+  "chimneyPctEnd": 47,
+  "floorPctEnd": 12,
+  "haulOnePieceGameSeconds": 20,
+  "endTick": 13713
+ },
+ "fun": 3,
+ "verdict": "The Clear step's feedback is good: the crosshair label/meter, the brown-vs-grey wall grime, and the status lines (rafter becomes three pieces, snow out) make it clear what to do, and sawing keeps its progress when you let go. But 'Scrub the walls' is a long grind (~2% per patch, 10+ minutes projected) and close-range targets (debris at your feet, the snow drift) need steep exact aim; with 16 pieces to haul one at a time, Clear is far longer than the rest of the opening."
 }

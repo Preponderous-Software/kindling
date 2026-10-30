@@ -1,121 +1,92 @@
 {
   "session": "s04",
-  "goal": "Your save starts early in the Kindle step: split firewood, stack it, lay and light the fire, welcome the settler and watch the reveal (do not skip it); then spend the rest of your time walking around inside and outside the cabin, judging how it looks and reads (the fire and the firelit chimney, the settler in her chair, the mare, labels and on-screen text overlapping, light and models) and noting anything ugly, broken, floating, clipping or hard to read.",
-  "build": {"version": "0.1.2", "commit": "7ecf1fe"},
+  "goal": "Your save starts early in the Kindle step: split firewood, stack it, lay and light the fire, welcome the settler and watch the reveal (do not skip it); then spend the rest of your time walking around inside and outside the cabin, judging how it looks and reads (the fire and the firelit chimney, the settler in her chair, the mare, labels and on-screen text overlapping, light and models, the log walls inside and out) and noting anything ugly, broken, floating, clipping or hard to read.",
+  "build": {"version": "0.1.2", "commit": "2af0a33"},
   "seed": 1881,
-  "durationSec": 1342,
+  "durationSec": 1157,
   "outcome": "achieved",
   "findings": [
     {
       "severity": "minor",
-      "category": "bug",
-      "title": "No chimney stack or smoke visible outside the cabin once the hearth is lit",
-      "detail": "With the fire lit and Ada home (Done, about 3:28 pm in game), the cabin seen from the front yard (shots/chim4.png) and from the west side looking toward the hearth wall (this shot) shows a plain roof: no stone chimney stack above it, no smoke, no glow. Inside there is a full stone chimney breast. The 'firelit chimney' payoff of Kindle can't be seen from outside, so the warm cabin looks exactly like the cold one. I did not reach the back (hearth-side) wall itself, but a stack on that gable should rise above the ridge. Expected a chimney through the roof with smoke once the fire takes hold.",
-      "repro": "pt start (s04 save); finish Kindle; walk out the door; pt hold a 4; pt hold w 4; face the hearth bearing; look at the roof",
-      "screenshot": "shots/no_chimney_outside.png",
-      "tick": 35132
-    },
-    {
-      "severity": "minor",
-      "category": "bug",
-      "title": "Ada sits turned sideways in the rocking chair, the armrest clipping through her",
-      "detail": "After Welcome, Ada Lark in the rocking chair by the hearth is rotated about 90 degrees from the chair. The quilted chair back is at her side rather than behind her, the near armrest runs through her lap and her skirt pokes out past the rockers (see also shots/ada7.png). Expected her to face the way the chair faces, with her back against the quilt.",
-      "repro": "pt start; finish Kindle and Welcome; from the hearth front, step right and pt face 60, tilt down a little",
-      "screenshot": "shots/ada_sideways.png",
-      "tick": 32145
-    },
-    {
-      "severity": "minor",
-      "category": "ux",
-      "title": "Ada arrives and settles out of sight, and the reveal cuts in before you can turn to see her",
-      "detail": "The fire took hold at tick 28337 ('Ada's wagon is coming up the trail'). 'Ada Lark is here' followed at 28491, she was already 'seated' by about 28780, and the REVEAL took over at 29100, about 25 game seconds in all. I was facing the fire, then the room. I saw her lines as subtitles ('This is home. Thank you.') but never saw her walk in or sit down before the reveal started. Nothing on screen prompts you to turn and greet her. Expected her arrival to be something you can watch (a prompt, a camera beat, or a wait for the player to look) before the reveal.",
-      "repro": "pt start; light the fire facing the hearth; pt face 180 as soon as 'Ada's wagon is coming' shows",
-      "screenshot": "shots/ar3.png",
-      "tick": 28974
-    },
-    {
-      "severity": "minor",
-      "category": "ux",
-      "title": "Woodpile beside the hearth needs a near-exact aim; E with a split log at the hearth does nothing",
-      "detail": "While carrying a split log, pressing E with the crosshair on the hearth, the chimney or the floor next to the rack only repeats 'Stack it on the woodpile by the hearth, or lay it in the hearth (E)'. The woodpile is a thin rack of posts tucked against the chimney's left side, and its 2 stacked logs are tiny stubs that barely show. The label 'Woodpile (2 logs)' appears only across a few degrees of yaw, and it reads 'not in reach' unless you stand right over it in the corner. Stacking one log took about 4 real minutes of hunting (ticks 9534 to 14086). Expected E with a log near the hearth to snap to the woodpile, the way debris gets about 12 degrees of forgiveness, and the stacked logs to be clearly visible.",
-      "repro": "pt start (save carries a split log); pt walkto hearth; pt key e (nothing); try aiming at the rack left of the chimney",
-      "screenshot": "shots/woodpile_aim.png",
-      "tick": 12054
-    },
-    {
-      "severity": "minor",
       "category": "text",
-      "title": "Welcome checklist (Ada's brief) runs to mid-screen and collides with the centre aim label",
-      "detail": "Once the fire takes hold, the HUD checklist grows to 9 lines (STEP: Welcome plus ADA'S BRIEF). Its last line, 'Something of home on the walls', lands on the centre aim label 'The fire' and covers the top half of the hearth, with two status lines stacked under the crosshair as well. It stays like this through the arrival. Expected the brief to collapse or the HUD to keep the centre clear.",
-      "repro": "pt start; light the fire while facing the hearth; take a shot as the fire takes hold",
-      "screenshot": "shots/checklist_overlap_fire.png",
-      "tick": 28596
+      "title": "Toast after laying kindling tells you to lay a log that is already on the andirons",
+      "detail": "With the split log already laid (checklist ticked), laying the kindling shows 'Kindling laid. Now a split log or two on the andirons.' The next step is actually to strike a match. Expected the toast to follow the checklist and point to the matches (8, hold).",
+      "repro": "pt start (s04 save); pick up Kindling beside the chopping block (E); carry it in through the door; stand ~1m from hearth, aim at 'Clean hearth', E",
+      "screenshot": "shots/laid_msg.png",
+      "tick": 15089
     },
     {
       "severity": "minor",
       "category": "ux",
-      "title": "The mare reads as 'Stall' when aimed at, and walkto mare sticks on the fence",
-      "detail": "At the stall fence with the crosshair on the mare's body, the label reads 'Stall' with no hint, so you can't tell she can be tended (curry comb 9). The game says she is hungry ('The mare nickers at you, hopefully. She's hungry.'), but nothing visible tells you how to feed her. pt walkto mare stops 2.8 m away, stuck. Expected 'Mare' and a hint when aimed at her.",
-      "repro": "pt start; after Done, pt walkto mare; pt hold Up 0.4; read the centre label",
-      "screenshot": "shots/mare_stall_label.png",
-      "tick": 33308
+      "title": "Restoration playback never shows the payoff: player blocks the lit fire and Ada is not yet seated",
+      "detail": "The reveal (auto, and again with T) ends on a 12:00 'Welcome' frame where the player's own avatar stands right in front of the burning hearth, hiding the fire, and the rocking chair is empty (Ada sat down at ~12:03). In the auto reveal one frame (10:20 Furnish) had the camera inside the player's top hat, which fills the lower third. Expected the last frame to be the warm room with the fire visible and Ada in her chair, with the player avatar out of shot.",
+      "repro": "Finish Kindle; wait for REVEAL (or press T afterwards); screenshot each frame",
+      "screenshot": "shots/replay_grid.png",
+      "tick": 17070
+    },
+    {
+      "severity": "minor",
+      "category": "ux",
+      "title": "Chimney shows no smoke or glow from outside once the fire is lit",
+      "detail": "With hearthLit true, the chimney seen from outside is a plain dark grey box: no smoke, sparks or warm glow, so nothing outdoors says the hearth is lit. A thin dashed sliver also sticks out past the right roof eave in the same view, and the 'Log wall, outside' aim label appears from ~10 m away over the scene.",
+      "repro": "After the fire takes hold, walk out the door and round the cabin to the hearth end; look up at the chimney",
+      "screenshot": "shots/chimney_nosmoke.png",
+      "tick": 19849
     },
     {
       "severity": "polish",
       "category": "ux",
-      "title": "Restoration playback ends with the player avatar blocking the lit fire and Ada hidden by the quilt",
-      "detail": "The reveal and the T playback end on the finished, firelit cabin, but the player's own figure stands on the rug directly in front of the hearth and hides the new fire. Ada in the chair shows only as a purple skirt because the quilt hides her upper body. This is the game's payoff shot. Expected the final frame to leave the hearth and Ada clear, for example by hiding the avatar or moving the camera. See shots/replay_grid.png (frames from the T playback) and shots/reveal_grid.png (the automatic reveal).",
-      "repro": "pt start; finish Kindle and Welcome; pt key t; screenshot every 2-3 s",
-      "screenshot": "shots/t10.png",
-      "tick": 30108
-    },
-    {
-      "severity": "polish",
-      "category": "text",
-      "title": "Aim label 'The fire' is drawn over the flames",
-      "detail": "Looking at the lit hearth, the label 'The fire' sits right on top of the flames and hides the fire the player has just lit (also in shots/f1.png). Expected the label below the crosshair, or faded once the fire is lit.",
-      "repro": "pt start; light the fire; face the hearth at about -20 pitch",
-      "screenshot": "shots/fire_label_overlap.png",
-      "tick": 28274
-    },
-    {
-      "severity": "polish",
-      "category": "text",
-      "title": "Light checklist text is hard to read over the pale chimney stones",
-      "detail": "Facing the hearth up close, the checklist's white and grey text in the top-left lies directly over light-grey stone, and the unchecked lines ('[ ] Lay kindling in the hearth') nearly disappear. There is no backing panel or outline. Expected a dark backdrop or outline behind the HUD text.",
-      "repro": "pt start; pt walkto hearth; take a shot",
-      "screenshot": "shots/h1.png",
-      "tick": 9534
+      "title": "Seated Ada is labelled 'Rocking chair'; quilt stands edge-on through the chair back",
+      "detail": "Aiming at Ada in her chair labels her 'Rocking chair' (and 'Floorboards' when slightly off), with the label drawn across her body. Her quilt shows as a thin vertical striped slab standing up behind her shoulder, clipping the chair back rather than draped over it. Her face has no detail at all.",
+      "repro": "After Welcome, stand 2-3 m from the rocking chair by the hearth and aim at Ada",
+      "screenshot": "shots/ada_chair.png",
+      "tick": 17567
     },
     {
       "severity": "polish",
       "category": "ux",
-      "title": "Releasing the match silently resets its progress to 0%",
-      "detail": "Holding the match to the kindling for 2 s and then 4 s gave 35% and 70%, but between holds 'The match goes out' and the meter went back to 0%. At 3-4 fps it took one unbroken hold of about 10 s to catch. The message is clear, but the cost of letting go is steep with nothing to warn you. Polish only.",
-      "repro": "pt key 8; pt mousehold 2; pt mousehold 4; read the meter; pt mousehold 10",
-      "screenshot": "shots/m3.png",
-      "tick": 27616
+      "title": "Checklist lines alternate between two font sizes; 'Ada arrives' ticked before she arrives",
+      "detail": "Checklist and Ada's brief lines render in two different sizes/weights in no clear pattern (e.g. '[x] Shovel out the old ash' and '[x] Lay a split log' large, other lines small). Right after the fire takes hold 'Ada arrives' is already ticked while the toast says her wagon is still coming up the trail.",
+      "repro": "pt start; look at the checklist in the top left; light the fire and screenshot at once",
+      "screenshot": "shots/checklist_fonts.png",
+      "tick": 16132
     },
     {
       "severity": "polish",
-      "category": "text",
-      "title": "Build reports version 0.1.2 in the 0.2.0 playtest",
-      "detail": "Both state.json and session.json report version 0.1.2 (commit 7ecf1fe), although this run is labelled kindling 0.2.0. Either the version string was not bumped or the wrong build is under test.",
-      "repro": "pt start; pt state --full | grep version",
+      "category": "ux",
+      "title": "Camera clips into the mare when standing in reach of her",
+      "detail": "Within reach (~1.5 m) the camera is inside the mare's neck/head, so a dark grey slab fills the left of the screen (shots/mare1.png). From ~3 m she looks fine (shots/mare2.png).",
+      "repro": "pt walkto mare; pt shot",
+      "screenshot": "shots/mare1.png",
+      "tick": 20500
+    },
+    {
+      "severity": "polish",
+      "category": "ux",
+      "title": "Carried kindling is not shown in hand; probe calls it 'firewood'",
+      "detail": "While carrying the kindling, only the bottom-line text says so; no bundle shows in the first-person view. state.json player.carrying reports 'firewood' while the screen says 'Carrying kindling'. The kindling bundle also needed a fairly exact aim: E with it ~15 degrees below the crosshair said 'Nothing to pick up there'.",
+      "repro": "Walk to chopping block; aim at the Kindling bundle on the ground; E",
+      "screenshot": "shots/carry_kindling.png",
+      "tick": 12086
+    },
+    {
+      "severity": "minor",
+      "category": "perf",
+      "title": "Game ran at 1-3 fps / 8-17 tps on the loaded machine",
+      "detail": "Software renderer on a shared machine; turning and holds overshot, and walkto into the hearth ran into walls (it does not path through the door). Logged once as requested.",
+      "repro": "pt status during play",
       "screenshot": "shots/start.png",
-      "tick": 8974
+      "tick": 9524
     }
   ],
   "metrics": {
     "objectivesCompleted": 2,
     "deaths": 0,
-    "secondsToObjective": {"Kindle": 944.6, "Welcome": 970.0},
-    "kindleTicksTaken": 19433,
+    "secondsToObjective": {"Kindle": 533.1, "Welcome": 558.5},
+    "kindleTicksTaken": 6692,
     "welcomeTicksTaken": 763,
-    "realSecondsToStackOneLog": 240,
-    "revealWallSeconds": 34,
-    "matchAttemptsBeforeCatch": 3
+    "fireCatchToHoldSec": 15.6
   },
-  "fun": 3,
-  "verdict": "The Kindle loop works end to end: split, stack, lay kindling and a log, strike and hold a match, and the cabin really does warm up, with lovely orange firelight on the stones and walls. The weak spots are aiming at small targets (the woodpile above all) and the payoff. Ada arrives and sits down off-screen in about 25 seconds before the reveal cuts in, she sits sideways in her chair, the player avatar blocks the fire in the final frame, and outside there is no chimney or smoke to show the cabin is lived in. Fixing the arrival and the closing shot would make the ending land."
+  "fun": 4,
+  "verdict": "The Kindle finale works and feels good: kindling, the match you hold until it catches, and a fire that grows over ~15 s are a cozy payoff, and the room with rug, quilt, candles and curtains reads well in the replay. The save already had the firewood split and stacked and the log laid, so only kindling and the match were left to do. The weak spots are presentation: the replay's last frame hides the fire behind the player and misses Ada seated, the chimney gives no sign of the fire from outside, and one toast tells you to lay a log you already laid."
 }

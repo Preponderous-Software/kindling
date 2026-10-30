@@ -2,7 +2,7 @@
   "session": "s02",
   "dir": "s02",
   "profile": "kindling",
-  "display": ":101",
+  "display": ":109",
   "window": "6291475",
   "size": "640x360",
   "seed": "77",
@@ -22,11 +22,11 @@
   ],
   "probe": true,
   "ticksPerSecond": 30,
-  "startedAtMs": 1793283030578,
+  "startedAtMs": 1793317613267,
   "version": "0.1.2",
-  "commit": "7ecf1fe",
+  "commit": "2af0a33",
   "dirty": false,
-  "builtAtMs": 1793282598591,
+  "builtAtMs": 1793316012861,
   "buildWarnings": [],
   "driver": "x11"
 }

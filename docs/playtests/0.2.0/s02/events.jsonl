@@ -1,54 +1,11 @@
-{"type":"world","tick":0,"wallTimeMs":1793283028229,"how":"created","seed":77}
-{"type":"screen","tick":0,"wallTimeMs":1793283028230,"from":null,"to":"WORLD"}
-{"type":"status","tick":1977,"wallTimeMs":1793283115907,"text":"You've seen the worst of it. Time to clear the place out."}
-{"type":"objective_completed","tick":1977,"wallTimeMs":1793283115907,"number":1,"id":"Survey","title":"Survey","ticksTaken":1977}
-{"type":"save","tick":3601,"wallTimeMs":1793283292499,"count":1}
-{"type":"status","tick":4217,"wallTimeMs":1793283336865,"text":"Sawn into three lengths, each light enough to carry: three pieces to haul out instead of one."}
-{"type":"status","tick":5110,"wallTimeMs":1793283377221,"text":"Tossed out the door: a length of rafter. 16 pieces left inside."}
-{"type":"status","tick":5631,"wallTimeMs":1793283397262,"text":"Tossed out the door: a broken board. 15 pieces left inside."}
-{"type":"status","tick":5992,"wallTimeMs":1793283411814,"text":"Tossed out the door: a broken board. 14 pieces left inside."}
-{"type":"status","tick":6368,"wallTimeMs":1793283427906,"text":"Tossed out the door: a broken board. 13 pieces left inside."}
-{"type":"status","tick":6590,"wallTimeMs":1793283436234,"text":"Nothing to pick up there."}
-{"type":"save","tick":7206,"wallTimeMs":1793283458008,"count":2}
-{"type":"status","tick":7213,"wallTimeMs":1793283458230,"text":"Tossed out the door: a broken board. 12 pieces left inside."}
-{"type":"status","tick":7422,"wallTimeMs":1793283465548,"text":"Nothing to pick up there."}
-{"type":"status","tick":7634,"wallTimeMs":1793283472923,"text":"Nothing to pick up there."}
-{"type":"status","tick":8356,"wallTimeMs":1793283497828,"text":"Tossed out the door: a broken board. 11 pieces left inside."}
-{"type":"status","tick":8572,"wallTimeMs":1793283505146,"text":"Nothing to pick up there."}
-{"type":"status","tick":8613,"wallTimeMs":1793283506629,"text":"Nothing to pick up there."}
-{"type":"status","tick":8832,"wallTimeMs":1793283513875,"text":"Nothing to pick up there."}
-{"type":"status","tick":9045,"wallTimeMs":1793283520961,"text":"Nothing to pick up there."}
-{"type":"status","tick":9089,"wallTimeMs":1793283522469,"text":"Nothing to pick up there."}
-{"type":"status","tick":9286,"wallTimeMs":1793283529048,"text":"Nothing to pick up there."}
-{"type":"status","tick":9489,"wallTimeMs":1793283535812,"text":"Nothing to pick up there."}
-{"type":"status","tick":9534,"wallTimeMs":1793283537343,"text":"Nothing to pick up there."}
-{"type":"status","tick":9754,"wallTimeMs":1793283544682,"text":"Nothing to pick up there."}
-{"type":"status","tick":9954,"wallTimeMs":1793283551399,"text":"Too far to reach. Step closer."}
-{"type":"status","tick":9992,"wallTimeMs":1793283552676,"text":"Too far to reach. Step closer."}
-{"type":"status","tick":10206,"wallTimeMs":1793283560727,"text":"Nothing to pick up there."}
-{"type":"status","tick":10394,"wallTimeMs":1793283567069,"text":"Nothing to pick up there."}
-{"type":"status","tick":10439,"wallTimeMs":1793283568598,"text":"Nothing to pick up there."}
-{"type":"status","tick":10647,"wallTimeMs":1793283575632,"text":"Nothing to pick up there."}
-{"type":"save","tick":10809,"wallTimeMs":1793283581033,"count":3}
-{"type":"status","tick":11159,"wallTimeMs":1793283592682,"text":"Nothing to pick up there."}
-{"type":"status","tick":12079,"wallTimeMs":1793283625320,"text":"Tossed out the door: a broken board. 10 pieces left inside."}
-{"type":"status","tick":12545,"wallTimeMs":1793283641036,"text":"Tossed out the door: a fallen shingle. 9 pieces left inside."}
-{"type":"status","tick":13127,"wallTimeMs":1793283660774,"text":"Tossed out the door: a fallen shingle. 8 pieces left inside."}
-{"type":"status","tick":13729,"wallTimeMs":1793283681262,"text":"Tossed out the door: a length of rafter. 7 pieces left inside."}
-{"type":"status","tick":14395,"wallTimeMs":1793283704759,"text":"Tossed out the door: a length of rafter. 6 pieces left inside."}
-{"type":"save","tick":14415,"wallTimeMs":1793283705489,"count":4}
-{"type":"status","tick":15053,"wallTimeMs":1793283727525,"text":"Tossed out the door: a fallen shingle. 5 pieces left inside."}
-{"type":"status","tick":15529,"wallTimeMs":1793283744591,"text":"Tossed out the door: a fallen shingle. 4 pieces left inside."}
-{"type":"status","tick":16058,"wallTimeMs":1793283763337,"text":"Tossed out the door: a broken board. 3 pieces left inside."}
-{"type":"status","tick":16657,"wallTimeMs":1793283784500,"text":"Tossed out the door: a fallen shingle. 2 pieces left inside."}
-{"type":"status","tick":16926,"wallTimeMs":1793283794020,"text":"Nothing to pick up there."}
-{"type":"status","tick":17829,"wallTimeMs":1793283826662,"text":"Tossed out the door: a broken board. One piece left inside."}
-{"type":"save","tick":18018,"wallTimeMs":1793283834426,"count":5}
-{"type":"status","tick":18438,"wallTimeMs":1793283859588,"text":"Tossed out the door: a broken board. That's the last of it."}
-{"type":"status","tick":19622,"wallTimeMs":1793283907289,"text":"The snow is out. Patch that hole before the next fall."}
-{"type":"save","tick":21619,"wallTimeMs":1793283983311,"count":6}
-{"type":"save","tick":25222,"wallTimeMs":1793284116273,"count":7}
-{"type":"save","tick":28826,"wallTimeMs":1793284290684,"count":8}
-{"type":"save","tick":32428,"wallTimeMs":1793284472877,"count":9}
-{"type":"status","tick":33205,"wallTimeMs":1793284518272,"text":"The chimney stones are clean."}
-{"type":"save","tick":36028,"wallTimeMs":1793284619497,"count":10}
+{"type":"world","tick":0,"wallTimeMs":1793317611117,"how":"created","seed":77}
+{"type":"screen","tick":0,"wallTimeMs":1793317611118,"from":null,"to":"WORLD"}
+{"type":"status","tick":2149,"wallTimeMs":1793317840850,"text":"You've seen the worst of it. Time to clear the place out."}
+{"type":"objective_completed","tick":2149,"wallTimeMs":1793317840850,"number":1,"id":"Survey","title":"Survey","ticksTaken":2149}
+{"type":"save","tick":3605,"wallTimeMs":1793318033877,"count":1}
+{"type":"status","tick":3969,"wallTimeMs":1793318089063,"text":"Sawn into three lengths, each light enough to carry: three pieces to haul out instead of one."}
+{"type":"status","tick":4725,"wallTimeMs":1793318205155,"text":"Too far to reach. Step closer."}
+{"type":"status","tick":5327,"wallTimeMs":1793318289621,"text":"Tossed out the door: a fallen shingle. 16 pieces left inside."}
+{"type":"save","tick":7210,"wallTimeMs":1793318526773,"count":2}
+{"type":"save","tick":10815,"wallTimeMs":1793318812811,"count":3}
+{"type":"status","tick":11536,"wallTimeMs":1793318877500,"text":"The snow is out. Patch that hole before the next fall."}

@@ -1,45 +1,24 @@
-{"type":"world","tick":4649,"wallTimeMs":1793283028665,"how":"loaded","seed":1}
-{"type":"screen","tick":4649,"wallTimeMs":1793283028666,"from":null,"to":"WORLD"}
-{"type":"status","tick":6932,"wallTimeMs":1793283134059,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
-{"type":"status","tick":7373,"wallTimeMs":1793283246012,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
-{"type":"status","tick":7772,"wallTimeMs":1793283267464,"text":"Tossed out the door: a broken board. One piece left inside."}
-{"type":"status","tick":8094,"wallTimeMs":1793283283704,"text":"Nothing to pick up there."}
-{"type":"save","tick":8255,"wallTimeMs":1793283291715,"count":1}
-{"type":"status","tick":8290,"wallTimeMs":1793283293547,"text":"Nothing to pick up there."}
-{"type":"status","tick":9051,"wallTimeMs":1793283341759,"text":"Tossed out the door: a broken board. That's the last of it."}
-{"type":"status","tick":10927,"wallTimeMs":1793283423294,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
-{"type":"status","tick":11025,"wallTimeMs":1793283427626,"text":"Nothing to pick up there."}
-{"type":"status","tick":11668,"wallTimeMs":1793283452244,"text":"Tossed out the door: a broken board. That's the last of it."}
-{"type":"save","tick":11855,"wallTimeMs":1793283459066,"count":2}
-{"type":"status","tick":12304,"wallTimeMs":1793283474443,"text":"Nothing to pick up there."}
-{"type":"status","tick":14930,"wallTimeMs":1793283563281,"text":"A new board, pale against the old. It will darken with the years."}
-{"type":"save","tick":15456,"wallTimeMs":1793283581056,"count":3}
-{"type":"status","tick":15495,"wallTimeMs":1793283582338,"text":"A new board, pale against the old. It will darken with the years."}
-{"type":"status","tick":16311,"wallTimeMs":1793283610985,"text":"A new board, pale against the old. It will darken with the years."}
-{"type":"status","tick":17094,"wallTimeMs":1793283637335,"text":"Light comes through the gap."}
-{"type":"status","tick":18326,"wallTimeMs":1793283678941,"text":"Light comes through the gap."}
-{"type":"status","tick":18654,"wallTimeMs":1793283690324,"text":"Light comes through the gap."}
-{"type":"status","tick":18981,"wallTimeMs":1793283701859,"text":"Daylight floods in. Haul the boards out with the rest."}
-{"type":"save","tick":19060,"wallTimeMs":1793283704653,"count":4}
-{"type":"status","tick":19715,"wallTimeMs":1793283729421,"text":"Tossed out the door: a broken board. 3 pieces left inside."}
-{"type":"status","tick":20050,"wallTimeMs":1793283742780,"text":"Nothing to pick up there."}
-{"type":"status","tick":20127,"wallTimeMs":1793283745924,"text":"You set the table back on its legs."}
-{"type":"status","tick":20952,"wallTimeMs":1793283779741,"text":"Nothing to pick up there."}
-{"type":"status","tick":21371,"wallTimeMs":1793283797142,"text":"Tossed out the door: a broken board. 2 pieces left inside."}
-{"type":"status","tick":21756,"wallTimeMs":1793283813937,"text":"Nothing to pick up there."}
-{"type":"status","tick":22183,"wallTimeMs":1793283833363,"text":"Tossed out the door: a broken board. One piece left inside."}
-{"type":"save","tick":22666,"wallTimeMs":1793283863147,"count":5}
-{"type":"status","tick":22708,"wallTimeMs":1793283865051,"text":"Nothing to pick up there."}
-{"type":"status","tick":23219,"wallTimeMs":1793283887705,"text":"Tossed out the door: a broken board. That's the last of it."}
-{"type":"status","tick":25161,"wallTimeMs":1793283968735,"text":"One more section patched."}
-{"type":"status","tick":26060,"wallTimeMs":1793283999803,"text":"One more section patched."}
-{"type":"save","tick":26270,"wallTimeMs":1793284006926,"count":6}
-{"type":"status","tick":26533,"wallTimeMs":1793284015658,"text":"One more section patched."}
-{"type":"status","tick":27029,"wallTimeMs":1793284032211,"text":"The roof is whole again."}
-{"type":"status","tick":28453,"wallTimeMs":1793284084619,"text":"The rocking chair is sound again."}
-{"type":"status","tick":28453,"wallTimeMs":1793284084619,"text":"Sound again. Now make it a home: bring things in from the wagon."}
-{"type":"objective_completed","tick":28453,"wallTimeMs":1793284084619,"number":3,"id":"Repair","title":"Repair","ticksTaken":23804}
-{"type":"save","tick":29874,"wallTimeMs":1793284156307,"count":7}
-{"type":"save","tick":33477,"wallTimeMs":1793284311183,"count":8}
-{"type":"save","tick":36237,"wallTimeMs":1793284434220,"count":9}
-{"type":"status","tick":36237,"wallTimeMs":1793284434220,"text":"Saved."}
+{"type":"world","tick":4649,"wallTimeMs":1793317829072,"how":"loaded","seed":1}
+{"type":"screen","tick":4649,"wallTimeMs":1793317829075,"from":null,"to":"WORLD"}
+{"type":"status","tick":7358,"wallTimeMs":1793318148323,"text":"The rocking chair is sound again."}
+{"type":"save","tick":8254,"wallTimeMs":1793318276375,"count":1}
+{"type":"status","tick":8933,"wallTimeMs":1793318355034,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":9640,"wallTimeMs":1793318474917,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":11089,"wallTimeMs":1793318622886,"text":"Tossed out the door: a broken board. One piece left inside."}
+{"type":"status","tick":11705,"wallTimeMs":1793318677008,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"save","tick":11859,"wallTimeMs":1793318690678,"count":2}
+{"type":"status","tick":13455,"wallTimeMs":1793318814766,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":13735,"wallTimeMs":1793318841043,"text":"The rotten board comes up. Haul it out, then lay a new plank."}
+{"type":"status","tick":13798,"wallTimeMs":1793318845887,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":14869,"wallTimeMs":1793318928813,"text":"A new board, pale against the old. It will darken with the years."}
+{"type":"status","tick":15275,"wallTimeMs":1793318963765,"text":"Nothing to pick up there."}
+{"type":"status","tick":15443,"wallTimeMs":1793318977381,"text":"Nothing to pick up there."}
+{"type":"save","tick":15464,"wallTimeMs":1793318979037,"count":3}
+{"type":"status","tick":16276,"wallTimeMs":1793319051848,"text":"Tossed out the door: a broken board. That's the last of it."}
+{"type":"status","tick":16920,"wallTimeMs":1793319107808,"text":"Light comes through the gap."}
+{"type":"status","tick":16990,"wallTimeMs":1793319114487,"text":"Light comes through the gap."}
+{"type":"status","tick":17487,"wallTimeMs":1793319148182,"text":"Light comes through the gap."}
+{"type":"status","tick":18117,"wallTimeMs":1793319192926,"text":"Daylight floods in. Haul the boards out with the rest."}
+{"type":"save","tick":19069,"wallTimeMs":1793319259002,"count":4}
+{"type":"save","tick":21904,"wallTimeMs":1793319491483,"count":5}
+{"type":"status","tick":21904,"wallTimeMs":1793319491483,"text":"Saved."}
