@@ -90,6 +90,7 @@ bool placementFor(const World& w, ItemKind kind, const Aim& aim, float yaw, Pose
         case Anchor::Floor: {
             const bool onFloor = aim.kind == TargetKind::Floor ||
                                  (aim.kind == TargetKind::RottenPlank && aim.index >= 0 &&
+                                  static_cast<size_t>(aim.index) < w.planks.size() &&
                                   w.planks[static_cast<size_t>(aim.index)] == PlankState::New);
             if (!onFloor || !L::kInterior.contains(p.x, p.z)) return false;
             out = {{p.x, L::kFloorY, p.z}, yaw};

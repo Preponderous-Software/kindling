@@ -123,6 +123,13 @@ int main() {
         laid.planks[0] = PlankState::New;
         CHECK(placementFor(laid, ItemKind::Rug, aimAt(TargetKind::RottenPlank, 0, onPlank), yaw, p));
         CHECK(p.pos.y == L::kFloorY);
+        // A board index past the last one is no board at all. The window boards sit
+        // just after the planks, so one set to New's value would pass for a laid board
+        // if the index were not checked.
+        laid.windowBoards[0] = static_cast<int32_t>(PlankState::New);
+        p = kUntouched;
+        CHECK(!placementFor(laid, ItemKind::Rug, aimAt(TargetKind::RottenPlank, 3, onPlank), yaw, p));
+        CHECK(untouched(p));
     }
 
     // ---- the mantel: on the shelf or the stones just above it, set square to the room
