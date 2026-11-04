@@ -168,8 +168,8 @@ as a thin delta layer over them (steading's model), is the plan after the MVP.
 
 ## Replays and the reveal
 
-Every restoration is recorded as it happens with usd-recorder's dependency-free C++ writer
-(`cpp/include/usd_recorder/replay_writer.hpp`) in the
+Every restoration is recorded as it happens, and exported with usd-recorder's dependency-free C++
+writer (`cpp/include/usd_recorder/replay_writer.hpp`) in the
 [`usd-replay/1`](https://github.com/Preponderous-Software/usd-recorder/blob/1aae66d/docs/REPLAY.md)
 layout:
 
@@ -196,8 +196,8 @@ of play and at every step change, and saved with the game.
 
 The restore prototype ([`prototypes/restore-replay`](prototypes/README.md)) writes such a replay
 for the hearth room. It validates against the contract and plays in usd-web. It records more than
-the game does: window boards and firewood as entity sets, the step, floor holes, dusty cells and
-warmth as stats, and its own room fingerprint as the state hash.
+the game does (window boards and firewood as entity sets; the step, floor holes, dusty cells and
+warmth as stats), and its state hash is its own room fingerprint.
 
 ## Builds and platforms
 
