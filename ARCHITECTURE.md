@@ -168,18 +168,18 @@ as a thin delta layer over them (steading's model), is the plan after the MVP.
 
 ## Replays and the reveal
 
-Every restoration is recorded as it happens with usd-recorder's dependency-free C++ writer
-(`cpp/include/usd_recorder/replay_writer.hpp`) in the
+Every restoration is recorded as it happens, and exported with usd-recorder's dependency-free C++
+writer (`cpp/include/usd_recorder/replay_writer.hpp`) in the
 [`usd-replay/1`](https://github.com/Preponderous-Software/usd-recorder/blob/1aae66d/docs/REPLAY.md)
 layout:
 
 | Replay part | What Kindling writes |
 |---|---|
-| Entity sets | the player, settlers, debris, window boards, furniture, firewood, flames |
-| Field | the floor, one colour per 25 cm cell: dusty, clean, hole, snow, new plank, rug, firelight |
-| Scene | static walls, chimney and mantel |
-| Stats | step, debris left, floor holes, dusty cells, roof patched, items furnished, warmth |
-| State hash | the simulation's own fingerprint at every sample |
+| Entity sets | the player, Ada, the debris still indoors, furnishings (with the mended chair and the righted table), flames |
+| Field | the floor, one colour per 25 cm cell: dusty, clean, hearthstone, rotten plank, gap, new plank, snow, rug, firelight |
+| Scene | static cut-away log walls and the chimney breast |
+| Stats | debris left, roof sections patched, items furnished, fire |
+| State hash | a hash of the exported keyframe at every sample, not the World's fingerprint |
 
 As implemented: the World keeps a history of keyframes, a snapshot of what can be seen (grime at
 half resolution, debris, repairs, furnishings, the hearth, Ada, the player) taken every ten seconds
@@ -195,7 +195,9 @@ of play and at every step change, and saved with the game.
    (`export-frame FNV-1a 64`), which the contract allows.
 
 The restore prototype ([`prototypes/restore-replay`](prototypes/README.md)) writes such a replay
-for the hearth room. It validates against the contract and plays in usd-web.
+for the hearth room. It validates against the contract and plays in usd-web. It records more than
+the game does (window boards and firewood as entity sets; the step, floor holes, dusty cells and
+warmth as stats), and its state hash is its own room fingerprint.
 
 ## Builds and platforms
 

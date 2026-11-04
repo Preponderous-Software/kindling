@@ -139,7 +139,8 @@ images.
   OpenUSD (`modules/usd`) or deterministic simulation pieces (`strata::sim`): Kindling has its own
   save file and simulation core (see [ARCHITECTURE.md](ARCHITECTURE.md#saves)).
 - [usd-recorder](https://github.com/Preponderous-Software/usd-recorder): its C++ replay writer
-  records each restoration for the reveal timelapse.
+  turns a finished restoration into a replay file on the desktop. The reveal in the game plays from
+  keyframes in the save, not from that file.
 - [usd-web](https://github.com/Preponderous-Software/usd-web): plays those replays in a browser.
 
 [steading](https://github.com/Preponderous-Software/steading), a colony sim on the same engine, is
