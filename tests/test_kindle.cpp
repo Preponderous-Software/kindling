@@ -2,6 +2,9 @@
 // shovelled out, the fire is laid and lit by holding a match to it (letting go
 // too soon puts the match out), it grows and burns its fuel down, the candle
 // takes a flame, and the clock runs from morning into the first frost.
+#include <string>
+#include <utility>
+
 #include "check.h"
 #include "sim/layout.h"
 #include "sim/progress.h"
@@ -89,6 +92,29 @@ int main() {
         bool told = false;
         for (const std::string& m : ev.messages) told = told || m.find("Too far") != std::string::npos;
         CHECK(told);
+    }
+
+    // ---- the kindling's message follows the hearth: a log already laid means
+    // the match is next, none means the log is
+    {
+        const auto kindlingSays = [](int32_t logsLaid) {
+            World w = newWorld(9);
+            w.hearth.ash = 0.0f;
+            w.hearth.logsLaid = logsLaid;
+            w.wood.kindlingByBlock = 1;
+            press(w, aimAt(TargetKind::Kindling));
+            TickEvents ev;
+            press(w, aimAt(TargetKind::Firebox), &ev);
+            CHECK(w.hearth.kindlingLaid && w.carry == Carry::Nothing);
+            bool match = false, log = false;
+            for (const std::string& m : ev.messages) {
+                match = match || m.find("Strike a match") != std::string::npos;
+                log = log || m.find("split log") != std::string::npos;
+            }
+            return std::make_pair(match, log);
+        };
+        CHECK(kindlingSays(1) == std::make_pair(true, false));
+        CHECK(kindlingSays(0) == std::make_pair(false, true));
     }
 
     // ---- laying and lighting the fire
