@@ -242,8 +242,8 @@ A harness can also drive the game through Strata's drive channel (Strata `docs/D
 playtester's `kindling-strata` profile): with `STRATA_DRIVE` set, input is injected through the
 engine and the frame time comes from `engine.frameSeconds()`. `STRATA_DRIVE_SURFACE=headless` also
 turns the window into a headless surface, and with `STRATA_DRIVE_CLOCK=stepped` a harness gets the
-same frames on every run. A driven game reads
-and writes no save and no replay file (it prints "driven by a test harness" when it starts).
+same frames on every run. A driven game reads and writes no save and no replay file (it prints
+"driven by a test harness" when it starts).
 
 ## Layout
 

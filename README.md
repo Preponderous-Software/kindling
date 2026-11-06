@@ -16,8 +16,9 @@ furnish it from the wagon against Ada's brief, and kindle the hearth (split the 
 out the ash, lay the fire and hold a match to it until it catches). The day runs from nine in the
 morning on 11 November, and the first frost settles at eight that evening. Once the fire is burning,
 at whatever hour that is, Ada Lark walks up from her wagon, tells you what she thinks of what you
-made for her, and sits down by the fire, and the whole restoration plays back as a timelapse. Your mare waits in her stall to be fed and brushed. The game saves as you go. What
-comes after the MVP is in [CONCEPT.md](CONCEPT.md).
+made for her, and sits down by the fire, and the whole restoration plays back as a timelapse. Your
+mare waits in her stall to be fed and brushed. The game saves as you go. What comes after the MVP
+is in [CONCEPT.md](CONCEPT.md).
 
 ![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from nine in the morning to the hearth lit before noon, with Ada in the rocking chair](docs/images/reveal.gif)
 
@@ -87,9 +88,10 @@ simulation and its tests, with no engine.
 little, without a window, and writes a screenshot at each stop. `kindling --autopilot` hands the
 controls to an autopilot that plays the whole restoration (add `--speed N` to watch it fast);
 `kindling --headless --autopilot --frames DIR --reveal-frames DIR --replay run.usda` does it
-without a window, writing frames, the reveal and the replay. CI runs both. `kindling --headless
---closeups DIR` writes close-ups of Ada, the mare, the chair, the table and the hearth, with no
-HUD, for checking the art. `--playtest-out DIR` writes what the player sees to `DIR/state.json` and `DIR/events.jsonl` for AI playtesting agents
+without a window, writing frames, the reveal and the replay. CI runs both.
+`kindling --headless --closeups DIR` writes close-ups of Ada, the mare, the chair, the table and
+the hearth, with no HUD, for checking the art. `--playtest-out DIR` writes what the player sees to
+`DIR/state.json` and `DIR/events.jsonl` for AI playtesting agents
 ([ARCHITECTURE.md](ARCHITECTURE.md#playtesting-by-agents)).
 
 ## The idea
