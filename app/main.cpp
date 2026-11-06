@@ -4,13 +4,13 @@
 //            [--playtest-out DIR]
 //   kindling --headless --tour --frames DIR [--width W --height H]
 //   kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR] [--replay PATH]
-//   kindling --headless --closeups DIR
 //            [--playtest-out DIR]
+//   kindling --headless --closeups DIR
 //
 // --playtest-out DIR writes state.json and events.jsonl for AI playtesters
 // (src/playtest/probe.h).
 //
-// Controls: mouse to look, W A S D to walk, Shift to hurry, 1-8 to take a tool
+// Controls: mouse to look, W A S D to walk, Shift to hurry, 1-9 to take a tool
 // (` for bare hands), hold the left button to work, E to pick up or put down,
 // R to turn what you carry, L for the lantern, F1 for help, Esc to free the
 // mouse (Esc again quits). --tour plays a short
@@ -110,7 +110,8 @@ void usage() {
               "                [--replay PATH] [--playtest-out DIR]\n"
               "       kindling --headless --tour --frames DIR [--width W --height H]\n"
               "       kindling --headless --autopilot [--frames DIR --frame-every N] [--reveal-frames DIR]\n"
-              "                [--replay PATH] [--playtest-out DIR]");
+              "                [--replay PATH] [--playtest-out DIR]\n"
+              "       kindling --headless --closeups DIR");
 }
 
 // ---- the tour: a scripted visit for screenshots and CI smoke runs

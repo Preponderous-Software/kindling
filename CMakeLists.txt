@@ -79,6 +79,7 @@ add_library(kindling_record STATIC src/record/replay.cpp)
 target_include_directories(kindling_record PUBLIC src)
 target_include_directories(kindling_record SYSTEM PRIVATE third_party)
 target_link_libraries(kindling_record PUBLIC kindling_sim)
+target_compile_definitions(kindling_record PRIVATE KINDLING_VERSION="${PROJECT_VERSION}")
 kindling_warnings(kindling_record)
 
 # Saves: the World as a checksummed file, written atomically, with the previous

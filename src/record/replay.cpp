@@ -143,7 +143,7 @@ bool writeReplay(const World& w, const std::string& path, std::string* error) {
     try {
         usd_recorder::ReplayMeta meta;
         meta.sim = "kindling";
-        meta.sim_version = "0.1.0";
+        meta.sim_version = KINDLING_VERSION;
         meta.seed = std::to_string(w.seed);
         meta.state_hash_algorithm = "export-frame FNV-1a 64 over the reveal keyframe";
         meta.tick_rate = kTickRate;

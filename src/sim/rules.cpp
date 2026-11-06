@@ -204,7 +204,8 @@ void putDownWood(World& w, const Input& in, TickEvents* ev) {
         }
         if (k == Wood::Kindling && !h.kindlingLaid && !h.lit) {
             h.kindlingLaid = true;
-            say(ev, "Kindling laid. Now a split log or two on the andirons.");
+            say(ev, h.logsLaid > 0 ? "Kindling laid. Strike a match (8) and hold it till it catches."
+                                   : "Kindling laid. Now a split log or two on the andirons.");
             done = true;
         } else if (k == Wood::Split && h.lit) {
             h.fuelMinutes += kFuelPerLog;

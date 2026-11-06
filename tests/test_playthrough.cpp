@@ -4,8 +4,12 @@
 // the whole restoration.
 #include <cinttypes>
 #include <cstdio>
+#include <fstream>
+#include <iterator>
+#include <string>
 
 #include "check.h"
+#include "playtest/probe.h"
 #include "record/replay.h"
 #include "sim/autopilot.h"
 #include "sim/brief.h"
@@ -63,6 +67,11 @@ int main(int argc, char** argv) {
     CHECK(writeReplay(w, out, &error));
     if (!error.empty()) std::fprintf(stderr, "replay: %s\n", error.c_str());
     std::printf("wrote %s\n", out.c_str());
+    // It says which build wrote it.
+    std::ifstream written(out);
+    const std::string replay((std::istreambuf_iterator<char>(written)), std::istreambuf_iterator<char>());
+    const std::string version = std::string("simVersion = \"") + playtest::gameVersion() + "\"";
+    CHECK(replay.find(version) != std::string::npos);
 
     const uint64_t pinned = 0x1a0ed8baa6033688ULL;
     std::printf("playthrough fingerprint: %016" PRIx64 "\n", fingerprint(w));
