@@ -105,8 +105,10 @@ The **render bridge** turns game state into Strata calls each frame:
 - The hearth, candles and lanterns are point lights (up to 32; up to 4 cast shadows). The hearth
   flickers with the real clock in the renderer only (`Scene::animate`, `Scene::lights`), so the
   flicker never touches the simulation. Daylight indoors is soft unshadowed fills scaled by the
-  sun's height: one through the door, one under each open section of the roof hole, and one at
-  the window once its boards are off, standing in for bounced light.
+  sun's height, standing in for bounced light: one through the door, two across the room that
+  brighten with each board off the window, one under each open section of the roof hole, and two
+  at the window (one on the floor below it) once a board is off. At night a faint unshadowed
+  moonlight fill keeps the room from going black.
 - Flames and embers are unlit meshes.
 - Creatures are rigid parts with per-mesh transforms, animated procedurally (no skeletons). The
   mare is three: her body, her head and neck (turning toward the player when near, dropping to eat
@@ -145,7 +147,8 @@ machine. It keeps the save core's guarantees:
   replaces a good previous one;
 - the game loads the slot on start (unless `--new`), saves with F5, reloads with F9, autosaves
   every two minutes and on quit. The slot defaults to `%APPDATA%\Kindling\default` on Windows and
-  `~/.local/share/kindling/default` elsewhere (`--slot DIR` overrides).
+  `$XDG_DATA_HOME/kindling/default` (or `~/.local/share/kindling/default`) elsewhere (`--slot DIR`
+  overrides).
 
 - saves a released build wrote are kept in `tests/fixtures/` (`v<format>-*.save`, with how each
   was made in its README); `tests/test_saves.cpp` loads every one and plays on from it, so a
@@ -189,7 +192,8 @@ of play and at every step change, and saved with the game.
    normal renderer from a slow camera drift across the room, about thirty seconds from ruin to Ada
    by the fire.
 2. **Outside the game,** the same keyframes are written as a `usd-replay/1` file with
-   usd-recorder's vendored writer (`third_party/usd_recorder`) when Ada is home, and
+   usd-recorder's vendored writer (`third_party/usd_recorder`) when Ada is home (on the desktop, to
+   `kindling-restoration.usda` in the save slot, or to `--replay PATH`), and
    [usd-web](https://github.com/Preponderous-Software/usd-web) turns it into a small web bundle that
    plays in a browser. The state hash per sample is a hash of the exported frame
    (`export-frame FNV-1a 64`), which the contract allows.
@@ -235,9 +239,10 @@ a time turns by the same amount at any frame rate. A key tapped between two fram
 one tick.
 
 A harness can also drive the game through Strata's drive channel (Strata `docs/DRIVE.md`,
-playtester's `kindling-strata` profile): with `STRATA_DRIVE` set, the window becomes a headless
-surface, input is injected through the engine, and the frame time comes from
-`engine.frameSeconds()`, so a stepped harness gets the same frames on every run. A driven game reads
+playtester's `kindling-strata` profile): with `STRATA_DRIVE` set, input is injected through the
+engine and the frame time comes from `engine.frameSeconds()`. `STRATA_DRIVE_SURFACE=headless` also
+turns the window into a headless surface, and with `STRATA_DRIVE_CLOCK=stepped` a harness gets the
+same frames on every run. A driven game reads
 and writes no save and no replay file (it prints "driven by a test harness" when it starts).
 
 ## Layout
@@ -251,7 +256,7 @@ kindling/
   src/record/     the replay writer for the reveal
   src/playtest/   --playtest-out: state.json and events.jsonl for AI playtesters (no engine)
   app/            the desktop game (main.cpp) and the browser game (web_main.cpp)
-  web/            the browser page's shell and its smoke test
+  web/            the browser page's shell, its loading shell and its smoke test
   content/        prefabs (USD) and people, briefs and words (data; planned)
   tests/          determinism, the rules, the playthrough and its replay, saves and their fixtures
   tools/          the Windows play script, the save-fixture writer
