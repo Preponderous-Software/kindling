@@ -2,8 +2,7 @@ Kindling
 ========
 
 A cozy first-person homestead game: clear, mend and furnish an abandoned
-cabin in the hills, and kindle its hearth before its new settler arrives
-at the first frost.
+cabin in the hills, and kindle its hearth so its new settler can move in.
 
 Play
 ----

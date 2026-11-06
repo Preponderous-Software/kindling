@@ -46,7 +46,8 @@ mouse and F12 does nothing. On a touch screen:
 - tap a tool on the bar along the bottom, then hold **Work** to use it on what the crosshair is on;
 - **Take** picks up or puts down, **Turn** turns what you carry, **Lamp** lights the lantern, and
   **Keys** shows the keyboard controls on the canvas;
-- **Save**, **Replay** (once Ada is home), **New** and **?** (how to play) are along the top.
+- **Save**, **Replay** (once Ada is home), **New** and **?** (how to play) are along the top;
+- **Skip** ends the timelapse while it plays.
 
 ## Building
 
@@ -60,7 +61,7 @@ cd build-web && python3 -m http.server 8000      # open http://localhost:8000/ki
 ```
 
 `-DFETCHCONTENT_SOURCE_DIR_STRATA=<checkout>` builds against a local Strata checkout instead of the
-pinned commit. The page is `kindling.html` + `kindling.js` + `kindling.wasm` (about 1.5 MB); the
+pinned commit. The page is `kindling.html` + `kindling.js` + `kindling.wasm` (about 1.6 MB); the
 page shell, with the touch controls and the IndexedDB mount, is `web/shell.html`.
 
 ## The loading shell
@@ -68,7 +69,7 @@ page shell, with the touch controls and the IndexedDB mount, is `web/shell.html`
 The page loads behind the Strata web kit's loading shell
 (`web/strata-kit/strata-loader.js`, vendored from Strata at the commit in
 `web/strata-kit/PIN`; `web/strata-kit/update.sh <sha>` re-vendors it). It shows
-the trailer's first frame (the one on <https://danielstephenson.dev/play>) as a blurred backdrop and real progress with the size ("0.5 of 1.3 MB"). The loader streams
+the trailer's first frame (the one on <https://danielstephenson.dev/play>) as a blurred backdrop and real progress with the size ("0.5 of 1.4 MB"). The loader streams
 the `.wasm` and hands its bytes to the engine, so nothing downloads twice. If
 Kindling can't run (no WebGL 2, the renderer fails, the engine stops, a lost
 WebGL context does not come back), the shell says why, and plays the trailer instead (the still under `prefers-reduced-motion`).
@@ -90,8 +91,9 @@ in headless Chromium (SwiftShader) with `web/smoke/smoke.cjs`, on a desktop view
 iPhone 13 profile. The smoke test checks that the page starts without errors and shows How to play
 on a first visit, that the canvas draws the cabin, that walking moves the player (W, or the touch
 stick) and looking turns them, that the pointer lock is taken and given back (desktop), that a
-tool can be taken (a number key, or the tool bar), and that a save survives a reload. It uploads
-its screenshots.
+tool can be taken (a number key, or the tool bar), that a save survives a reload, that the loading
+shell finishes, and that without WebGL 2 the shell says why and the engine never downloads. It
+uploads its screenshots.
 
 Headless Chromium fakes mouse movement under the pointer lock (it jumps to the cursor and back),
 so the smoke test looks through the same call the page's mouse handler makes; how the mouse feels

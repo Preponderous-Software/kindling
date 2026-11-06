@@ -14,10 +14,11 @@ out, saw the fallen rafter, shovel out the snow), repair it (pry up rotten board
 planks, patch the roof, pry the boards off the window, mend the rocking chair, set the table right),
 furnish it from the wagon against Ada's brief, and kindle the hearth (split the firewood, shovel
 out the ash, lay the fire and hold a match to it until it catches). The day runs from nine in the
-morning on 11 November into the first frost. Then Ada Lark walks up from her wagon, tells you what she
-thinks of what you made for her, and sits down by the fire, and the whole restoration plays back
-as a timelapse. Your mare waits in her stall to be fed and brushed. The game saves as you go. What
-comes after the MVP is in [CONCEPT.md](CONCEPT.md).
+morning on 11 November, and the first frost settles at eight that evening. Once the fire is burning,
+at whatever hour that is, Ada Lark walks up from her wagon, tells you what she thinks of what you
+made for her, and sits down by the fire, and the whole restoration plays back as a timelapse. Your
+mare waits in her stall to be fed and brushed. The game saves as you go. What comes after the MVP
+is in [CONCEPT.md](CONCEPT.md).
 
 ![The reveal: the cabin from ruin to home, played back from the restoration's own keyframes, from nine in the morning to the hearth lit before noon, with Ada in the rocking chair](docs/images/reveal.gif)
 
@@ -43,7 +44,7 @@ unpack and run `kindling.exe` (Windows) or `./kindling` (Linux). It needs an Ope
 saves in `%APPDATA%\Kindling` or `~/.local/share/kindling`. The game is not signed, so Windows asks before running
 it the first time (**More info**, then **Run anyway**).
 
-**From source:** Kindling builds with CMake and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
+**From source:** Kindling builds with CMake 3.24 or newer and a C++17 compiler. Strata, and the SDL3 it uses, are fetched and
 built along with it (at the commit `KINDLING_STRATA_REF` in `CMakeLists.txt` pins).
 
 ```sh
@@ -75,7 +76,7 @@ simulation and its tests, with no engine.
 | F5 / F9 | save now / reload the last save (it also autosaves every two minutes, and on quit) |
 | F1 | show or hide the help |
 | F12 | screenshot |
-| Esc | free the mouse (Esc again quits) |
+| Esc | free the mouse (Esc again quits); during the timelapse, skip it |
 
 | Sweeping | Unboarded |
 |---|---|
@@ -87,8 +88,10 @@ simulation and its tests, with no engine.
 little, without a window, and writes a screenshot at each stop. `kindling --autopilot` hands the
 controls to an autopilot that plays the whole restoration (add `--speed N` to watch it fast);
 `kindling --headless --autopilot --frames DIR --reveal-frames DIR --replay run.usda` does it
-without a window, writing frames, the reveal and the replay. CI runs both. `--playtest-out DIR`
-writes what the player sees to `DIR/state.json` and `DIR/events.jsonl` for AI playtesting agents
+without a window, writing frames, the reveal and the replay. CI runs both.
+`kindling --headless --closeups DIR` writes close-ups of Ada, the mare, the chair, the table and
+the hearth, with no HUD, for checking the art. `--playtest-out DIR` writes what the player sees to
+`DIR/state.json` and `DIR/events.jsonl` for AI playtesting agents
 ([ARCHITECTURE.md](ARCHITECTURE.md#playtesting-by-agents)).
 
 ## The idea
