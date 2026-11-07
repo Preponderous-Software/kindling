@@ -5,6 +5,7 @@
 #include <string>
 
 #include "check.h"
+#include "sim/progress.h"
 #include "sim/rules.h"
 
 using namespace kindling;
