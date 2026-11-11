@@ -1,0 +1,12 @@
+# Save play-on fingerprints, checked by tests/test_save_playon.cpp (Preponderous RFC 0036).
+#
+#   fixture         the frozen save in this directory (README.md says who wrote it)
+#   driver          autopilot = the game's autopilot plays on; idle = no input, time passes
+#   ticks           how many ticks it plays on for (kTickRate: 30 ticks = 1 s of play)
+#   load            fingerprint of the save as loaded. NEVER re-pin: it is what the player saved.
+#   play-on         fingerprint after the ticks. Re-pin only in a pull request that changes the
+#                   rules on purpose, and say why there; the test prints the new line.
+#
+# fixture         driver     ticks  load              play-on
+v1-repair.save    autopilot  2000   2aa5346ae9869620  23cc60775f865d8f
+v1-done.save      idle       600    eb2bd619a5db582a  44c960eec3efa274
