@@ -35,3 +35,10 @@ g++ -std=c++17 -O2 -ffp-contract=off -Isrc /path/to/tools/save-fixtures/write_fi
 
 The same program built from `main` at `4e30aec` wrote byte-identical files: neither `src/sim/`
 nor `src/save/` changed between 0.1.2 and then.
+
+## Play-on fingerprints
+
+[`playon.expect`](playon.expect) gives, for every fixture, the fingerprint it loads as and the fingerprint
+after a fixed number of ticks under a fixed driver; `tests/test_save_playon.cpp` checks both. The load
+column is what the player saved and is never re-pinned. The play-on column is re-pinned only by a pull
+request that changes the rules on purpose (the test prints the new line). A fixture without a line fails.
