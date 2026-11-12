@@ -99,7 +99,7 @@ kindling_warnings(kindling_playtest)
 
 if(KINDLING_BUILD_TESTS)
   enable_testing()
-  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough saves save_playon playtest math grime settler items)
+  foreach(t movement determinism targets geometry clean repair_furnish kindle playthrough saves save_playon playtest math grime settler items progress)
     add_executable(test_${t} tests/test_${t}.cpp)
     target_link_libraries(test_${t} PRIVATE kindling_sim kindling_geometry kindling_record kindling_save kindling_playtest)
     target_include_directories(test_${t} PRIVATE tests)
