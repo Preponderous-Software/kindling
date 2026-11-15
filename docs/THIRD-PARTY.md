@@ -4,7 +4,9 @@ Kindling is MIT-licensed (see `LICENSE`). The downloadable builds link in the
 Strata engine and, through it, the components below; every licence here is
 permissive. Strata is fetched at the commit `KINDLING_STRATA_REF` in
 `CMakeLists.txt` pins, and the rest of this file is Strata's own licence and
-third-party notices at that commit.
+third-party notices at that commit. Strata's value noise and fBm (`noise.hpp`,
+`noise.cpp`) are also vendored in `third_party/strata_noise` from a later
+Strata commit (that directory's README says which), under the same licence.
 
 ## Strata (MIT)
 

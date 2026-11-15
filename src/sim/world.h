@@ -202,7 +202,8 @@ bool frosted(const World& w);
 bool dusk(const World& w);
 
 // A new game: the ruin as the player finds it, the player in the yard.
-World newWorld(uint64_t seed);
+// `grime` picks the grime's noise (sim/grime.h); only tests pass OneOctave.
+World newWorld(uint64_t seed, GrimeNoise grime = GrimeNoise::Fractal);
 
 // 64-bit FNV-1a over every saved field in a fixed order. Two worlds with the
 // same fingerprint are the same world.
