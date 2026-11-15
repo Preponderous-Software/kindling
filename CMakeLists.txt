@@ -55,8 +55,12 @@ add_library(kindling_sim STATIC
   src/sim/rules.cpp
   src/sim/settler.cpp
   src/sim/target.cpp
-  src/sim/world.cpp)
+  src/sim/world.cpp
+  third_party/strata_noise/src/noise.cpp)
 target_include_directories(kindling_sim PUBLIC src)
+# Strata's value noise and fBm (strata/sim/noise.hpp), vendored unchanged so the
+# simulation stays engine-free; third_party/strata_noise/README.md says from where.
+target_include_directories(kindling_sim PUBLIC third_party/strata_noise/include)
 kindling_warnings(kindling_sim)
 if(MSVC)
   target_compile_options(kindling_sim PRIVATE /fp:precise)

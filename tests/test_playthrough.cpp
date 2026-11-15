@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     const std::string version = std::string("simVersion = \"") + playtest::gameVersion() + "\"";
     CHECK(replay.find(version) != std::string::npos);
 
-    const uint64_t pinned = 0x1a0ed8baa6033688ULL;
+    const uint64_t pinned = 0xdb3c8c1f2766f857ULL;
     std::printf("playthrough fingerprint: %016" PRIx64 "\n", fingerprint(w));
     CHECK(fingerprint(w) == pinned);
     TEST_MAIN_END();

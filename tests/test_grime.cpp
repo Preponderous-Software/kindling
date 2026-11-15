@@ -1,7 +1,9 @@
 // Grime (src/sim/grime.h) on its own: where a point lands on a surface, how a
 // scrub fades from its centre and reports what it changed, how clean a surface
 // or a patch counts as, and the grime the player finds.
+#include <cmath>
 #include <cstddef>
+#include <cstdio>
 #include <initializer_list>
 #include <vector>
 
@@ -221,6 +223,29 @@ int main() {
         // Nothing the player can see starts clean, so the fresh floor is clean only where hidden.
         CHECK(cleanFraction(a, Surface::Floor) > 0.0f && cleanFraction(a, Surface::Floor) < 0.15f);
         CHECK(cleanFraction(a, Surface::RightWall) == 0.0f);
+    }
+
+    // ---- fractal grime: ragged patches, the same amount of dirt
+    {
+        // New games lay grime out with fractal noise (GrimeNoise::Fractal); 0.1.x and
+        // 0.2.x used one octave (GrimeNoise::OneOctave). The layout changes; the work
+        // does not: each surface's mean grime stays within two levels (of 255) of the
+        // one-octave grime's over 16 seeds, so cleaning takes as long as it did.
+        CHECK(newGrime(7).texels != newGrime(7, GrimeNoise::OneOctave).texels);
+        double fractal[kSurfaceCount] = {}, oneOctave[kSurfaceCount] = {};
+        for (uint64_t seed = 1; seed <= 16; ++seed) {
+            const Grime f = newGrime(seed), o = newGrime(seed, GrimeNoise::OneOctave);
+            for (int s = 0; s < kSurfaceCount; ++s) {
+                const auto& ft = f.texels[static_cast<size_t>(s)];
+                const auto& ot = o.texels[static_cast<size_t>(s)];
+                for (uint8_t v : ft) fractal[s] += v / (16.0 * static_cast<double>(ft.size()));
+                for (uint8_t v : ot) oneOctave[s] += v / (16.0 * static_cast<double>(ot.size()));
+            }
+        }
+        for (int s = 0; s < kSurfaceCount; ++s) {
+            std::printf("  surface %d: mean grime %.1f (one octave %.1f)\n", s, fractal[s], oneOctave[s]);
+            CHECK(std::fabs(fractal[s] - oneOctave[s]) < 2.0);
+        }
     }
 
     TEST_MAIN_END();

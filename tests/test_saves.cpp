@@ -26,8 +26,9 @@ std::vector<uint8_t> readAll(const std::string& path) {
 }
 
 // The autopilot's new game (seed 1), played to `ticks`: how the fixtures were made.
+// 0.1.2 laid out grime with one octave of noise; new games now use fractal noise.
 World played(int64_t ticks) {
-    World w = newWorld(1);
+    World w = newWorld(1, GrimeNoise::OneOctave);
     Autopilot pilot;
     while (w.tick < ticks) tick(w, pilot.next(w));
     return w;

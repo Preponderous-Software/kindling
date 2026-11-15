@@ -43,9 +43,16 @@ struct TexelRect {
     void add(int i, int j);
 };
 
+// Which noise lays out a new game's grime. Fractal (the default) sums octaves
+// of Strata's value noise, so patches and drift edges are ragged; OneOctave is
+// the single octave new games had in 0.1.0 to 0.2.x, kept so a test can replay
+// those versions' saves from a new game. A save holds its grime, so loading
+// one never runs either.
+enum class GrimeNoise : int32_t { OneOctave = 0, Fractal = 1 };
+
 // Grime as the player finds it: heavy on the floor (with drifts of dead leaves
 // in the corners and under the window), soot round the firebox, dust on the walls.
-Grime newGrime(uint64_t seed);
+Grime newGrime(uint64_t seed, GrimeNoise kind = GrimeNoise::Fractal);
 
 // Cleans a disc of radius `radius` metres around `p` by up to `strength` grime
 // per texel (full strength at the centre, fading to nothing at the edge).

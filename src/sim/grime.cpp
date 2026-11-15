@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include "sim/layout.h"
 #include "sim/rng.h"
+#include "strata/sim/noise.hpp"
 
 namespace kindling {
 
@@ -35,9 +37,28 @@ const std::array<SurfaceDef, kSurfaceCount>& defs() {
     return d;
 }
 
-// Smooth value noise in [0, 1] from a small random lattice, for drifts and patches.
-struct Noise {
-    explicit Noise(Rng& rng) {
+// Patches and drifts come from Strata's fractal noise (third_party/strata_noise,
+// strata/sim/noise.hpp). One octave of value noise, as before, gives grime
+// whose patches and drift edges are smooth, round blobs; summing octaves down
+// to the texel makes them ragged, like dust and leaves really lie. noise.hpp's
+// measured table: gain sets an edge's roughness once the octaves reach the
+// finest scale that can show, and gain 0.65 gives an edge of fractal
+// dimension about 1.2. Here the first layer is about 1.5 m across and the
+// fifth about a texel (12 texels a metre on the floor, 8 on the walls).
+constexpr float kGrimeGain = 0.65f;
+// kPatchScale gives the patches the spread the one-octave noise had (standard
+// deviation 0.19 about 0.5); kEdgeRag moves the drifts' inner edge and the
+// pile under the window by up to about half a metre (fBm's standard deviation
+// here is 0.22, so 0.22 m typically).
+constexpr float kPatchScale = 0.85f, kEdgeRag = 1.0f;
+
+// The one-octave noise new games had before (0.1.0 to 0.2.x): a 16 x 16 lattice
+// of random values, blended bilinearly. Kept so GrimeNoise::OneOctave still
+// gives exactly the grime those versions started with (tests/test_saves.cpp
+// replays their fixtures from a new game). Saves hold the grime itself, so no
+// save depends on either generator.
+struct OneOctave {
+    explicit OneOctave(Rng& rng) {
         for (float& v : lattice) v = rng.uniform(0, 1);
     }
     float at(float x, float y) const {
@@ -50,6 +71,18 @@ struct Noise {
         return a + (b - a) * ty;
     }
     float lattice[256];
+};
+
+struct Fractal {
+    explicit Fractal(uint32_t seed, int octaves = 5) {
+        params.octaves = octaves;
+        params.gain = kGrimeGain;
+        params.frequency = 0.5f;
+        params.seed = seed;
+    }
+    // fBm in [-1, 1]; with these parameters, mean 0 and standard deviation 0.22.
+    float at(float x, float y) const { return strata::sim::fbm(x, y, params); }
+    strata::sim::FbmParams params;
 };
 
 }  // namespace
@@ -85,10 +118,16 @@ void TexelRect::add(int i, int j) {
     h = y1 - y;
 }
 
-Grime newGrime(uint64_t seed) {
+Grime newGrime(uint64_t seed, GrimeNoise kind) {
     Grime g;
     Rng rng(seed ^ 0x9e3779b97f4a7c15ULL);
-    const Noise noise(rng);
+    const bool fractal = kind == GrimeNoise::Fractal;
+    // The one-octave lattice draws first, as it always did, so OneOctave's
+    // random sequence is unchanged; Fractal draws two seeds instead.
+    std::unique_ptr<OneOctave> oneOctave;
+    if (!fractal) oneOctave = std::make_unique<OneOctave>(rng);
+    const uint32_t patchSeed = fractal ? rng.next() : 0u, edgeSeed = fractal ? rng.next() : 0u;
+    const Fractal patches(patchSeed), edges(edgeSeed);
     for (int s = 0; s < kSurfaceCount; ++s) {
         const SurfaceDef& d = defs()[static_cast<size_t>(s)];
         std::vector<uint8_t>& t = g.texels[static_cast<size_t>(s)];
@@ -97,15 +136,19 @@ Grime newGrime(uint64_t seed) {
             for (int i = 0; i < d.width; ++i) {
                 const Vec3 p = d.origin + d.u * ((i + 0.5f) / d.width * d.uLength) +
                                d.v * ((j + 0.5f) / d.height * d.vLength);
-                const float n = noise.at(p.x * 1.3f + p.y * 0.7f, p.z * 1.3f + p.y * 0.9f);
+                const float px = p.x * 1.3f + p.y * 0.7f, pz = p.z * 1.3f + p.y * 0.9f;
+                const float n = fractal ? 0.5f + kPatchScale * patches.at(px, pz) : oneOctave->at(px, pz);
                 float grime;
                 if (s == static_cast<int>(Surface::Floor)) {
                     // Leaves drift into the corners and pile under the window.
+                    // The drifts' inner edge and the pile under the window are ragged too.
+                    const float rag = fractal ? kEdgeRag * edges.at(px, pz) : 0.0f;
                     const float edge = std::min({p.x - L::kInnerX0, L::kInnerX1 - p.x, p.z - L::kInnerZ0,
-                                                 L::kInnerZ1 - p.z});
-                    const float drift = std::max(0.0f, 1.0f - edge / 1.2f);
-                    const float underWindow = (p.x < L::kInnerX0 + 1.0f && p.z > L::kWindowZ0 - 0.6f &&
-                                               p.z < L::kWindowZ1 + 0.6f) ? 0.4f : 0.0f;
+                                                 L::kInnerZ1 - p.z}) + rag;
+                    const float drift = std::clamp(1.0f - edge / 1.2f, 0.0f, 1.0f);
+                    const float outside = std::max({p.x - (L::kInnerX0 + 1.0f), (L::kWindowZ0 - 0.6f) - p.z,
+                                                    p.z - (L::kWindowZ1 + 0.6f)});
+                    const float underWindow = (fractal ? outside + rag < 0.0f : outside < 0.0f) ? 0.4f : 0.0f;
                     grime = 170 + 60 * n + 40 * drift + 60 * underWindow + rng.uniform(-12, 12);
                 } else if (s == static_cast<int>(Surface::HearthFace)) {
                     // Soot fans up from the firebox opening.

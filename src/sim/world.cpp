@@ -9,7 +9,7 @@
 
 namespace kindling {
 
-World newWorld(uint64_t seed) {
+World newWorld(uint64_t seed, GrimeNoise grime) {
     World w;
     w.seed = seed;
     w.player.x = layout::kSpawn.x;
@@ -46,7 +46,7 @@ World newWorld(uint64_t seed) {
 
     w.planks.fill(PlankState::Rotten);
     w.windowBoards.fill(1);
-    w.grime = newGrime(seed);
+    w.grime = newGrime(seed, grime);
     w.items = newItems();
     w.history.push_back(snapshot(w));
     return w;
