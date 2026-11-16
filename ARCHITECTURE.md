@@ -60,10 +60,13 @@ The simulation is a deterministic, fixed-step model of the world, independent of
 - **State fingerprint.** `strata::sim::StateHasher` (FNV-1a 64) over every saved field. It is
   the determinism check in tests and the state hash in replays.
 
-As implemented, the MVP's simulation does not use `strata::sim`. The play session (`src/play/session.cpp`) turns elapsed time
+As implemented, the MVP's simulation does not link `strata::sim`. The play session (`src/play/session.cpp`) turns elapsed time
 into 30 ticks a second itself; `src/sim/rng.h` is Kindling's own PCG32, used only while building a
 new world; the World is one struct with fixed fields (`src/sim/world.h`); and `fingerprint` in
-`src/sim/world.cpp` is Kindling's own FNV-1a 64 over every saved field.
+`src/sim/world.cpp` is Kindling's own FNV-1a 64 over every saved field. The one piece of
+`strata::sim` it uses is the value noise and fBm that lay out a new game's grime, copied unchanged
+into `third_party/strata_noise` ([its README](third_party/strata_noise/README.md) says from which
+commit and why it is vendored rather than linked).
 
 ### Restoration model
 
@@ -260,7 +263,7 @@ kindling/
   content/        prefabs (USD) and people, briefs and words (data; planned)
   tests/          determinism, the rules, the playthrough and its replay, saves and their fixtures
   tools/          the Windows play script, the save-fixture writer
-  third_party/    usd-recorder's vendored replay writer
+  third_party/    usd-recorder's vendored replay writer, Strata's vendored noise
   prototypes/     the M0 prototypes
   docs/           images, playtest notes, the browser build, releasing, third-party notices
 ```

@@ -140,7 +140,9 @@ images.
 - [Strata](https://github.com/Preponderous-Software/strata): rendering, the window and input,
   texture updates and mesh picking. The MVP does not use its checksummed saves (`modules/save`),
   OpenUSD (`modules/usd`) or deterministic simulation pieces (`strata::sim`): Kindling has its own
-  save file and simulation core (see [ARCHITECTURE.md](ARCHITECTURE.md#saves)).
+  save file and simulation core (see [ARCHITECTURE.md](ARCHITECTURE.md#saves)). The exception is
+  `strata::sim`'s value noise and fBm, which lay out a new game's grime; they are vendored in
+  [`third_party/strata_noise`](third_party/strata_noise/README.md) rather than linked.
 - [usd-recorder](https://github.com/Preponderous-Software/usd-recorder): its C++ replay writer
   turns a finished restoration into a replay file on the desktop. The reveal in the game plays from
   keyframes in the save, not from that file.
