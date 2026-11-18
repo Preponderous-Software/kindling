@@ -94,6 +94,38 @@ int main() {
         CHECK(std::fabs((b.player.z - 12) - L::kSprintSpeed) < 0.05f);
     }
 
+    // moveCircle on its own: one long move is taken in small steps, so it stops
+    // at the back wall instead of passing through it.
+    {
+        float x = 3.0f, z = 1.0f;
+        moveCircle(x, z, 0, -10.0f, L::kPlayerRadius);
+        CHECK(std::fabs(z - (L::kInnerZ0 + L::kPlayerRadius)) < 0.01f);
+        CHECK(std::fabs(x - 3.0f) < 0.001f);
+    }
+
+    // It keeps the circle inside the yard's bounds, a radius in from each edge.
+    {
+        float x = 0.0f, z = 15.0f;
+        moveCircle(x, z, 0, 20.0f, L::kPlayerRadius);
+        CHECK(std::fabs(z - (L::kYardZ1 - L::kPlayerRadius)) < 0.001f);
+        moveCircle(x, z, -40.0f, 0, L::kPlayerRadius);
+        CHECK(std::fabs(x - (L::kYardX0 + L::kPlayerRadius)) < 0.001f);
+    }
+
+    // No move in the open yard leaves the circle where it was, and a move
+    // through the middle of the doorway is not caught on its frame.
+    {
+        float x = 0.0f, z = 15.0f;
+        moveCircle(x, z, 0, 0, L::kPlayerRadius);
+        CHECK(x == 0.0f && z == 15.0f);
+
+        x = (L::kDoorX0 + L::kDoorX1) / 2;
+        z = 6.0f;
+        moveCircle(x, z, 0, -3.0f, L::kPlayerRadius);
+        CHECK(std::fabs(z - 3.0f) < 0.001f);
+        CHECK(L::kInterior.contains(x, z));
+    }
+
     // Pitch is clamped short of straight up and down.
     {
         World w = newWorld(1);
