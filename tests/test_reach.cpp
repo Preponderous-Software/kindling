@@ -29,7 +29,7 @@ int main() {
         CHECK(reachFor(TargetKind::Floor) == L::kReach);
         CHECK(reachFor(TargetKind::Item) == L::kReach);
         CHECK(reachFor(TargetKind::None) == L::kReach);
-        CHECK(L::kDebrisReach > L::kReach);
+        CHECK(reachFor(TargetKind::Debris) > reachFor(TargetKind::Floor));
     }
 
     // ---- inReach: nothing aimed at is never in reach; the reach is inclusive
