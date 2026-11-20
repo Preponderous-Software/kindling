@@ -120,7 +120,7 @@ if(KINDLING_BUILD_TESTS)
 endif()
 
 # ---------------------------------------------------------------- the game on Strata
-# Strata is fetched at KINDLING_STRATA_REF (the v0.7.0 tag), or taken from a local checkout with
+# Strata is fetched at KINDLING_STRATA_REF (the v0.8.0 tag), or taken from a local checkout with
 # -DFETCHCONTENT_SOURCE_DIR_STRATA=<path>. The desktop game (KINDLING_WITH_STRATA)
 # and the browser game (KINDLING_WEB) share everything but their main().
 if(KINDLING_WITH_STRATA OR KINDLING_WEB)
